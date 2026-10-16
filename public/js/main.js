@@ -132,206 +132,331 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ── 6. Client-Side Real-Time Form Validation Engine ──────────
   const form = document.getElementById('registrationForm');
-  if (!form) return;
-
-  const fields = {
-    name: {
-      el: document.getElementById('name'),
-      err: document.getElementById('nameError'),
-      validate(val) {
-        if (!val || val.trim().length === 0) return 'Full name is required.';
-        if (val.trim().length < 2) return 'Name must be at least 2 characters.';
-        if (val.trim().length > 100) return 'Name must be 100 characters or fewer.';
-        if (!/^[a-zA-Z\s'-]+$/.test(val.trim())) {
-          return 'Name can only contain letters, spaces, hyphens, and apostrophes.';
-        }
-        return '';
-      }
-    },
-    email: {
-      el: document.getElementById('email'),
-      err: document.getElementById('emailError'),
-      validate(val) {
-        if (!val || val.trim().length === 0) return 'Email address is required.';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())) {
-          return 'Please enter a valid email address.';
-        }
-        if (val.trim().length > 254) return 'Email address is too long.';
-        return '';
-      }
-    },
-    dob: {
-      el: document.getElementById('dob'),
-      err: document.getElementById('dobError'),
-      validate(val) {
-        if (!val || val.trim().length === 0) return 'Date of birth is required.';
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(val.trim())) return 'Date of birth must be YYYY-MM-DD.';
-        const birthDate = new Date(val.trim());
-        const today = new Date();
-        if (isNaN(birthDate.getTime())) return 'Please enter a valid date.';
-        if (birthDate > today) return 'Date of birth cannot be in the future.';
-        const age = calculateCompletedAge(val.trim());
-        if (age < 16) return 'Student must be at least 16 years old to register.';
-        if (age > 100) return 'Please enter a realistic date of birth.';
-        return '';
-      }
-    },
-    gender: {
-      el: null, // multiple radios
-      err: document.getElementById('genderError'),
-      validate() {
-        const checked = form.querySelector('input[name="gender"]:checked');
-        if (!checked) return 'Please select your gender.';
-        return '';
-      }
-    },
-    course: {
-      el: document.getElementById('course'),
-      err: document.getElementById('courseError'),
-      validate(val) {
-        if (!val || val.trim().length === 0) return 'Please select a course.';
-        return '';
-      }
-    },
-    year: {
-      el: document.getElementById('year'),
-      err: document.getElementById('yearError'),
-      validate(val) {
-        if (!val || val.trim().length === 0) return 'Please select your year of study.';
-        return '';
-      }
-    },
-    phone: {
-      el: document.getElementById('phone'),
-      err: document.getElementById('phoneError'),
-      validate(val) {
-        if (!val || val.trim().length === 0) return 'Phone number is required.';
-        const digits = val.replace(/[\s\-()+]/g, '');
-        if (!/^\d+$/.test(digits)) return 'Phone can only contain digits, spaces, dashes, and parentheses.';
-        if (digits.length < 7 || digits.length > 15) return 'Phone number must be between 7 and 15 digits.';
-        return '';
-      }
-    },
-    linkedin: {
-      el: document.getElementById('linkedin'),
-      err: document.getElementById('linkedinError'),
-      validate(val) {
-        if (!val || val.trim().length === 0) return ''; // optional
-        const trimmed = val.trim();
-        if (trimmed.length > 200) return 'LinkedIn URL must be 200 characters or fewer.';
-        try {
-          const parsed = new URL(trimmed);
-          if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-            return 'LinkedIn URL must start with http:// or https://';
+  if (form) {
+    const fields = {
+      name: {
+        el: document.getElementById('name'),
+        err: document.getElementById('nameError'),
+        validate(val) {
+          if (!val || val.trim().length === 0) return 'Full name is required.';
+          if (val.trim().length < 2) return 'Name must be at least 2 characters.';
+          if (val.trim().length > 100) return 'Name must be 100 characters or fewer.';
+          if (!/^[a-zA-Z\s'-]+$/.test(val.trim())) {
+            return 'Name can only contain letters, spaces, hyphens, and apostrophes.';
           }
-          if (!parsed.hostname.includes('linkedin.com')) {
-            return 'URL must contain linkedin.com';
-          }
-        } catch {
-          return 'Please enter a valid URL (e.g. https://linkedin.com/in/username).';
+          return '';
         }
-        return '';
+      },
+      email: {
+        el: document.getElementById('email'),
+        err: document.getElementById('emailError'),
+        validate(val) {
+          if (!val || val.trim().length === 0) return 'Email address is required.';
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())) {
+            return 'Please enter a valid email address.';
+          }
+          if (val.trim().length > 254) return 'Email address is too long.';
+          return '';
+        }
+      },
+      dob: {
+        el: document.getElementById('dob'),
+        err: document.getElementById('dobError'),
+        validate(val) {
+          if (!val || val.trim().length === 0) return 'Date of birth is required.';
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(val.trim())) return 'Date of birth must be YYYY-MM-DD.';
+          const birthDate = new Date(val.trim());
+          const today = new Date();
+          if (isNaN(birthDate.getTime())) return 'Please enter a valid date.';
+          if (birthDate > today) return 'Date of birth cannot be in the future.';
+          const age = calculateCompletedAge(val.trim());
+          if (age < 16) return 'Student must be at least 16 years old to register.';
+          if (age > 100) return 'Please enter a realistic date of birth.';
+          return '';
+        }
+      },
+      gender: {
+        el: null, // multiple radios
+        err: document.getElementById('genderError'),
+        validate() {
+          const checked = form.querySelector('input[name="gender"]:checked');
+          if (!checked) return 'Please select your gender.';
+          return '';
+        }
+      },
+      course: {
+        el: document.getElementById('course'),
+        err: document.getElementById('courseError'),
+        validate(val) {
+          if (!val || val.trim().length === 0) return 'Please select a course.';
+          return '';
+        }
+      },
+      year: {
+        el: document.getElementById('year'),
+        err: document.getElementById('yearError'),
+        validate(val) {
+          if (!val || val.trim().length === 0) return 'Please select your year of study.';
+          return '';
+        }
+      },
+      phone: {
+        el: document.getElementById('phone'),
+        err: document.getElementById('phoneError'),
+        validate(val) {
+          if (!val || val.trim().length === 0) return 'Phone number is required.';
+          const digits = val.replace(/[\s\-()+]/g, '');
+          if (!/^\d+$/.test(digits)) return 'Phone can only contain digits, spaces, dashes, and parentheses.';
+          if (digits.length < 7 || digits.length > 15) return 'Phone number must be between 7 and 15 digits.';
+          return '';
+        }
+      },
+      linkedin: {
+        el: document.getElementById('linkedin'),
+        err: document.getElementById('linkedinError'),
+        validate(val) {
+          if (!val || val.trim().length === 0) return ''; // optional
+          const trimmed = val.trim();
+          if (trimmed.length > 200) return 'LinkedIn URL must be 200 characters or fewer.';
+          try {
+            const parsed = new URL(trimmed);
+            if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+              return 'LinkedIn URL must start with http:// or https://';
+            }
+            if (!parsed.hostname.includes('linkedin.com')) {
+              return 'URL must contain linkedin.com';
+            }
+          } catch {
+            return 'Please enter a valid URL (e.g. https://linkedin.com/in/username).';
+          }
+          return '';
+        }
+      },
+      message: {
+        el: document.getElementById('message'),
+        err: document.getElementById('messageError'),
+        validate(val) {
+          if (val && val.trim().length > 500) return 'Message must be 500 characters or fewer.';
+          return '';
+        }
       }
-    },
-    message: {
-      el: document.getElementById('message'),
-      err: document.getElementById('messageError'),
-      validate(val) {
-        if (val && val.trim().length > 500) return 'Message must be 500 characters or fewer.';
-        return '';
-      }
-    }
-  };
+    };
 
-  /**
-   * Validate a single field by key and update UI
-   * @param {string} key
-   * @returns {boolean} isValid
-   */
-  function validateField(key) {
-    const config = fields[key];
-    if (!config) return true;
+    /**
+     * Validate a single field by key and update UI
+     * @param {string} key
+     * @returns {boolean} isValid
+     */
+    function validateField(key) {
+      const config = fields[key];
+      if (!config) return true;
 
-    const val = config.el ? config.el.value : '';
-    const errorMsg = config.validate(val);
+      const val = config.el ? config.el.value : '';
+      const errorMsg = config.validate(val);
 
-    if (errorMsg) {
-      // Mark invalid
-      if (config.el) {
-        config.el.classList.add('is-invalid');
-        config.el.classList.remove('is-valid');
-      }
-      if (config.err) {
-        config.err.textContent = errorMsg;
-        config.err.classList.remove('d-none');
-      }
-      return false;
-    } else {
-      // Mark valid
-      if (config.el) {
-        config.el.classList.remove('is-invalid');
-        // Only mark is-valid if value is present or field is required
-        if (val.trim().length > 0) {
-          config.el.classList.add('is-valid');
-        } else {
+      if (errorMsg) {
+        if (config.el) {
+          config.el.classList.add('is-invalid');
           config.el.classList.remove('is-valid');
         }
-      }
-      if (config.err) {
-        config.err.textContent = '';
-        config.err.classList.add('d-none');
-      }
-      return true;
-    }
-  }
-
-  // Attach real-time listeners (blur & input)
-  Object.keys(fields).forEach(key => {
-    const config = fields[key];
-    if (config.el) {
-      config.el.addEventListener('blur', function () {
-        validateField(key);
-      });
-      config.el.addEventListener('input', function () {
-        // If field already has an invalid state, give real-time recovery feedback
-        if (config.el.classList.contains('is-invalid')) {
-          validateField(key);
+        if (config.err) {
+          config.err.textContent = errorMsg;
+          config.err.classList.remove('d-none');
         }
-      });
-      config.el.addEventListener('change', function () {
-        validateField(key);
-      });
+        return false;
+      } else {
+        if (config.el) {
+          config.el.classList.remove('is-invalid');
+          if (val.trim().length > 0) {
+            config.el.classList.add('is-valid');
+          } else {
+            config.el.classList.remove('is-valid');
+          }
+        }
+        if (config.err) {
+          config.err.textContent = '';
+          config.err.classList.add('d-none');
+        }
+        return true;
+      }
     }
-  });
 
-  // ── 7. Form Submission Guard & Accessibility Focus ───────────
-  form.addEventListener('submit', function (event) {
-    let formIsValid = true;
-    let firstInvalidEl = null;
-
+    // Attach real-time listeners (blur & input)
     Object.keys(fields).forEach(key => {
-      const isValid = validateField(key);
-      if (!isValid) {
-        formIsValid = false;
-        if (!firstInvalidEl) {
-          firstInvalidEl = fields[key].el || document.getElementById(`field-${key}`);
-        }
+      const config = fields[key];
+      if (config.el) {
+        config.el.addEventListener('blur', function () {
+          validateField(key);
+        });
+        config.el.addEventListener('input', function () {
+          if (config.el.classList.contains('is-invalid')) {
+            validateField(key);
+          }
+        });
+        config.el.addEventListener('change', function () {
+          validateField(key);
+        });
       }
     });
 
-    if (!formIsValid) {
-      event.preventDefault();
-      event.stopPropagation();
+    // Form Submission Guard & Accessibility Focus
+    form.addEventListener('submit', function (event) {
+      let formIsValid = true;
+      let firstInvalidEl = null;
 
-      // Focus the first invalid element for keyboard accessibility
-      if (firstInvalidEl) {
-        firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        if (typeof firstInvalidEl.focus === 'function') {
-          firstInvalidEl.focus();
+      Object.keys(fields).forEach(key => {
+        const isValid = validateField(key);
+        if (!isValid) {
+          formIsValid = false;
+          if (!firstInvalidEl) {
+            firstInvalidEl = fields[key].el || document.getElementById(`field-${key}`);
+          }
+        }
+      });
+
+      if (!formIsValid) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (firstInvalidEl) {
+          firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (typeof firstInvalidEl.focus === 'function') {
+            firstInvalidEl.focus();
+          }
         }
       }
+    });
+  }
+
+  // ── 8. Task 3: Interactive Real-Time Search & Course/Year Filtering ─
+  const searchInput     = document.getElementById('studentSearchInput');
+  const courseFilter    = document.getElementById('courseFilterSelect');
+  const yearFilter      = document.getElementById('yearFilterSelect');
+  const clearSearchBtn  = document.getElementById('clearSearchBtn');
+  const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+  const quickTags       = document.querySelectorAll('.cp-quick-tag');
+  const counterEl       = document.getElementById('studentResultsCounter');
+  const noResultsBox    = document.getElementById('noFilterResults');
+  const studentCards    = document.querySelectorAll('.cp-student-col');
+
+  if (studentCards.length > 0) {
+    const totalCount = studentCards.length;
+
+    function applyFilters() {
+      const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+      const selectedCourse = courseFilter ? courseFilter.value : 'All';
+      const selectedYear   = yearFilter ? yearFilter.value : 'All';
+
+      let visibleCount = 0;
+
+      studentCards.forEach(col => {
+        const name   = col.getAttribute('data-name') || '';
+        const email  = col.getAttribute('data-email') || '';
+        const phone  = col.getAttribute('data-phone') || '';
+        const course = col.getAttribute('data-course') || '';
+        const year   = col.getAttribute('data-year') || '';
+
+        const matchesQuery = !q ||
+          name.includes(q) ||
+          email.includes(q) ||
+          phone.includes(q) ||
+          course.toLowerCase().includes(q);
+
+        const matchesCourse = selectedCourse === 'All' || course === selectedCourse;
+        const matchesYear   = selectedYear === 'All' || year === selectedYear;
+
+        if (matchesQuery && matchesCourse && matchesYear) {
+          col.classList.remove('d-none');
+          col.style.opacity = '1';
+          visibleCount++;
+        } else {
+          col.classList.add('d-none');
+        }
+      });
+
+      // Update counter
+      if (counterEl) {
+        counterEl.textContent = `Showing ${visibleCount} of ${totalCount} registered student${totalCount !== 1 ? 's' : ''}.`;
+      }
+
+      // Toggle no results state
+      if (noResultsBox) {
+        if (visibleCount === 0) {
+          noResultsBox.classList.remove('d-none');
+        } else {
+          noResultsBox.classList.add('d-none');
+        }
+      }
+
+      // Sync quick tags
+      quickTags.forEach(tag => {
+        if (tag.getAttribute('data-course') === selectedCourse) {
+          tag.classList.add('active');
+        } else {
+          tag.classList.remove('active');
+        }
+      });
     }
-  });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilters);
+    }
+
+    if (courseFilter) {
+      courseFilter.addEventListener('change', applyFilters);
+    }
+
+    if (yearFilter) {
+      yearFilter.addEventListener('change', applyFilters);
+    }
+
+    if (clearSearchBtn && searchInput) {
+      clearSearchBtn.addEventListener('click', function () {
+        searchInput.value = '';
+        searchInput.focus();
+        applyFilters();
+      });
+    }
+
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener('click', function () {
+        if (searchInput) searchInput.value = '';
+        if (courseFilter) courseFilter.value = 'All';
+        if (yearFilter) yearFilter.value = 'All';
+        applyFilters();
+      });
+    }
+
+    quickTags.forEach(tag => {
+      tag.addEventListener('click', function () {
+        const course = tag.getAttribute('data-course');
+        if (courseFilter) {
+          courseFilter.value = course;
+          applyFilters();
+        }
+      });
+    });
+  }
+
+  // ── 9. Task 3: Floating Back-to-Top Button ────────────────────
+  const backToTopBtn = document.getElementById('backToTopBtn');
+  if (backToTopBtn) {
+    window.addEventListener('scroll', function () {
+      if (window.scrollY > 300) {
+        backToTopBtn.classList.add('visible');
+      } else {
+        backToTopBtn.classList.remove('visible');
+      }
+    }, { passive: true });
+
+    backToTopBtn.addEventListener('click', function () {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
 
 });
+
 

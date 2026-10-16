@@ -88,10 +88,37 @@ exports.postRegister = (req, res) => {
 // GET /students
 // ─────────────────────────────────────────────────────────────────
 exports.listStudents = (req, res) => {
+  const query        = (req.query.q || '').trim().toLowerCase();
+  const courseFilter = (req.query.course || '').trim();
+  const yearFilter   = (req.query.year || '').trim();
+
+  let filtered = students.slice().reverse(); // newest first
+
+  if (query) {
+    filtered = filtered.filter(s =>
+      s.name.toLowerCase().includes(query) ||
+      s.email.toLowerCase().includes(query) ||
+      (s.phone && s.phone.includes(query)) ||
+      (s.course && s.course.toLowerCase().includes(query))
+    );
+  }
+
+  if (courseFilter && courseFilter !== 'All') {
+    filtered = filtered.filter(s => s.course === courseFilter);
+  }
+
+  if (yearFilter && yearFilter !== 'All') {
+    filtered = filtered.filter(s => s.year === yearFilter);
+  }
+
   res.render('pages/students-list', {
-    title:    'Registered Students',
-    students: students.slice().reverse(), // newest first
-    flash:    null,
+    title:          'Registered Students',
+    students:       filtered,
+    totalCount:     students.length,
+    searchQuery:    req.query.q || '',
+    selectedCourse: courseFilter || 'All',
+    selectedYear:   yearFilter || 'All',
+    flash:          null,
   });
 };
 

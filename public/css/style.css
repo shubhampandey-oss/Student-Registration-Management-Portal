@@ -777,9 +777,112 @@ img { max-width: 100%; height: auto; }
   font-weight: 500;
 }
 
+/* ── Task 3: Accessibility Skip Link ─────────────────────────── */
+.cp-skip-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  background: var(--cp-primary);
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--cp-radius-sm);
+  font-weight: 600;
+  z-index: 9999;
+  transition: top 0.2s ease;
+  text-decoration: none;
+}
+
+.cp-skip-link:focus {
+  top: 1rem;
+  color: #fff;
+  outline: 3px solid #fff;
+}
+
+/* ── Task 3: Back to Top Floating Button ─────────────────────── */
+.cp-back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  z-index: 1050;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(108, 71, 255, 0.4);
+}
+
+.cp-back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.cp-back-to-top:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 22px rgba(108, 71, 255, 0.6);
+}
+
+/* ── Task 3: Quick Filter Tag Buttons ────────────────────────── */
+.cp-quick-tag {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: var(--cp-transition);
+}
+
+.cp-quick-tag:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cp-quick-tag.active {
+  background: var(--cp-primary);
+  border-color: var(--cp-primary);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(108, 71, 255, 0.4);
+}
+
+/* ── Task 3: Card Hover Elevation & Smooth Transitions ───────── */
+.cp-student-card {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s ease;
+}
+
+.cp-student-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(108, 71, 255, 0.4) !important;
+  box-shadow: 0 10px 30px rgba(108, 71, 255, 0.2) !important;
+}
+
+.cp-student-col {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
 /* ── Responsive tweaks ───────────────────────────────────────── */
 @media (max-width: 768px) {
   .cp-hero { min-height: auto; padding: 3rem 0; }
   .cp-profile-header { flex-direction: column; text-align: center; }
+  .cp-back-to-top { bottom: 1.25rem; right: 1.25rem; width: 40px; height: 40px; }
+  .cp-navbar .nav-link { padding: 0.6rem 0.8rem; }
 }
+
+@media (max-width: 576px) {
+  .cp-page-title { font-size: 1.75rem; }
+  .cp-form-card { padding: 1.25rem !important; }
+}
+
 

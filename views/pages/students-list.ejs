@@ -8,8 +8,8 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
       <div>
         <h1 class="cp-page-title mb-1">Registered Students</h1>
-        <p class="text-muted mb-0">
-          <%= students.length %> student<%= students.length !== 1 ? 's' : '' %> registered so far.
+        <p class="text-muted mb-0" id="studentResultsCounter">
+          Showing <%= students.length %> of <%= typeof totalCount !== 'undefined' ? totalCount : students.length %> registered student<%= (typeof totalCount !== 'undefined' ? totalCount : students.length) !== 1 ? 's' : '' %>.
         </p>
       </div>
       <a href="/students/register" class="btn cp-btn-primary" id="addStudentBtn">
@@ -19,8 +19,92 @@
 
     <%- include('../partials/flash') %>
 
-    <!-- ── Empty state ─────────────────────────────────────── -->
-    <% if (students.length === 0) { %>
+    <!-- ── Filter & Search Toolbar (Task 3) ─────────────────── -->
+    <% if ((typeof totalCount !== 'undefined' ? totalCount : students.length) > 0) { %>
+      <div class="cp-filter-toolbar mb-4 p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50">
+        <div class="row g-3 align-items-center">
+
+          <!-- Search Input -->
+          <div class="col-lg-5 col-md-6">
+            <div class="input-group">
+              <span class="input-group-text cp-input-icon">
+                <i class="bi bi-search"></i>
+              </span>
+              <input
+                type="search"
+                id="studentSearchInput"
+                class="form-control cp-input"
+                placeholder="Search by name, email, course..."
+                value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+                aria-label="Search registered students"
+              />
+              <button class="btn btn-outline-secondary border-0" type="button" id="clearSearchBtn" title="Clear search">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Course Filter Dropdown -->
+          <div class="col-lg-4 col-md-3 col-sm-6">
+            <div class="input-group">
+              <span class="input-group-text cp-input-icon">
+                <i class="bi bi-funnel"></i>
+              </span>
+              <select id="courseFilterSelect" class="form-select cp-input" aria-label="Filter by course">
+                <option value="All" <%= (typeof selectedCourse === 'undefined' || selectedCourse === 'All') ? 'selected' : '' %>>All Courses</option>
+                <% [
+                  'Computer Science',
+                  'Information Technology',
+                  'Data Science',
+                  'Artificial Intelligence',
+                  'Cybersecurity',
+                  'Software Engineering',
+                  'Web Development',
+                  'Other'
+                ].forEach(c => { %>
+                  <option value="<%= c %>" <%= (typeof selectedCourse !== 'undefined' && selectedCourse === c) ? 'selected' : '' %>><%= c %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+
+          <!-- Year Filter Dropdown -->
+          <div class="col-lg-3 col-md-3 col-sm-6">
+            <div class="input-group">
+              <span class="input-group-text cp-input-icon">
+                <i class="bi bi-calendar3"></i>
+              </span>
+              <select id="yearFilterSelect" class="form-select cp-input" aria-label="Filter by year">
+                <option value="All" <%= (typeof selectedYear === 'undefined' || selectedYear === 'All') ? 'selected' : '' %>>All Years</option>
+                <% [
+                  '1st Year',
+                  '2nd Year',
+                  '3rd Year',
+                  '4th Year',
+                  'Postgraduate'
+                ].forEach(y => { %>
+                  <option value="<%= y %>" <%= (typeof selectedYear !== 'undefined' && selectedYear === y) ? 'selected' : '' %>><%= y %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Quick filter badges -->
+        <div class="cp-quick-filters d-flex flex-wrap gap-2 mt-3 pt-2 border-top border-secondary border-opacity-25 align-items-center">
+          <small class="text-muted me-1"><i class="bi bi-tags me-1"></i>Popular:</small>
+          <button type="button" class="cp-quick-tag active" data-course="All">All</button>
+          <button type="button" class="cp-quick-tag" data-course="Computer Science">Computer Science</button>
+          <button type="button" class="cp-quick-tag" data-course="Data Science">Data Science</button>
+          <button type="button" class="cp-quick-tag" data-course="Artificial Intelligence">AI</button>
+          <button type="button" class="cp-quick-tag" data-course="Web Development">Web Dev</button>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- ── Empty state (Database empty) ─────────────────────── -->
+    <% if ((typeof totalCount !== 'undefined' ? totalCount : students.length) === 0) { %>
       <div class="cp-empty-state text-center py-5">
         <div class="cp-empty-icon mb-3" aria-hidden="true">
           <i class="bi bi-people"></i>
@@ -34,10 +118,31 @@
 
     <% } else { %>
 
-      <!-- ── Student Cards Grid ───────────────────────────── -->
+      <!-- ── Dynamic Search No-Results State ────────────────── -->
+      <div id="noFilterResults" class="cp-empty-state text-center py-5 <%= students.length === 0 ? '' : 'd-none' %>">
+        <div class="cp-empty-icon mb-3 text-warning" aria-hidden="true">
+          <i class="bi bi-search"></i>
+        </div>
+        <h2 class="h4 cp-empty-title">No matching students found</h2>
+        <p class="text-muted">Try adjusting your search query or clear the active filters.</p>
+        <button type="button" class="btn cp-btn-outline mt-2" id="resetFiltersBtn">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Reset All Filters
+        </button>
+      </div>
+
+      <!-- ── Student Cards Responsive Grid (Task 3) ──────────── -->
       <div class="row g-4" id="studentGrid" role="list">
         <% students.forEach(s => { %>
-          <div class="col-md-6 col-lg-4" role="listitem">
+          <div
+            class="col-12 col-md-6 col-lg-4 col-xl-3 cp-student-col"
+            role="listitem"
+            data-id="<%= s.id %>"
+            data-name="<%= (s.name || '').toLowerCase() %>"
+            data-email="<%= (s.email || '').toLowerCase() %>"
+            data-phone="<%= s.phone || '' %>"
+            data-course="<%= s.course || '' %>"
+            data-year="<%= s.year || '' %>"
+          >
             <div class="cp-student-card h-100">
               <div class="cp-student-card-header">
                 <div class="cp-avatar cp-avatar-sm" aria-hidden="true">
@@ -46,14 +151,23 @@
                 <div class="cp-student-info">
                   <div class="cp-student-name"><%= s.name %></div>
                   <div class="cp-student-course">
-                    <i class="bi bi-book me-1"></i><%= s.course %> <%= s.year ? '• ' + s.year : '' %>
+                    <i class="bi bi-book me-1"></i><%= s.course %>
                   </div>
                 </div>
                 <span class="cp-student-id">#<%= String(s.id).padStart(4,'0') %></span>
               </div>
               <div class="cp-student-card-body">
+                <% if (s.year) { %>
+                  <div class="mb-2">
+                    <span class="badge bg-primary bg-opacity-25 text-info border border-info border-opacity-25">
+                      <i class="bi bi-mortarboard me-1"></i><%= s.year %>
+                    </span>
+                  </div>
+                <% } %>
                 <div class="cp-student-meta">
-                  <span><i class="bi bi-envelope me-1"></i><%= s.email %></span>
+                  <span class="text-truncate" title="<%= s.email %>">
+                    <i class="bi bi-envelope me-1"></i><%= s.email %>
+                  </span>
                   <span><i class="bi bi-telephone me-1"></i><%= s.phone %></span>
                 </div>
               </div>
@@ -73,3 +187,4 @@
 </main>
 
 <%- include('../partials/footer') %>
+
