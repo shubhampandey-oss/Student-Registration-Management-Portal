@@ -239,6 +239,72 @@ document.addEventListener('DOMContentLoaded', function () {
           if (val && val.trim().length > 500) return 'Message must be 500 characters or fewer.';
           return '';
         }
+      },
+      password: {
+        el: document.getElementById('password'),
+        err: document.getElementById('passwordError'),
+        validate(val) {
+          if (!val || val.length === 0) return 'Password is required.';
+          if (val.length < 8) return 'Password must be at least 8 characters long.';
+          const checks = {
+            hasUpper: /[A-Z]/.test(val),
+            hasLower: /[a-z]/.test(val),
+            hasDigit: /[0-9]/.test(val),
+            hasSpecial: /[^A-Za-z0-9]/.test(val),
+          };
+          if (!checks.hasUpper || !checks.hasLower || !checks.hasDigit || !checks.hasSpecial) {
+            return 'Password must contain uppercase, lowercase, number, and special character.';
+          }
+          return '';
+        }
+      },
+      confirmPassword: {
+        el: document.getElementById('confirmPassword'),
+        err: document.getElementById('confirmPasswordError'),
+        validate(val) {
+          const pw = document.getElementById('password')?.value || '';
+          if (!val || val.length === 0) return 'Please confirm your password.';
+          if (val !== pw) return 'Passwords do not match.';
+          return '';
+        }
+      },
+      emergencyContact: {
+        el: document.getElementById('emergencyContact'),
+        err: document.getElementById('emergencyContactError'),
+        validate(val) {
+          const hostelOn = document.getElementById('requiresHostelToggle')?.checked;
+          if (!hostelOn) return '';
+          if (!val || val.trim().length < 2) return 'Emergency contact name is required (min 2 chars).';
+          return '';
+        }
+      },
+      emergencyPhone: {
+        el: document.getElementById('emergencyPhone'),
+        err: document.getElementById('emergencyPhoneError'),
+        validate(val) {
+          const hostelOn = document.getElementById('requiresHostelToggle')?.checked;
+          if (!hostelOn) return '';
+          if (!val || val.trim().length === 0) return 'Emergency contact phone is required.';
+          const digits = val.replace(/[\s\-()+]/g, '');
+          if (!/^\d+$/.test(digits) || digits.length < 7 || digits.length > 15) {
+            return 'Phone must be between 7 and 15 digits.';
+          }
+          return '';
+        }
+      },
+      prevGpa: {
+        el: document.getElementById('prevGpa'),
+        err: document.getElementById('prevGpaError'),
+        validate(val) {
+          const scholarshipOn = document.getElementById('appliesScholarshipToggle')?.checked;
+          if (!scholarshipOn) return '';
+          if (!val || val.trim().length === 0) return 'Academic score is required for scholarship.';
+          const score = parseFloat(val);
+          if (isNaN(score) || score < 0 || score > 100) return 'Enter a valid score (0.0-10.0 or 0-100%).';
+          if (score <= 10 && score < 6.0) return 'Minimum 6.0 CGPA required.';
+          if (score > 10 && score < 60) return 'Minimum 60% required.';
+          return '';
+        }
       }
     };
 
@@ -299,7 +365,214 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // Form Submission Guard & Accessibility Focus
+    // ── Task 4: Dynamic Password Strength Meter & Live Checklist ──
+    const pwInput         = document.getElementById('password');
+    const confirmPwInput  = document.getElementById('confirmPassword');
+    const pwStrengthBar   = document.getElementById('passwordStrengthBar');
+    const pwStrengthLabel = document.getElementById('passwordStrengthLabel');
+
+    const chkMinLength = document.getElementById('chkMinLength');
+    const chkUpper     = document.getElementById('chkUpper');
+    const chkLower     = document.getElementById('chkLower');
+    const chkDigit     = document.getElementById('chkDigit');
+    const chkSpecial   = document.getElementById('chkSpecial');
+    const chkMatch     = document.getElementById('chkMatch');
+
+    function updateChecklistItem(el, isValid) {
+      if (!el) return;
+      const icon = el.querySelector('i');
+      if (isValid) {
+        el.className = el.className.replace('text-muted', '') + ' valid';
+        if (icon) icon.className = 'bi bi-check-circle-fill text-success me-1';
+      } else {
+        el.className = el.className.replace('valid', '').trim();
+        if (icon) icon.className = 'bi bi-circle text-muted me-1';
+      }
+    }
+
+    function evaluateClientPassword() {
+      if (!pwInput) return;
+      const val = pwInput.value;
+      const confirmVal = confirmPwInput ? confirmPwInput.value : '';
+
+      const minLength = val.length >= 8;
+      const hasUpper  = /[A-Z]/.test(val);
+      const hasLower  = /[a-z]/.test(val);
+      const hasDigit  = /[0-9]/.test(val);
+      const hasSpec   = /[^A-Za-z0-9]/.test(val);
+      const isMatch   = val.length > 0 && confirmVal.length > 0 && val === confirmVal;
+
+      updateChecklistItem(chkMinLength, minLength);
+      updateChecklistItem(chkUpper, hasUpper);
+      updateChecklistItem(chkLower, hasLower);
+      updateChecklistItem(chkDigit, hasDigit);
+      updateChecklistItem(chkSpecial, hasSpec);
+      updateChecklistItem(chkMatch, isMatch);
+
+      let score = 0;
+      if (minLength) score++;
+      if (hasUpper) score++;
+      if (hasLower) score++;
+      if (hasDigit) score++;
+      if (hasSpec) score++;
+      if (val.length >= 12 && score >= 4) score = 5;
+
+      if (!pwStrengthBar || !pwStrengthLabel) return;
+
+      if (val.length === 0) {
+        pwStrengthBar.style.width = '0%';
+        pwStrengthBar.className = 'progress-bar bg-danger';
+        pwStrengthLabel.textContent = 'Enter password';
+        pwStrengthLabel.className = 'fw-bold text-muted';
+      } else if (score <= 1) {
+        pwStrengthBar.style.width = '20%';
+        pwStrengthBar.className = 'progress-bar bg-danger';
+        pwStrengthLabel.textContent = 'Very Weak';
+        pwStrengthLabel.className = 'fw-bold text-danger';
+      } else if (score === 2) {
+        pwStrengthBar.style.width = '40%';
+        pwStrengthBar.className = 'progress-bar bg-warning';
+        pwStrengthLabel.textContent = 'Weak';
+        pwStrengthLabel.className = 'fw-bold text-warning';
+      } else if (score === 3) {
+        pwStrengthBar.style.width = '60%';
+        pwStrengthBar.className = 'progress-bar bg-info';
+        pwStrengthLabel.textContent = 'Medium';
+        pwStrengthLabel.className = 'fw-bold text-info';
+      } else if (score === 4) {
+        pwStrengthBar.style.width = '80%';
+        pwStrengthBar.className = 'progress-bar bg-primary';
+        pwStrengthLabel.textContent = 'Strong';
+        pwStrengthLabel.className = 'fw-bold text-primary';
+      } else {
+        pwStrengthBar.style.width = '100%';
+        pwStrengthBar.className = 'progress-bar bg-success';
+        pwStrengthLabel.textContent = 'Very Strong';
+        pwStrengthLabel.className = 'fw-bold text-success';
+      }
+    }
+
+    if (pwInput) {
+      pwInput.addEventListener('input', evaluateClientPassword);
+    }
+    if (confirmPwInput) {
+      confirmPwInput.addEventListener('input', evaluateClientPassword);
+    }
+
+    // ── Task 4: Password Visibility Toggles ───────────────────────
+    function wireTogglePassword(btnId, targetInputId) {
+      const btn = document.getElementById(btnId);
+      const input = document.getElementById(targetInputId);
+      if (!btn || !input) return;
+
+      btn.addEventListener('click', function () {
+        const isPw = input.type === 'password';
+        input.type = isPw ? 'text' : 'password';
+        const icon = btn.querySelector('i');
+        if (icon) {
+          icon.className = isPw ? 'bi bi-eye-slash text-warning' : 'bi bi-eye';
+        }
+      });
+    }
+
+    wireTogglePassword('togglePasswordBtn', 'password');
+    wireTogglePassword('toggleConfirmPasswordBtn', 'confirmPassword');
+
+    // ── Task 4: Conditional Form Toggles (Dynamic DOM) ────────────
+    const hostelToggle = document.getElementById('requiresHostelToggle');
+    const hostelBox    = document.getElementById('hostelDetailsContainer');
+    if (hostelToggle && hostelBox) {
+      hostelToggle.addEventListener('change', function () {
+        if (hostelToggle.checked) {
+          hostelBox.classList.remove('d-none');
+        } else {
+          hostelBox.classList.add('d-none');
+        }
+      });
+    }
+
+    const scholarshipToggle = document.getElementById('appliesScholarshipToggle');
+    const scholarshipBox    = document.getElementById('scholarshipDetailsContainer');
+    if (scholarshipToggle && scholarshipBox) {
+      scholarshipToggle.addEventListener('change', function () {
+        if (scholarshipToggle.checked) {
+          scholarshipBox.classList.remove('d-none');
+        } else {
+          scholarshipBox.classList.add('d-none');
+        }
+      });
+    }
+
+    // ── Task 4: Confirmation Review Modal Integration ─────────────
+    const reviewBtn = document.getElementById('reviewSubmitBtn');
+    const confirmModalEl = document.getElementById('confirmSubmitModal');
+    const modalFinalSubmitBtn = document.getElementById('modalFinalSubmitBtn');
+
+    if (reviewBtn && confirmModalEl) {
+      reviewBtn.addEventListener('click', function () {
+        // Run full client validation
+        let formIsValid = true;
+        let firstInvalidEl = null;
+
+        Object.keys(fields).forEach(key => {
+          const isValid = validateField(key);
+          if (!isValid) {
+            formIsValid = false;
+            if (!firstInvalidEl) {
+              firstInvalidEl = fields[key].el || document.getElementById(`field-${key}`);
+            }
+          }
+        });
+
+        if (!formIsValid) {
+          if (firstInvalidEl) {
+            firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (typeof firstInvalidEl.focus === 'function') {
+              firstInvalidEl.focus();
+            }
+          }
+          return;
+        }
+
+        // Populate Review Modal details
+        document.getElementById('modalReviewName').textContent = document.getElementById('name')?.value || '—';
+        document.getElementById('modalReviewEmail').textContent = document.getElementById('email')?.value || '—';
+        document.getElementById('modalReviewCourse').textContent = `${document.getElementById('course')?.value || ''} (${document.getElementById('year')?.value || ''})`;
+        document.getElementById('modalReviewPhone').textContent = document.getElementById('phone')?.value || '—';
+
+        if (hostelToggle && hostelToggle.checked) {
+          const rType = document.getElementById('roomType')?.value || 'Single';
+          const diet = document.getElementById('dietary')?.value || 'Vegetarian';
+          document.getElementById('modalReviewHostel').textContent = `${rType} Room (${diet})`;
+        } else {
+          document.getElementById('modalReviewHostel').textContent = 'Not requested';
+        }
+
+        if (scholarshipToggle && scholarshipToggle.checked) {
+          const gpa = document.getElementById('prevGpa')?.value || '';
+          document.getElementById('modalReviewScholarship').textContent = `Score: ${gpa}`;
+        } else {
+          document.getElementById('modalReviewScholarship').textContent = 'Not requested';
+        }
+
+        // Show Bootstrap Modal
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+          const bsModal = bootstrap.Modal.getOrCreateInstance(confirmModalEl);
+          bsModal.show();
+        } else {
+          // Fallback if modal script not ready: submit form directly
+          form.submit();
+        }
+      });
+    }
+
+    if (modalFinalSubmitBtn) {
+      modalFinalSubmitBtn.addEventListener('click', function () {
+        form.submit();
+      });
+    }
+
+    // Direct submit listener as fallback
     form.addEventListener('submit', function (event) {
       let formIsValid = true;
       let firstInvalidEl = null;
@@ -317,7 +590,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!formIsValid) {
         event.preventDefault();
         event.stopPropagation();
-
         if (firstInvalidEl) {
           firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
           if (typeof firstInvalidEl.focus === 'function') {

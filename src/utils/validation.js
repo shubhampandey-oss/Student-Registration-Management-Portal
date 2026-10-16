@@ -230,12 +230,193 @@ function validateStudentTask2(data, options = {}) {
   return errors;
 }
 
+// ── Task 4 Constants ─────────────────────────────────────────────
+const VALID_ROOM_TYPES = ['Single', 'Double', 'Triple', 'Suite'];
+const VALID_DIETARY = ['Vegetarian', 'Non-Vegetarian', 'Vegan'];
+const VALID_INCOME_BRACKETS = ['< 2.5 LPA', '2.5 - 5 LPA', '5 - 8 LPA', '> 8 LPA'];
+
+/**
+ * Evaluate password security strength and return granular scoring
+ * @param {string} password
+ * @returns {object} { score, label, color, percent, checks }
+ */
+function evaluatePasswordStrength(password) {
+  if (!password || typeof password !== 'string') {
+    return {
+      score: 0,
+      label: 'Too Short',
+      percent: 0,
+      color: 'danger',
+      checks: {
+        minLength: false,
+        hasUpper: false,
+        hasLower: false,
+        hasDigit: false,
+        hasSpecial: false,
+      },
+    };
+  }
+
+  const checks = {
+    minLength: password.length >= 8,
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasDigit: /[0-9]/.test(password),
+    hasSpecial: /[^A-Za-z0-9]/.test(password),
+  };
+
+  let score = 0;
+  if (checks.minLength) score++;
+  if (checks.hasUpper) score++;
+  if (checks.hasLower) score++;
+  if (checks.hasDigit) score++;
+  if (checks.hasSpecial) score++;
+  if (password.length >= 12 && score >= 4) score = 5;
+
+  let label = 'Very Weak';
+  let color = 'danger';
+  let percent = 20;
+
+  if (score <= 1) {
+    label = 'Very Weak';
+    color = 'danger';
+    percent = 20;
+  } else if (score === 2) {
+    label = 'Weak';
+    color = 'warning';
+    percent = 40;
+  } else if (score === 3) {
+    label = 'Medium';
+    color = 'info';
+    percent = 60;
+  } else if (score === 4) {
+    label = 'Strong';
+    color = 'primary';
+    percent = 80;
+  } else if (score >= 5) {
+    label = 'Very Strong';
+    color = 'success';
+    percent = 100;
+  }
+
+  return { score, label, color, percent, checks };
+}
+
+/**
+ * Validate student fields for Task 4 registration.
+ * Builds on Task 2 with Password credentials and dynamic conditional sections:
+ *  - Hostel/Accommodation sub-fields
+ *  - Scholarship application sub-fields
+ *
+ * @param {object} data
+ * @param {object} [options]
+ * @returns {Array<{field: string, message: string}>}
+ */
+function validateStudentTask4(data, options = {}) {
+  const {
+    password,
+    confirmPassword,
+    requiresHostel,
+    roomType,
+    dietary,
+    emergencyContact,
+    emergencyPhone,
+    appliesScholarship,
+    prevGpa,
+    annualIncome,
+    formVersion,
+  } = data || {};
+
+  // Start with Task 2 baseline validation
+  const errors = validateStudentTask2(data, options);
+
+  const isTask4Form = formVersion === '4' || options.requirePassword;
+
+  // ── Password Credentials ───────────────────────────────────────
+  if (isTask4Form || (password && password.length > 0)) {
+    if (!password || password.length === 0) {
+      errors.push({ field: 'password', message: 'Password is required to create your student account.' });
+    } else {
+      const strength = evaluatePasswordStrength(password);
+      if (password.length < 8) {
+        errors.push({ field: 'password', message: 'Password must be at least 8 characters long.' });
+      } else if (!strength.checks.hasUpper || !strength.checks.hasLower || !strength.checks.hasDigit || !strength.checks.hasSpecial) {
+        errors.push({
+          field: 'password',
+          message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+        });
+      }
+    }
+
+    // Confirm password
+    if (!confirmPassword || confirmPassword.length === 0) {
+      errors.push({ field: 'confirmPassword', message: 'Please confirm your password.' });
+    } else if (password !== confirmPassword) {
+      errors.push({ field: 'confirmPassword', message: 'Passwords do not match.' });
+    }
+  }
+
+  // ── Conditional Section 1: Hostel / Accommodation ──────────────
+  const hasHostel = requiresHostel === 'on' || requiresHostel === 'true' || requiresHostel === true;
+  if (hasHostel) {
+    if (!roomType || !VALID_ROOM_TYPES.includes(roomType.trim())) {
+      errors.push({ field: 'roomType', message: 'Please select a valid room preference.' });
+    }
+
+    if (!dietary || !VALID_DIETARY.includes(dietary.trim())) {
+      errors.push({ field: 'dietary', message: 'Please select your dietary preference.' });
+    }
+
+    if (!emergencyContact || emergencyContact.trim().length < 2) {
+      errors.push({ field: 'emergencyContact', message: 'Emergency contact person name is required (min 2 characters).' });
+    }
+
+    if (!emergencyPhone || emergencyPhone.trim().length === 0) {
+      errors.push({ field: 'emergencyPhone', message: 'Emergency contact phone number is required.' });
+    } else {
+      const digits = emergencyPhone.replace(/[\s\-()+]/g, '');
+      if (!/^\d+$/.test(digits) || digits.length < 7 || digits.length > 15) {
+        errors.push({ field: 'emergencyPhone', message: 'Emergency phone must be a valid number between 7 and 15 digits.' });
+      }
+    }
+  }
+
+  // ── Conditional Section 2: Scholarship Application ─────────────
+  const hasScholarship = appliesScholarship === 'on' || appliesScholarship === 'true' || appliesScholarship === true;
+  if (hasScholarship) {
+    if (!prevGpa || String(prevGpa).trim().length === 0) {
+      errors.push({ field: 'prevGpa', message: 'Previous academic score (CGPA or %) is required for scholarship consideration.' });
+    } else {
+      const score = parseFloat(prevGpa);
+      if (isNaN(score) || score < 0 || score > 100) {
+        errors.push({ field: 'prevGpa', message: 'Please enter a valid CGPA (0.0-10.0) or percentage (0-100).' });
+      } else if (score <= 10 && score < 6.0) {
+        errors.push({ field: 'prevGpa', message: 'Minimum 6.0 CGPA required to apply for merit scholarships.' });
+      } else if (score > 10 && score < 60) {
+        errors.push({ field: 'prevGpa', message: 'Minimum 60% required to apply for merit scholarships.' });
+      }
+    }
+
+    if (!annualIncome || !VALID_INCOME_BRACKETS.includes(annualIncome.trim())) {
+      errors.push({ field: 'annualIncome', message: 'Please select your annual family income bracket.' });
+    }
+  }
+
+  return errors;
+}
+
 module.exports = {
   validateStudentTask1,
   validateStudentTask2,
+  validateStudentTask4,
   calculateAge,
+  evaluatePasswordStrength,
   VALID_COURSES,
   VALID_GENDERS,
   VALID_YEARS,
+  VALID_ROOM_TYPES,
+  VALID_DIETARY,
+  VALID_INCOME_BRACKETS,
 };
+
 

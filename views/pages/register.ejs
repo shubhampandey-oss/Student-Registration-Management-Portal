@@ -342,9 +342,257 @@
               </div>
             </div>
 
+            <!-- SECTION 4: Account Security & Credentials (Task 4) -->
+            <div class="cp-form-section mb-4 pt-3 border-top border-secondary border-opacity-25" id="section-security">
+              <h2 class="cp-section-title">
+                <i class="bi bi-shield-lock me-2 text-primary"></i>Account Security &amp; Portal Password
+              </h2>
+              <p class="text-muted small mb-3">
+                Create a strong password to securely access your student profile and learning materials.
+              </p>
+
+              <!-- Password -->
+              <div class="mb-3" id="field-password">
+                <label for="password" class="form-label cp-label">
+                  Create Password <span class="text-danger" aria-label="required">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text cp-input-icon">
+                    <i class="bi bi-key"></i>
+                  </span>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control cp-input <%= errors.some(e => e.field === 'password') ? 'is-invalid' : '' %>"
+                    placeholder="Enter secure password"
+                    autocomplete="new-password"
+                    aria-required="true"
+                    aria-describedby="passwordError passwordStrengthLabel"
+                  />
+                  <button
+                    class="btn btn-outline-secondary border-0 cp-toggle-pw"
+                    type="button"
+                    id="togglePasswordBtn"
+                    title="Toggle password visibility"
+                    aria-label="Toggle password visibility"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <div class="invalid-feedback" id="passwordError" role="alert">
+                    <%= errors.find(e => e.field === 'password')?.message || '' %>
+                  </div>
+                </div>
+
+                <!-- Password strength bar & label -->
+                <div class="mt-2">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <small class="text-muted">Password Strength:</small>
+                    <small id="passwordStrengthLabel" class="fw-bold text-muted">Enter password</small>
+                  </div>
+                  <div class="progress cp-password-progress" style="height: 6px; background: rgba(255,255,255,0.08);">
+                    <div
+                      id="passwordStrengthBar"
+                      class="progress-bar bg-danger"
+                      role="progressbar"
+                      style="width: 0%; transition: width 0.3s ease;"
+                      aria-valuenow="0"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- Dynamic Security Checklist -->
+                <div class="cp-password-checklist mt-3 p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-25">
+                  <small class="text-muted fw-bold d-block mb-2">Requirements:</small>
+                  <div class="row g-2 small">
+                    <div class="col-sm-6" id="chkMinLength">
+                      <i class="bi bi-circle text-muted me-1"></i> At least 8 characters
+                    </div>
+                    <div class="col-sm-6" id="chkUpper">
+                      <i class="bi bi-circle text-muted me-1"></i> Uppercase letter (A-Z)
+                    </div>
+                    <div class="col-sm-6" id="chkLower">
+                      <i class="bi bi-circle text-muted me-1"></i> Lowercase letter (a-z)
+                    </div>
+                    <div class="col-sm-6" id="chkDigit">
+                      <i class="bi bi-circle text-muted me-1"></i> Number (0-9)
+                    </div>
+                    <div class="col-sm-6" id="chkSpecial">
+                      <i class="bi bi-circle text-muted me-1"></i> Special symbol (!@#$%^&*)
+                    </div>
+                    <div class="col-sm-6" id="chkMatch">
+                      <i class="bi bi-circle text-muted me-1"></i> Passwords match
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="mb-3" id="field-confirmPassword">
+                <label for="confirmPassword" class="form-label cp-label">
+                  Confirm Password <span class="text-danger" aria-label="required">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text cp-input-icon">
+                    <i class="bi bi-check2-circle"></i>
+                  </span>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    class="form-control cp-input <%= errors.some(e => e.field === 'confirmPassword') ? 'is-invalid' : '' %>"
+                    placeholder="Re-enter your password"
+                    autocomplete="new-password"
+                    aria-required="true"
+                    aria-describedby="confirmPasswordError"
+                  />
+                  <button
+                    class="btn btn-outline-secondary border-0 cp-toggle-pw"
+                    type="button"
+                    id="toggleConfirmPasswordBtn"
+                    title="Toggle confirm password visibility"
+                    aria-label="Toggle confirm password visibility"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <div class="invalid-feedback" id="confirmPasswordError" role="alert">
+                    <%= errors.find(e => e.field === 'confirmPassword')?.message || '' %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 5: Conditional Campus Facilities (Task 4) -->
+            <div class="cp-form-section mb-4 pt-3 border-top border-secondary border-opacity-25" id="section-facilities">
+              <h2 class="cp-section-title">
+                <i class="bi bi-buildings me-2 text-primary"></i>Campus Facilities &amp; Aid
+              </h2>
+
+              <!-- Toggle 1: Hostel / Accommodation -->
+              <div class="cp-conditional-card p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-25 mb-3">
+                <div class="form-check form-switch mb-0">
+                  <input
+                    class="form-check-input cp-switch"
+                    type="checkbox"
+                    id="requiresHostelToggle"
+                    name="requiresHostel"
+                    <%= (old.requiresHostel === 'on' || old.requiresHostel === 'true' || old.requiresHostel === true) ? 'checked' : '' %>
+                  />
+                  <label class="form-check-label fw-bold text-white ms-2" for="requiresHostelToggle">
+                    <i class="bi bi-house-door me-1 text-info"></i>Request Campus Hostel / Accommodation
+                  </label>
+                </div>
+                <small class="text-muted d-block ms-5 mt-1">Check this if you require on-campus residential boarding.</small>
+
+                <!-- Sub-Form: Hostel Details (conditionally revealed) -->
+                <div id="hostelDetailsContainer" class="mt-3 pt-3 border-top border-secondary border-opacity-25 <%= (old.requiresHostel === 'on' || old.requiresHostel === 'true' || old.requiresHostel === true) ? '' : 'd-none' %>">
+                  <div class="row g-3">
+                    <div class="col-md-6" id="field-roomType">
+                      <label for="roomType" class="form-label cp-label">Room Preference <span class="text-danger">*</span></label>
+                      <select id="roomType" name="roomType" class="form-select cp-input">
+                        <% ['Single', 'Double', 'Triple', 'Suite'].forEach(r => { %>
+                          <option value="<%= r %>" <%= old.roomType === r ? 'selected' : '' %>><%= r %> Room</option>
+                        <% }); %>
+                      </select>
+                    </div>
+
+                    <div class="col-md-6" id="field-dietary">
+                      <label for="dietary" class="form-label cp-label">Dietary Preference <span class="text-danger">*</span></label>
+                      <select id="dietary" name="dietary" class="form-select cp-input">
+                        <% ['Vegetarian', 'Non-Vegetarian', 'Vegan'].forEach(d => { %>
+                          <option value="<%= d %>" <%= old.dietary === d ? 'selected' : '' %>><%= d %></option>
+                        <% }); %>
+                      </select>
+                    </div>
+
+                    <div class="col-md-6" id="field-emergencyContact">
+                      <label for="emergencyContact" class="form-label cp-label">Emergency Contact Name <span class="text-danger">*</span></label>
+                      <input
+                        type="text"
+                        id="emergencyContact"
+                        name="emergencyContact"
+                        class="form-control cp-input <%= errors.some(e => e.field === 'emergencyContact') ? 'is-invalid' : '' %>"
+                        value="<%= old.emergencyContact || '' %>"
+                        placeholder="e.g. Ramesh Sharma (Father)"
+                      />
+                      <div class="invalid-feedback" id="emergencyContactError">
+                        <%= errors.find(e => e.field === 'emergencyContact')?.message || '' %>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6" id="field-emergencyPhone">
+                      <label for="emergencyPhone" class="form-label cp-label">Emergency Contact Phone <span class="text-danger">*</span></label>
+                      <input
+                        type="tel"
+                        id="emergencyPhone"
+                        name="emergencyPhone"
+                        class="form-control cp-input <%= errors.some(e => e.field === 'emergencyPhone') ? 'is-invalid' : '' %>"
+                        value="<%= old.emergencyPhone || '' %>"
+                        placeholder="e.g. +91 98111 22233"
+                      />
+                      <div class="invalid-feedback" id="emergencyPhoneError">
+                        <%= errors.find(e => e.field === 'emergencyPhone')?.message || '' %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Toggle 2: Scholarship Application -->
+              <div class="cp-conditional-card p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-25">
+                <div class="form-check form-switch mb-0">
+                  <input
+                    class="form-check-input cp-switch"
+                    type="checkbox"
+                    id="appliesScholarshipToggle"
+                    name="appliesScholarship"
+                    <%= (old.appliesScholarship === 'on' || old.appliesScholarship === 'true' || old.appliesScholarship === true) ? 'checked' : '' %>
+                  />
+                  <label class="form-check-label fw-bold text-white ms-2" for="appliesScholarshipToggle">
+                    <i class="bi bi-award me-1 text-warning"></i>Apply for Merit Scholarship / Financial Aid
+                  </label>
+                </div>
+                <small class="text-muted d-block ms-5 mt-1">Students with >= 6.0 CGPA or >= 60% are eligible for tuition assistance.</small>
+
+                <!-- Sub-Form: Scholarship Details (conditionally revealed) -->
+                <div id="scholarshipDetailsContainer" class="mt-3 pt-3 border-top border-secondary border-opacity-25 <%= (old.appliesScholarship === 'on' || old.appliesScholarship === 'true' || old.appliesScholarship === true) ? '' : 'd-none' %>">
+                  <div class="row g-3">
+                    <div class="col-md-6" id="field-prevGpa">
+                      <label for="prevGpa" class="form-label cp-label">Previous Score (CGPA or %) <span class="text-danger">*</span></label>
+                      <input
+                        type="text"
+                        id="prevGpa"
+                        name="prevGpa"
+                        class="form-control cp-input <%= errors.some(e => e.field === 'prevGpa') ? 'is-invalid' : '' %>"
+                        value="<%= old.prevGpa || '' %>"
+                        placeholder="e.g. 8.5 CGPA or 85%"
+                      />
+                      <div class="invalid-feedback" id="prevGpaError">
+                        <%= errors.find(e => e.field === 'prevGpa')?.message || '' %>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6" id="field-annualIncome">
+                      <label for="annualIncome" class="form-label cp-label">Family Annual Income <span class="text-danger">*</span></label>
+                      <select id="annualIncome" name="annualIncome" class="form-select cp-input">
+                        <% ['< 2.5 LPA', '2.5 - 5 LPA', '5 - 8 LPA', '> 8 LPA'].forEach(inc => { %>
+                          <option value="<%= inc %>" <%= old.annualIncome === inc ? 'selected' : '' %>><%= inc %></option>
+                        <% }); %>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Submit Buttons -->
             <div class="d-grid gap-2 mt-4 pt-2 border-top border-secondary border-opacity-25">
-              <button type="submit" class="btn cp-btn-primary btn-lg" id="submitBtn">
+              <button type="button" class="btn cp-btn-primary btn-lg" id="reviewSubmitBtn">
+                <i class="bi bi-shield-check me-2"></i>Review &amp; Submit Registration
+              </button>
+              <button type="submit" class="btn cp-btn-primary btn-lg d-none" id="submitBtn">
                 <i class="bi bi-send me-2"></i>Submit Registration
               </button>
               <a href="/" class="btn cp-btn-ghost">Cancel</a>
@@ -353,6 +601,49 @@
           </form>
         </div>
         <!-- end form card -->
+
+        <!-- ── Confirmation Modal (Task 4) ────────────────────── -->
+        <div class="modal fade" id="confirmSubmitModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content cp-form-card border border-secondary border-opacity-50">
+              <div class="modal-header border-secondary border-opacity-25">
+                <h5 class="modal-title text-white" id="confirmModalLabel">
+                  <i class="bi bi-patch-check-fill text-primary me-2"></i>Confirm Student Registration
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-start">
+                <p class="text-muted small">Please verify your details before final submission:</p>
+                <div class="p-3 rounded bg-dark bg-opacity-50 border border-secondary border-opacity-25 mb-3">
+                  <div class="row g-2 small">
+                    <div class="col-4 text-muted">Full Name:</div>
+                    <div class="col-8 text-white fw-bold" id="modalReviewName">—</div>
+                    <div class="col-4 text-muted">Email:</div>
+                    <div class="col-8 text-white" id="modalReviewEmail">—</div>
+                    <div class="col-4 text-muted">Academic:</div>
+                    <div class="col-8 text-white" id="modalReviewCourse">—</div>
+                    <div class="col-4 text-muted">Phone:</div>
+                    <div class="col-8 text-white" id="modalReviewPhone">—</div>
+                    <div class="col-4 text-muted">Hostel:</div>
+                    <div class="col-8 text-info" id="modalReviewHostel">Not requested</div>
+                    <div class="col-4 text-muted">Scholarship:</div>
+                    <div class="col-8 text-warning" id="modalReviewScholarship">Not requested</div>
+                  </div>
+                </div>
+                <div class="alert alert-info py-2 small mb-0">
+                  <i class="bi bi-info-circle me-1"></i> Your password will be securely encrypted using <strong>bcrypt</strong> before saving.
+                </div>
+              </div>
+              <div class="modal-footer border-secondary border-opacity-25">
+                <button type="button" class="btn cp-btn-ghost" data-bs-dismiss="modal">Make Changes</button>
+                <button type="button" class="btn cp-btn-primary" id="modalFinalSubmitBtn">
+                  <i class="bi bi-check-circle me-1"></i>Confirm &amp; Register
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
 
       </div>
     </div>

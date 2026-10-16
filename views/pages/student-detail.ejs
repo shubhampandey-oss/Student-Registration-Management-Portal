@@ -125,6 +125,68 @@
                 </div>
               </div>
 
+              <!-- Account Security Status (Task 4) -->
+              <div class="col-sm-6">
+                <div class="cp-detail-item">
+                  <span class="cp-detail-label">
+                    <i class="bi bi-shield-check me-1"></i>Account Credentials
+                  </span>
+                  <span class="cp-detail-value">
+                    <% if (student.hasAccount) { %>
+                      <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">
+                        <i class="bi bi-check-circle-fill me-1"></i>Active (Bcrypt Encrypted)
+                      </span>
+                    <% } else { %>
+                      <span class="badge bg-secondary bg-opacity-25 text-muted border border-secondary border-opacity-25">
+                        Standard Enrolment
+                      </span>
+                    <% } %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Hostel / Accommodation (Task 4 Conditional) -->
+              <% if (student.hostel) { %>
+                <div class="col-12">
+                  <div class="cp-detail-item border border-info border-opacity-25 p-3 rounded bg-info bg-opacity-10">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <span class="fw-bold text-info">
+                        <i class="bi bi-house-door-fill me-1"></i>Campus Hostel Allocation
+                      </span>
+                      <span class="badge bg-info text-dark fw-bold">Opted In</span>
+                    </div>
+                    <div class="row g-2 small">
+                      <div class="col-sm-4 text-muted">Room Type:</div>
+                      <div class="col-sm-8 text-white"><%= student.hostel.roomType %> Room</div>
+                      <div class="col-sm-4 text-muted">Dietary Preference:</div>
+                      <div class="col-sm-8 text-white"><%= student.hostel.dietary %></div>
+                      <div class="col-sm-4 text-muted">Emergency Contact:</div>
+                      <div class="col-sm-8 text-white"><%= student.hostel.emergencyContact %> (<%= student.hostel.emergencyPhone %>)</div>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+
+              <!-- Scholarship Details (Task 4 Conditional) -->
+              <% if (student.scholarship) { %>
+                <div class="col-12">
+                  <div class="cp-detail-item border border-warning border-opacity-25 p-3 rounded bg-warning bg-opacity-10">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <span class="fw-bold text-warning">
+                        <i class="bi bi-award-fill me-1"></i>Merit Scholarship Application
+                      </span>
+                      <span class="badge bg-warning text-dark fw-bold">Under Review</span>
+                    </div>
+                    <div class="row g-2 small">
+                      <div class="col-sm-4 text-muted">Previous Score:</div>
+                      <div class="col-sm-8 text-white"><%= student.scholarship.prevGpa %></div>
+                      <div class="col-sm-4 text-muted">Family Income:</div>
+                      <div class="col-sm-8 text-white"><%= student.scholarship.annualIncome %></div>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+
               <% if (student.message) { %>
                 <div class="col-12">
                   <div class="cp-detail-item">

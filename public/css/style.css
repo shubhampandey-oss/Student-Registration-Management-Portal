@@ -885,4 +885,41 @@ img { max-width: 100%; height: auto; }
   .cp-form-card { padding: 1.25rem !important; }
 }
 
+/* ── Task 4: Password Strength, Checklist & Conditional Form ─── */
+.cp-toggle-pw {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cp-border) !important;
+  border-left: none !important;
+  color: var(--cp-muted);
+  transition: var(--cp-transition);
+}
+
+.cp-toggle-pw:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.cp-password-checklist div {
+  transition: color 0.2s ease;
+}
+
+.cp-password-checklist div.valid {
+  color: var(--cp-success) !important;
+}
+
+.cp-password-checklist div.valid i {
+  color: var(--cp-success) !important;
+}
+
+.cp-switch:checked {
+  background-color: var(--cp-primary);
+  border-color: var(--cp-primary);
+}
+
+.modal-content.cp-form-card {
+  background: var(--cp-card-bg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+
 

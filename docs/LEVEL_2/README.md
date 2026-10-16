@@ -2,7 +2,8 @@
 
 ## Tasks in this Level
 - [Task 3 — Responsive Design, Layout Polish, and Advanced Interactions](../TASK_3.md) ✅
-- [Task 4 — Dynamic DOM Manipulation and Interactive Features](../TASK_4.md) *(coming next)*
+- [Task 4 — Dynamic DOM Manipulation and Interactive Features](../TASK_4.md) ✅
+
 
 ## What Level 2 Covers
 Level 2 elevates the application from functional server rendering to a polished, fluid, and responsive full-stack platform:

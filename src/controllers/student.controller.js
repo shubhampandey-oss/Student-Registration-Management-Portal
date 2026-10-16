@@ -13,10 +13,11 @@
  *   server interaction and EJS rendering as required by the brief.
  */
 
-const { validateStudentTask2, calculateAge } = require('../utils/validation');
+const bcrypt = require('bcrypt');
+const { validateStudentTask4, calculateAge } = require('../utils/validation');
 
 // Temporary in-memory store.
-// Each entry: { id, name, email, course, phone, dob, age, gender, year, linkedin, message, createdAt }
+// Each entry: { id, name, email, course, phone, dob, age, gender, year, linkedin, message, passwordHash, hasAccount, hostel, scholarship, createdAt }
 const students = [];
 let   nextId   = 1;
 
@@ -35,7 +36,7 @@ exports.getRegisterForm = (req, res) => {
 // ─────────────────────────────────────────────────────────────────
 // POST /students/register
 // ─────────────────────────────────────────────────────────────────
-exports.postRegister = (req, res) => {
+exports.postRegister = async (req, res) => {
   const {
     name,
     email,
@@ -46,11 +47,20 @@ exports.postRegister = (req, res) => {
     year,
     linkedin,
     message,
+    password,
+    requiresHostel,
+    roomType,
+    dietary,
+    emergencyContact,
+    emergencyPhone,
+    appliesScholarship,
+    prevGpa,
+    annualIncome,
     formVersion,
   } = req.body;
 
-  // Server-side validation (independent of browser/client rules)
-  const errors = validateStudentTask2(req.body);
+  // Server-side validation (Task 4 rules)
+  const errors = validateStudentTask4(req.body);
 
   if (errors.length > 0) {
     // Re-render the form with the errors AND the values the user typed,
@@ -63,19 +73,44 @@ exports.postRegister = (req, res) => {
     });
   }
 
-  // Store the valid submission with Task 2 attributes
+  // Hash password if provided
+  let passwordHash = null;
+  if (password && password.length > 0) {
+    try {
+      passwordHash = await bcrypt.hash(password, 10);
+    } catch (err) {
+      console.error('[AUTH ERROR] Password hashing failed:', err.message);
+    }
+  }
+
+  const hasHostel = requiresHostel === 'on' || requiresHostel === 'true' || requiresHostel === true;
+  const hasScholarship = appliesScholarship === 'on' || appliesScholarship === 'true' || appliesScholarship === true;
+
+  // Store the valid submission with Task 4 attributes
   const student = {
-    id:        nextId++,
-    name:      name.trim(),
-    email:     email.trim().toLowerCase(),
-    course:    course.trim(),
-    phone:     phone.trim(),
-    dob:       dob ? dob.trim() : null,
-    age:       dob ? calculateAge(dob.trim()) : null,
-    gender:    gender ? gender.trim() : null,
-    year:      year ? year.trim() : null,
-    linkedin:  linkedin && linkedin.trim().length > 0 ? linkedin.trim() : null,
-    message:   (message || '').trim(),
+    id:           nextId++,
+    name:         name.trim(),
+    email:        email.trim().toLowerCase(),
+    course:       course.trim(),
+    phone:        phone.trim(),
+    dob:          dob ? dob.trim() : null,
+    age:          dob ? calculateAge(dob.trim()) : null,
+    gender:       gender ? gender.trim() : null,
+    year:         year ? year.trim() : null,
+    linkedin:     linkedin && linkedin.trim().length > 0 ? linkedin.trim() : null,
+    message:      (message || '').trim(),
+    hasAccount:   Boolean(passwordHash),
+    passwordHash: passwordHash, // stored safely as bcrypt hash, never plaintext
+    hostel: hasHostel ? {
+      roomType:         roomType ? roomType.trim() : 'Single',
+      dietary:          dietary ? dietary.trim() : 'Vegetarian',
+      emergencyContact: (emergencyContact || '').trim(),
+      emergencyPhone:   (emergencyPhone || '').trim(),
+    } : null,
+    scholarship: hasScholarship ? {
+      prevGpa:      (prevGpa || '').trim(),
+      annualIncome: (annualIncome || '').trim(),
+    } : null,
     createdAt: new Date().toISOString(),
   };
   students.push(student);
