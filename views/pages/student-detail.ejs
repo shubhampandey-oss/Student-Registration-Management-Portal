@@ -1,0 +1,109 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main id="mainContent" class="cp-page-main">
+  <div class="container py-5">
+
+    <%- include('../partials/flash') %>
+
+    <!-- Profile card -->
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+
+        <!-- Back link -->
+        <a href="/students" class="cp-back-link mb-4 d-inline-flex align-items-center gap-1">
+          <i class="bi bi-arrow-left"></i> Back to Students
+        </a>
+
+        <div class="cp-profile-card">
+          <!-- Header -->
+          <div class="cp-profile-header">
+            <div class="cp-avatar" aria-hidden="true">
+              <%= student.name.charAt(0).toUpperCase() %>
+            </div>
+            <div>
+              <h1 class="cp-profile-name"><%= student.name %></h1>
+              <span class="cp-profile-course">
+                <i class="bi bi-book me-1"></i><%= student.course %>
+              </span>
+            </div>
+          </div>
+
+          <!-- Details -->
+          <div class="cp-profile-body">
+            <div class="row g-3">
+
+              <div class="col-sm-6">
+                <div class="cp-detail-item">
+                  <span class="cp-detail-label">
+                    <i class="bi bi-hash me-1"></i>Student ID
+                  </span>
+                  <span class="cp-detail-value">#<%= String(student.id).padStart(4, '0') %></span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="cp-detail-item">
+                  <span class="cp-detail-label">
+                    <i class="bi bi-envelope me-1"></i>Email
+                  </span>
+                  <span class="cp-detail-value">
+                    <a href="mailto:<%= student.email %>" class="cp-detail-link"><%= student.email %></a>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="cp-detail-item">
+                  <span class="cp-detail-label">
+                    <i class="bi bi-telephone me-1"></i>Phone
+                  </span>
+                  <span class="cp-detail-value"><%= student.phone %></span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="cp-detail-item">
+                  <span class="cp-detail-label">
+                    <i class="bi bi-calendar me-1"></i>Registered
+                  </span>
+                  <span class="cp-detail-value">
+                    <%= new Date(student.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric', month: 'long', year: 'numeric'
+                    }) %>
+                  </span>
+                </div>
+              </div>
+
+              <% if (student.message) { %>
+                <div class="col-12">
+                  <div class="cp-detail-item">
+                    <span class="cp-detail-label">
+                      <i class="bi bi-chat-text me-1"></i>Message
+                    </span>
+                    <span class="cp-detail-value cp-message-text"><%= student.message %></span>
+                  </div>
+                </div>
+              <% } %>
+
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="cp-profile-footer d-flex flex-wrap gap-3">
+            <a href="/students/register" class="btn cp-btn-primary">
+              <i class="bi bi-person-plus me-2"></i>Register Another
+            </a>
+            <a href="/students" class="btn cp-btn-outline">
+              <i class="bi bi-people me-2"></i>All Students
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

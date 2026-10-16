@@ -1,0 +1,75 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main id="mainContent" class="cp-page-main">
+  <div class="container py-5">
+
+    <!-- Page header -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+      <div>
+        <h1 class="cp-page-title mb-1">Registered Students</h1>
+        <p class="text-muted mb-0">
+          <%= students.length %> student<%= students.length !== 1 ? 's' : '' %> registered so far.
+        </p>
+      </div>
+      <a href="/students/register" class="btn cp-btn-primary" id="addStudentBtn">
+        <i class="bi bi-person-plus me-2"></i>Register New
+      </a>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <!-- ── Empty state ─────────────────────────────────────── -->
+    <% if (students.length === 0) { %>
+      <div class="cp-empty-state text-center py-5">
+        <div class="cp-empty-icon mb-3" aria-hidden="true">
+          <i class="bi bi-people"></i>
+        </div>
+        <h2 class="h4 cp-empty-title">No students registered yet</h2>
+        <p class="text-muted">Be the first to register a student using the form.</p>
+        <a href="/students/register" class="btn cp-btn-primary mt-2" id="emptyRegisterBtn">
+          <i class="bi bi-person-plus me-2"></i>Register a Student
+        </a>
+      </div>
+
+    <% } else { %>
+
+      <!-- ── Student Cards Grid ───────────────────────────── -->
+      <div class="row g-4" id="studentGrid" role="list">
+        <% students.forEach(s => { %>
+          <div class="col-md-6 col-lg-4" role="listitem">
+            <div class="cp-student-card h-100">
+              <div class="cp-student-card-header">
+                <div class="cp-avatar cp-avatar-sm" aria-hidden="true">
+                  <%= s.name.charAt(0).toUpperCase() %>
+                </div>
+                <div class="cp-student-info">
+                  <div class="cp-student-name"><%= s.name %></div>
+                  <div class="cp-student-course">
+                    <i class="bi bi-book me-1"></i><%= s.course %>
+                  </div>
+                </div>
+                <span class="cp-student-id">#<%= String(s.id).padStart(4,'0') %></span>
+              </div>
+              <div class="cp-student-card-body">
+                <div class="cp-student-meta">
+                  <span><i class="bi bi-envelope me-1"></i><%= s.email %></span>
+                  <span><i class="bi bi-telephone me-1"></i><%= s.phone %></span>
+                </div>
+              </div>
+              <div class="cp-student-card-footer">
+                <a href="/students/<%= s.id %>" class="btn cp-btn-sm-outline w-100" id="viewStudent<%= s.id %>">
+                  <i class="bi bi-eye me-1"></i>View Profile
+                </a>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+
+    <% } %>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

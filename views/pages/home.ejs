@@ -1,0 +1,148 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<!-- ── Hero Section ──────────────────────────────────────────── -->
+<main id="mainContent">
+  <section class="cp-hero d-flex align-items-center" aria-labelledby="heroHeading">
+    <div class="container">
+      <div class="row align-items-center gy-5">
+
+        <!-- Text -->
+        <div class="col-lg-6">
+          <span class="cp-badge mb-3">
+            <i class="bi bi-stars me-1"></i>Cognifyz Internship — Task 1
+          </span>
+          <h1 id="heroHeading" class="cp-hero-title">
+            Student Registration
+            <span class="cp-gradient-text">&amp; Management</span>
+            Portal
+          </h1>
+          <p class="cp-hero-sub mt-3">
+            A professional full-stack web application for managing student
+            enrolments, built with Node.js, Express, EJS, and Bootstrap 5.
+            Developed as part of the Cognifyz Technologies Full Stack Internship.
+          </p>
+          <div class="d-flex flex-wrap gap-3 mt-4">
+            <a href="/students/register" class="btn cp-btn-primary btn-lg" id="heroRegisterBtn">
+              <i class="bi bi-person-plus me-2"></i>Register a Student
+            </a>
+            <a href="/students" class="btn cp-btn-outline btn-lg" id="heroViewBtn">
+              <i class="bi bi-people me-2"></i>View Students
+            </a>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="col-lg-6">
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="cp-stat-card h-100">
+                <div class="cp-stat-icon">
+                  <i class="bi bi-person-check-fill"></i>
+                </div>
+                <div class="cp-stat-label">Easy Registration</div>
+                <div class="cp-stat-desc">
+                  Simple form with server-side validation and clear feedback
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="cp-stat-card h-100">
+                <div class="cp-stat-icon">
+                  <i class="bi bi-shield-check-fill"></i>
+                </div>
+                <div class="cp-stat-label">Secure &amp; Validated</div>
+                <div class="cp-stat-desc">
+                  Server-side validation protects against invalid submissions
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="cp-stat-card h-100">
+                <div class="cp-stat-icon">
+                  <i class="bi bi-phone-fill"></i>
+                </div>
+                <div class="cp-stat-label">Fully Responsive</div>
+                <div class="cp-stat-desc">
+                  Works on desktop, tablet, and mobile devices
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="cp-stat-card h-100">
+                <div class="cp-stat-icon">
+                  <i class="bi bi-database-fill"></i>
+                </div>
+                <div class="cp-stat-label">Dynamic Rendering</div>
+                <div class="cp-stat-desc">
+                  EJS server-side templates render data safely
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Tech Stack Section ──────────────────────────────────── -->
+  <section class="cp-tech-section py-5" aria-labelledby="techHeading">
+    <div class="container">
+      <h2 id="techHeading" class="text-center cp-section-title mb-2">Tech Stack</h2>
+      <p class="text-center text-muted mb-5">Technologies powering this portal</p>
+      <div class="row g-3 justify-content-center">
+        <% const techs = [
+          { icon: 'bi-filetype-js',   label: 'Node.js v24',    color: '#68a063' },
+          { icon: 'bi-server',         label: 'Express.js',     color: '#764abc' },
+          { icon: 'bi-file-code',      label: 'EJS Templates',  color: '#f05340' },
+          { icon: 'bi-bootstrap',      label: 'Bootstrap 5',    color: '#7952b3' },
+          { icon: 'bi-database',       label: 'SQLite (Task 6)',color: '#003b57' },
+          { icon: 'bi-lock-fill',      label: 'bcrypt Auth',    color: '#e8813a' },
+        ]; %>
+        <% techs.forEach(t => { %>
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="cp-tech-card text-center h-100">
+              <i class="bi <%= t.icon %> cp-tech-icon" style="color: <%= t.color %>"></i>
+              <div class="cp-tech-label mt-2"><%= t.label %></div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How It Works ───────────────────────────────────────── -->
+  <section class="py-5 cp-steps-section" aria-labelledby="stepsHeading">
+    <div class="container">
+      <h2 id="stepsHeading" class="text-center cp-section-title mb-2">How It Works</h2>
+      <p class="text-center text-muted mb-5">Three simple steps to register a student</p>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="cp-step-card text-center h-100">
+            <div class="cp-step-number">1</div>
+            <h3 class="cp-step-title mt-3">Fill the Form</h3>
+            <p class="text-muted">Enter student details — name, email, course, and phone number.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="cp-step-card text-center h-100">
+            <div class="cp-step-number">2</div>
+            <h3 class="cp-step-title mt-3">Server Validates</h3>
+            <p class="text-muted">The Express server validates every field and returns helpful error messages if needed.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="cp-step-card text-center h-100">
+            <div class="cp-step-number">3</div>
+            <h3 class="cp-step-title mt-3">View Profile</h3>
+            <p class="text-muted">On success, you're shown the student's profile page with a confirmation banner.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<%- include('../partials/footer') %>

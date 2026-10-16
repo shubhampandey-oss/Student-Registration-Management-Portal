@@ -1,0 +1,221 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main id="mainContent" class="cp-page-main">
+  <div class="container py-5">
+
+    <!-- Page header -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-7 text-center">
+        <span class="cp-badge mb-2">
+          <i class="bi bi-person-plus me-1"></i>New Enrolment
+        </span>
+        <h1 class="cp-page-title">Student Registration</h1>
+        <p class="text-muted">
+          Fill in the details below. All fields marked <span class="text-danger">*</span> are required.
+          Your information is validated on the server before saving.
+        </p>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+
+        <%- include('../partials/flash') %>
+
+        <!-- ── Validation error summary ──────────────────────── -->
+        <% if (errors && errors.length > 0) { %>
+          <div class="alert alert-danger cp-error-summary" role="alert" id="errorSummary">
+            <h2 class="alert-heading h6 mb-2">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              Please fix the following <%= errors.length %> error<%= errors.length > 1 ? 's' : '' %>:
+            </h2>
+            <ul class="mb-0 ps-3">
+              <% errors.forEach(e => { %>
+                <li><a href="#field-<%= e.field %>" class="alert-link"><%= e.message %></a></li>
+              <% }); %>
+            </ul>
+          </div>
+        <% } %>
+
+        <!-- ── Registration Form ──────────────────────────────── -->
+        <div class="cp-form-card">
+          <form
+            action="/students/register"
+            method="POST"
+            id="registrationForm"
+            novalidate
+            aria-label="Student registration form"
+          >
+
+            <!-- Full Name -->
+            <div class="mb-4" id="field-name">
+              <label for="name" class="form-label cp-label">
+                Full Name <span class="text-danger" aria-label="required">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text cp-input-icon">
+                  <i class="bi bi-person"></i>
+                </span>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  class="form-control cp-input <%= errors.some(e => e.field === 'name') ? 'is-invalid' : '' %>"
+                  value="<%= old.name || '' %>"
+                  placeholder="e.g. Priya Sharma"
+                  maxlength="100"
+                  autocomplete="name"
+                  aria-required="true"
+                  aria-describedby="nameError"
+                />
+                <% if (errors.some(e => e.field === 'name')) { %>
+                  <div class="invalid-feedback" id="nameError" role="alert">
+                    <%= errors.find(e => e.field === 'name').message %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Email Address -->
+            <div class="mb-4" id="field-email">
+              <label for="email" class="form-label cp-label">
+                Email Address <span class="text-danger" aria-label="required">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text cp-input-icon">
+                  <i class="bi bi-envelope"></i>
+                </span>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-control cp-input <%= errors.some(e => e.field === 'email') ? 'is-invalid' : '' %>"
+                  value="<%= old.email || '' %>"
+                  placeholder="e.g. priya@example.com"
+                  maxlength="254"
+                  autocomplete="email"
+                  aria-required="true"
+                  aria-describedby="emailError"
+                />
+                <% if (errors.some(e => e.field === 'email')) { %>
+                  <div class="invalid-feedback" id="emailError" role="alert">
+                    <%= errors.find(e => e.field === 'email').message %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Course -->
+            <div class="mb-4" id="field-course">
+              <label for="course" class="form-label cp-label">
+                Course <span class="text-danger" aria-label="required">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text cp-input-icon">
+                  <i class="bi bi-book"></i>
+                </span>
+                <select
+                  id="course"
+                  name="course"
+                  class="form-select cp-input <%= errors.some(e => e.field === 'course') ? 'is-invalid' : '' %>"
+                  aria-required="true"
+                  aria-describedby="courseError"
+                >
+                  <option value="" disabled <%= !old.course ? 'selected' : '' %>>— Select your course —</option>
+                  <% [
+                    'Computer Science',
+                    'Information Technology',
+                    'Data Science',
+                    'Artificial Intelligence',
+                    'Cybersecurity',
+                    'Software Engineering',
+                    'Web Development',
+                    'Other',
+                  ].forEach(c => { %>
+                    <option value="<%= c %>" <%= old.course === c ? 'selected' : '' %>><%= c %></option>
+                  <% }); %>
+                </select>
+                <% if (errors.some(e => e.field === 'course')) { %>
+                  <div class="invalid-feedback" id="courseError" role="alert">
+                    <%= errors.find(e => e.field === 'course').message %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="mb-4" id="field-phone">
+              <label for="phone" class="form-label cp-label">
+                Phone Number <span class="text-danger" aria-label="required">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text cp-input-icon">
+                  <i class="bi bi-telephone"></i>
+                </span>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  class="form-control cp-input <%= errors.some(e => e.field === 'phone') ? 'is-invalid' : '' %>"
+                  value="<%= old.phone || '' %>"
+                  placeholder="e.g. +91 98765 43210"
+                  maxlength="20"
+                  autocomplete="tel"
+                  aria-required="true"
+                  aria-describedby="phoneError"
+                />
+                <% if (errors.some(e => e.field === 'phone')) { %>
+                  <div class="invalid-feedback" id="phoneError" role="alert">
+                    <%= errors.find(e => e.field === 'phone').message %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Message (optional) -->
+            <div class="mb-4" id="field-message">
+              <label for="message" class="form-label cp-label">
+                Message <span class="text-muted fw-normal">(optional)</span>
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                class="form-control cp-input <%= errors.some(e => e.field === 'message') ? 'is-invalid' : '' %>"
+                rows="3"
+                placeholder="Any additional information..."
+                maxlength="500"
+                aria-describedby="messageError messageCount"
+              ><%= old.message || '' %></textarea>
+              <div class="d-flex justify-content-between mt-1">
+                <% if (errors.some(e => e.field === 'message')) { %>
+                  <div class="invalid-feedback d-block" id="messageError" role="alert">
+                    <%= errors.find(e => e.field === 'message').message %>
+                  </div>
+                <% } else { %>
+                  <span></span>
+                <% } %>
+                <small class="text-muted" id="messageCount" aria-live="polite">
+                  0 / 500
+                </small>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn cp-btn-primary btn-lg" id="submitBtn">
+                <i class="bi bi-send me-2"></i>Submit Registration
+              </button>
+              <a href="/" class="btn cp-btn-ghost">Cancel</a>
+            </div>
+
+          </form>
+        </div>
+        <!-- end form card -->
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

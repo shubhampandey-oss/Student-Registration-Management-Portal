@@ -1,0 +1,12 @@
+<!-- ── Flash Message ─────────────────────────────────────────── -->
+<% if (typeof flash !== 'undefined' && flash) { %>
+  <div
+    class="alert alert-<%= flash.type === 'success' ? 'success' : flash.type === 'warning' ? 'warning' : 'danger' %> alert-dismissible fade show cp-flash"
+    role="alert"
+    id="flashMessage"
+  >
+    <i class="bi bi-<%= flash.type === 'success' ? 'check-circle' : flash.type === 'warning' ? 'exclamation-triangle' : 'x-circle' %>-fill me-2"></i>
+    <%= flash.text %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>

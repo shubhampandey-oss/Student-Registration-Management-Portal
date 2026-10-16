@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main id="mainContent" class="cp-page-main">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 text-center">
+
+        <div class="cp-error-page">
+          <div class="cp-error-code" aria-hidden="true"><%= code %></div>
+          <h1 class="cp-error-title">
+            <%= code === 404 ? 'Page Not Found' : 'Something Went Wrong' %>
+          </h1>
+          <p class="cp-error-msg text-muted mt-3"><%= message %></p>
+          <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+            <a href="/" class="btn cp-btn-primary">
+              <i class="bi bi-house me-2"></i>Go Home
+            </a>
+            <button onclick="history.back()" class="btn cp-btn-outline" id="goBackBtn">
+              <i class="bi bi-arrow-left me-2"></i>Go Back
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
