@@ -47,162 +47,303 @@
             novalidate
             aria-label="Student registration form"
           >
+            <input type="hidden" name="formVersion" value="2" />
 
-            <!-- Full Name -->
-            <div class="mb-4" id="field-name">
-              <label for="name" class="form-label cp-label">
-                Full Name <span class="text-danger" aria-label="required">*</span>
-              </label>
-              <div class="input-group">
-                <span class="input-group-text cp-input-icon">
-                  <i class="bi bi-person"></i>
-                </span>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  class="form-control cp-input <%= errors.some(e => e.field === 'name') ? 'is-invalid' : '' %>"
-                  value="<%= old.name || '' %>"
-                  placeholder="e.g. Priya Sharma"
-                  maxlength="100"
-                  autocomplete="name"
-                  aria-required="true"
-                  aria-describedby="nameError"
-                />
-                <% if (errors.some(e => e.field === 'name')) { %>
+            <!-- SECTION 1: Personal Information -->
+            <div class="cp-form-section mb-4">
+              <h2 class="cp-section-title">
+                <i class="bi bi-person-badge me-2 text-primary"></i>Personal Information
+              </h2>
+
+              <!-- Full Name -->
+              <div class="mb-3" id="field-name">
+                <label for="name" class="form-label cp-label">
+                  Full Name <span class="text-danger" aria-label="required">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text cp-input-icon">
+                    <i class="bi bi-person"></i>
+                  </span>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    class="form-control cp-input <%= errors.some(e => e.field === 'name') ? 'is-invalid' : '' %>"
+                    value="<%= old.name || '' %>"
+                    placeholder="e.g. Priya Sharma"
+                    maxlength="100"
+                    autocomplete="name"
+                    aria-required="true"
+                    aria-describedby="nameError nameHelp"
+                  />
                   <div class="invalid-feedback" id="nameError" role="alert">
-                    <%= errors.find(e => e.field === 'name').message %>
+                    <%= errors.find(e => e.field === 'name')?.message || '' %>
                   </div>
-                <% } %>
+                </div>
+                <small class="form-text text-muted" id="nameHelp">Letters, spaces, hyphens, and apostrophes only (2–100 characters).</small>
               </div>
-            </div>
 
-            <!-- Email Address -->
-            <div class="mb-4" id="field-email">
-              <label for="email" class="form-label cp-label">
-                Email Address <span class="text-danger" aria-label="required">*</span>
-              </label>
-              <div class="input-group">
-                <span class="input-group-text cp-input-icon">
-                  <i class="bi bi-envelope"></i>
-                </span>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  class="form-control cp-input <%= errors.some(e => e.field === 'email') ? 'is-invalid' : '' %>"
-                  value="<%= old.email || '' %>"
-                  placeholder="e.g. priya@example.com"
-                  maxlength="254"
-                  autocomplete="email"
-                  aria-required="true"
-                  aria-describedby="emailError"
-                />
-                <% if (errors.some(e => e.field === 'email')) { %>
+              <!-- Email Address -->
+              <div class="mb-3" id="field-email">
+                <label for="email" class="form-label cp-label">
+                  Email Address <span class="text-danger" aria-label="required">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text cp-input-icon">
+                    <i class="bi bi-envelope"></i>
+                  </span>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control cp-input <%= errors.some(e => e.field === 'email') ? 'is-invalid' : '' %>"
+                    value="<%= old.email || '' %>"
+                    placeholder="e.g. priya.sharma@example.com"
+                    maxlength="254"
+                    autocomplete="email"
+                    aria-required="true"
+                    aria-describedby="emailError emailHelp"
+                  />
                   <div class="invalid-feedback" id="emailError" role="alert">
-                    <%= errors.find(e => e.field === 'email').message %>
+                    <%= errors.find(e => e.field === 'email')?.message || '' %>
                   </div>
-                <% } %>
+                </div>
+                <small class="form-text text-muted" id="emailHelp">Official college or personal email address.</small>
               </div>
-            </div>
 
-            <!-- Course -->
-            <div class="mb-4" id="field-course">
-              <label for="course" class="form-label cp-label">
-                Course <span class="text-danger" aria-label="required">*</span>
-              </label>
-              <div class="input-group">
-                <span class="input-group-text cp-input-icon">
-                  <i class="bi bi-book"></i>
-                </span>
-                <select
-                  id="course"
-                  name="course"
-                  class="form-select cp-input <%= errors.some(e => e.field === 'course') ? 'is-invalid' : '' %>"
-                  aria-required="true"
-                  aria-describedby="courseError"
-                >
-                  <option value="" disabled <%= !old.course ? 'selected' : '' %>>— Select your course —</option>
+              <!-- Date of Birth & Age -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-7" id="field-dob">
+                  <label for="dob" class="form-label cp-label">
+                    Date of Birth <span class="text-danger" aria-label="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text cp-input-icon">
+                      <i class="bi bi-calendar-event"></i>
+                    </span>
+                    <input
+                      type="date"
+                      id="dob"
+                      name="dob"
+                      class="form-control cp-input <%= errors.some(e => e.field === 'dob') ? 'is-invalid' : '' %>"
+                      value="<%= old.dob || '' %>"
+                      aria-required="true"
+                      aria-describedby="dobError dobHelp"
+                    />
+                    <div class="invalid-feedback" id="dobError" role="alert">
+                      <%= errors.find(e => e.field === 'dob')?.message || '' %>
+                    </div>
+                  </div>
+                  <small class="form-text text-muted" id="dobHelp">Must be at least 16 years of age.</small>
+                </div>
+                <div class="col-md-5 d-flex flex-column justify-content-end">
+                  <div class="cp-age-badge-box p-2 rounded text-center border border-secondary border-opacity-25 bg-dark bg-opacity-50">
+                    <small class="text-muted d-block">Calculated Age</small>
+                    <span id="ageBadge" class="fw-bold text-info">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gender -->
+              <div class="mb-3" id="field-gender">
+                <label class="form-label cp-label d-block">
+                  Gender <span class="text-danger" aria-label="required">*</span>
+                </label>
+                <div class="cp-radio-group d-flex flex-wrap gap-2">
                   <% [
-                    'Computer Science',
-                    'Information Technology',
-                    'Data Science',
-                    'Artificial Intelligence',
-                    'Cybersecurity',
-                    'Software Engineering',
-                    'Web Development',
-                    'Other',
-                  ].forEach(c => { %>
-                    <option value="<%= c %>" <%= old.course === c ? 'selected' : '' %>><%= c %></option>
+                    { val: 'Male', icon: 'bi-gender-male' },
+                    { val: 'Female', icon: 'bi-gender-female' },
+                    { val: 'Other', icon: 'bi-gender-ambiguous' },
+                    { val: 'Prefer not to say', icon: 'bi-shield-check' }
+                  ].forEach(g => { %>
+                    <label class="cp-pill-radio <%= old.gender === g.val ? 'active' : '' %>">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="<%= g.val %>"
+                        <%= old.gender === g.val ? 'checked' : '' %>
+                        aria-required="true"
+                      />
+                      <i class="bi <%= g.icon %> me-1"></i><%= g.val %>
+                    </label>
                   <% }); %>
-                </select>
-                <% if (errors.some(e => e.field === 'course')) { %>
-                  <div class="invalid-feedback" id="courseError" role="alert">
-                    <%= errors.find(e => e.field === 'course').message %>
-                  </div>
-                <% } %>
-              </div>
-            </div>
-
-            <!-- Phone Number -->
-            <div class="mb-4" id="field-phone">
-              <label for="phone" class="form-label cp-label">
-                Phone Number <span class="text-danger" aria-label="required">*</span>
-              </label>
-              <div class="input-group">
-                <span class="input-group-text cp-input-icon">
-                  <i class="bi bi-telephone"></i>
-                </span>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  class="form-control cp-input <%= errors.some(e => e.field === 'phone') ? 'is-invalid' : '' %>"
-                  value="<%= old.phone || '' %>"
-                  placeholder="e.g. +91 98765 43210"
-                  maxlength="20"
-                  autocomplete="tel"
-                  aria-required="true"
-                  aria-describedby="phoneError"
-                />
-                <% if (errors.some(e => e.field === 'phone')) { %>
-                  <div class="invalid-feedback" id="phoneError" role="alert">
-                    <%= errors.find(e => e.field === 'phone').message %>
-                  </div>
-                <% } %>
-              </div>
-            </div>
-
-            <!-- Message (optional) -->
-            <div class="mb-4" id="field-message">
-              <label for="message" class="form-label cp-label">
-                Message <span class="text-muted fw-normal">(optional)</span>
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                class="form-control cp-input <%= errors.some(e => e.field === 'message') ? 'is-invalid' : '' %>"
-                rows="3"
-                placeholder="Any additional information..."
-                maxlength="500"
-                aria-describedby="messageError messageCount"
-              ><%= old.message || '' %></textarea>
-              <div class="d-flex justify-content-between mt-1">
-                <% if (errors.some(e => e.field === 'message')) { %>
-                  <div class="invalid-feedback d-block" id="messageError" role="alert">
-                    <%= errors.find(e => e.field === 'message').message %>
+                </div>
+                <% if (errors.some(e => e.field === 'gender')) { %>
+                  <div class="text-danger small mt-1" id="genderError" role="alert">
+                    <%= errors.find(e => e.field === 'gender').message %>
                   </div>
                 <% } else { %>
-                  <span></span>
+                  <div class="text-danger small mt-1 d-none" id="genderError" role="alert"></div>
                 <% } %>
-                <small class="text-muted" id="messageCount" aria-live="polite">
-                  0 / 500
-                </small>
               </div>
             </div>
 
-            <!-- Submit -->
-            <div class="d-grid gap-2 mt-4">
+            <!-- SECTION 2: Academic Details -->
+            <div class="cp-form-section mb-4 pt-3 border-top border-secondary border-opacity-25">
+              <h2 class="cp-section-title">
+                <i class="bi bi-mortarboard me-2 text-primary"></i>Academic Details
+              </h2>
+
+              <div class="row g-3">
+                <!-- Course -->
+                <div class="col-md-7" id="field-course">
+                  <label for="course" class="form-label cp-label">
+                    Course / Major <span class="text-danger" aria-label="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text cp-input-icon">
+                      <i class="bi bi-book"></i>
+                    </span>
+                    <select
+                      id="course"
+                      name="course"
+                      class="form-select cp-input <%= errors.some(e => e.field === 'course') ? 'is-invalid' : '' %>"
+                      aria-required="true"
+                      aria-describedby="courseError"
+                    >
+                      <option value="" disabled <%= !old.course ? 'selected' : '' %>>— Select your course —</option>
+                      <% [
+                        'Computer Science',
+                        'Information Technology',
+                        'Data Science',
+                        'Artificial Intelligence',
+                        'Cybersecurity',
+                        'Software Engineering',
+                        'Web Development',
+                        'Other',
+                      ].forEach(c => { %>
+                        <option value="<%= c %>" <%= old.course === c ? 'selected' : '' %>><%= c %></option>
+                      <% }); %>
+                    </select>
+                    <div class="invalid-feedback" id="courseError" role="alert">
+                      <%= errors.find(e => e.field === 'course')?.message || '' %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Year of Study -->
+                <div class="col-md-5" id="field-year">
+                  <label for="year" class="form-label cp-label">
+                    Year of Study <span class="text-danger" aria-label="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text cp-input-icon">
+                      <i class="bi bi-calendar3"></i>
+                    </span>
+                    <select
+                      id="year"
+                      name="year"
+                      class="form-select cp-input <%= errors.some(e => e.field === 'year') ? 'is-invalid' : '' %>"
+                      aria-required="true"
+                      aria-describedby="yearError"
+                    >
+                      <option value="" disabled <%= !old.year ? 'selected' : '' %>>— Select Year —</option>
+                      <% [
+                        '1st Year',
+                        '2nd Year',
+                        '3rd Year',
+                        '4th Year',
+                        'Postgraduate'
+                      ].forEach(y => { %>
+                        <option value="<%= y %>" <%= old.year === y ? 'selected' : '' %>><%= y %></option>
+                      <% }); %>
+                    </select>
+                    <div class="invalid-feedback" id="yearError" role="alert">
+                      <%= errors.find(e => e.field === 'year')?.message || '' %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 3: Contact & Online Presence -->
+            <div class="cp-form-section mb-4 pt-3 border-top border-secondary border-opacity-25">
+              <h2 class="cp-section-title">
+                <i class="bi bi-telephone-inbound me-2 text-primary"></i>Contact & Profiles
+              </h2>
+
+              <!-- Phone Number -->
+              <div class="mb-3" id="field-phone">
+                <label for="phone" class="form-label cp-label">
+                  Phone Number <span class="text-danger" aria-label="required">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text cp-input-icon">
+                    <i class="bi bi-telephone"></i>
+                  </span>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    class="form-control cp-input <%= errors.some(e => e.field === 'phone') ? 'is-invalid' : '' %>"
+                    value="<%= old.phone || '' %>"
+                    placeholder="e.g. +91 98765 43210"
+                    maxlength="20"
+                    autocomplete="tel"
+                    aria-required="true"
+                    aria-describedby="phoneError phoneHelp"
+                  />
+                  <div class="invalid-feedback" id="phoneError" role="alert">
+                    <%= errors.find(e => e.field === 'phone')?.message || '' %>
+                  </div>
+                </div>
+                <small class="form-text text-muted" id="phoneHelp">7 to 15 digits (country code optional).</small>
+              </div>
+
+              <!-- LinkedIn Profile (Optional) -->
+              <div class="mb-3" id="field-linkedin">
+                <label for="linkedin" class="form-label cp-label">
+                  LinkedIn Profile <span class="text-muted fw-normal">(optional)</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text cp-input-icon">
+                    <i class="bi bi-linkedin text-info"></i>
+                  </span>
+                  <input
+                    type="url"
+                    id="linkedin"
+                    name="linkedin"
+                    class="form-control cp-input <%= errors.some(e => e.field === 'linkedin') ? 'is-invalid' : '' %>"
+                    value="<%= old.linkedin || '' %>"
+                    placeholder="https://linkedin.com/in/username"
+                    maxlength="200"
+                    autocomplete="url"
+                    aria-describedby="linkedinError linkedinHelp"
+                  />
+                  <div class="invalid-feedback" id="linkedinError" role="alert">
+                    <%= errors.find(e => e.field === 'linkedin')?.message || '' %>
+                  </div>
+                </div>
+                <small class="form-text text-muted" id="linkedinHelp">e.g. https://linkedin.com/in/yourname</small>
+              </div>
+
+              <!-- Message (optional) -->
+              <div class="mb-3" id="field-message">
+                <label for="message" class="form-label cp-label">
+                  Additional Notes / Motivation <span class="text-muted fw-normal">(optional)</span>
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  class="form-control cp-input <%= errors.some(e => e.field === 'message') ? 'is-invalid' : '' %>"
+                  rows="3"
+                  placeholder="Share any special goals, portfolio links, or questions..."
+                  maxlength="500"
+                  aria-describedby="messageError messageCount"
+                ><%= old.message || '' %></textarea>
+                <div class="d-flex justify-content-between mt-1">
+                  <div class="invalid-feedback" id="messageError" role="alert">
+                    <%= errors.find(e => e.field === 'message')?.message || '' %>
+                  </div>
+                  <small class="text-muted ms-auto" id="messageCount" aria-live="polite">
+                    0 / 500
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="d-grid gap-2 mt-4 pt-2 border-top border-secondary border-opacity-25">
               <button type="submit" class="btn cp-btn-primary btn-lg" id="submitBtn">
                 <i class="bi bi-send me-2"></i>Submit Registration
               </button>

@@ -46,7 +46,7 @@
                 <div class="cp-student-info">
                   <div class="cp-student-name"><%= s.name %></div>
                   <div class="cp-student-course">
-                    <i class="bi bi-book me-1"></i><%= s.course %>
+                    <i class="bi bi-book me-1"></i><%= s.course %> <%= s.year ? '• ' + s.year : '' %>
                   </div>
                 </div>
                 <span class="cp-student-id">#<%= String(s.id).padStart(4,'0') %></span>

@@ -13,10 +13,10 @@
  *   server interaction and EJS rendering as required by the brief.
  */
 
-const { validateStudentTask1 } = require('../utils/validation');
+const { validateStudentTask2, calculateAge } = require('../utils/validation');
 
 // Temporary in-memory store.
-// Each entry: { id, name, email, course, phone, message, createdAt }
+// Each entry: { id, name, email, course, phone, dob, age, gender, year, linkedin, message, createdAt }
 const students = [];
 let   nextId   = 1;
 
@@ -36,10 +36,21 @@ exports.getRegisterForm = (req, res) => {
 // POST /students/register
 // ─────────────────────────────────────────────────────────────────
 exports.postRegister = (req, res) => {
-  const { name, email, course, phone, message } = req.body;
+  const {
+    name,
+    email,
+    course,
+    phone,
+    dob,
+    gender,
+    year,
+    linkedin,
+    message,
+    formVersion,
+  } = req.body;
 
   // Server-side validation (independent of browser/client rules)
-  const errors = validateStudentTask1({ name, email, course, phone, message });
+  const errors = validateStudentTask2(req.body);
 
   if (errors.length > 0) {
     // Re-render the form with the errors AND the values the user typed,
@@ -47,18 +58,23 @@ exports.postRegister = (req, res) => {
     return res.status(422).render('pages/register', {
       title:  'Register a Student',
       errors,
-      old:    { name, email, course, phone, message },
+      old:    req.body,
       flash:  null,
     });
   }
 
-  // Store the valid submission
+  // Store the valid submission with Task 2 attributes
   const student = {
     id:        nextId++,
     name:      name.trim(),
     email:     email.trim().toLowerCase(),
     course:    course.trim(),
     phone:     phone.trim(),
+    dob:       dob ? dob.trim() : null,
+    age:       dob ? calculateAge(dob.trim()) : null,
+    gender:    gender ? gender.trim() : null,
+    year:      year ? year.trim() : null,
+    linkedin:  linkedin && linkedin.trim().length > 0 ? linkedin.trim() : null,
     message:   (message || '').trim(),
     createdAt: new Date().toISOString(),
   };

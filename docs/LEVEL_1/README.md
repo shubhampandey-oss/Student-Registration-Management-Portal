@@ -1,8 +1,8 @@
 # Level 1 Summary
 
 ## Tasks in this Level
-- [Task 1 — HTML Structure and Basic Server Interaction](../TASK_1.md)
-- [Task 2 — Inline Styles, Basic Interaction, and Server-Side Validation](../TASK_2.md) *(coming next)*
+- [Task 1 — HTML Structure and Basic Server Interaction](../TASK_1.md) ✅
+- [Task 2 — Inline Styles, Basic Interaction, and Server-Side Validation](../TASK_2.md) ✅
 
 ## What Level 1 Covers
 Level 1 establishes the core server infrastructure and basic form handling:

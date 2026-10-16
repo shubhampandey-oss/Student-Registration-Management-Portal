@@ -701,8 +701,85 @@ img { max-width: 100%; height: auto; }
 .cp-step-card,
 .cp-student-card { animation: fadeInUp 0.5s ease both; }
 
+/* ── Task 2: Form Sections & Interactive Controls ────────────── */
+.cp-section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cp-pill-radio {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--cp-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--cp-muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--cp-transition);
+  user-select: none;
+}
+
+.cp-pill-radio input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.cp-pill-radio:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cp-pill-radio.active,
+.cp-pill-radio:has(input[type="radio"]:checked) {
+  background: rgba(108, 71, 255, 0.18);
+  border-color: var(--cp-primary);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(108, 71, 255, 0.35);
+}
+
+.cp-age-badge-box {
+  min-height: 58px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(26, 26, 46, 0.6) !important;
+}
+
+/* Validation states glow */
+.form-control.is-valid,
+.form-select.is-valid {
+  border-color: var(--cp-success) !important;
+  background-image: none !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18) !important;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--cp-danger) !important;
+  background-image: none !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18) !important;
+}
+
+.invalid-feedback {
+  font-size: 0.82rem;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
 /* ── Responsive tweaks ───────────────────────────────────────── */
 @media (max-width: 768px) {
   .cp-hero { min-height: auto; padding: 3rem 0; }
   .cp-profile-header { flex-direction: column; text-align: center; }
 }
+

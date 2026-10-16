@@ -45,6 +45,17 @@
               <div class="col-sm-6">
                 <div class="cp-detail-item">
                   <span class="cp-detail-label">
+                    <i class="bi bi-mortarboard me-1"></i>Academic Level
+                  </span>
+                  <span class="cp-detail-value">
+                    <%= student.course %> <%= student.year ? '• ' + student.year : '' %>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="cp-detail-item">
+                  <span class="cp-detail-label">
                     <i class="bi bi-envelope me-1"></i>Email
                   </span>
                   <span class="cp-detail-value">
@@ -62,10 +73,49 @@
                 </div>
               </div>
 
+              <% if (student.dob) { %>
+                <div class="col-sm-6">
+                  <div class="cp-detail-item">
+                    <span class="cp-detail-label">
+                      <i class="bi bi-calendar-event me-1"></i>Date of Birth
+                    </span>
+                    <span class="cp-detail-value">
+                      <%= student.dob %> <%= student.age !== null ? `(${student.age} years old)` : '' %>
+                    </span>
+                  </div>
+                </div>
+              <% } %>
+
+              <% if (student.gender) { %>
+                <div class="col-sm-6">
+                  <div class="cp-detail-item">
+                    <span class="cp-detail-label">
+                      <i class="bi bi-person-check me-1"></i>Gender
+                    </span>
+                    <span class="cp-detail-value"><%= student.gender %></span>
+                  </div>
+                </div>
+              <% } %>
+
+              <% if (student.linkedin) { %>
+                <div class="col-sm-6">
+                  <div class="cp-detail-item">
+                    <span class="cp-detail-label">
+                      <i class="bi bi-linkedin text-info me-1"></i>LinkedIn Profile
+                    </span>
+                    <span class="cp-detail-value">
+                      <a href="<%= student.linkedin %>" target="_blank" rel="noopener noreferrer" class="cp-detail-link">
+                        <i class="bi bi-box-arrow-up-right me-1 small"></i>View Profile
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              <% } %>
+
               <div class="col-sm-6">
                 <div class="cp-detail-item">
                   <span class="cp-detail-label">
-                    <i class="bi bi-calendar me-1"></i>Registered
+                    <i class="bi bi-calendar me-1"></i>Registered On
                   </span>
                   <span class="cp-detail-value">
                     <%= new Date(student.createdAt).toLocaleDateString('en-IN', {
