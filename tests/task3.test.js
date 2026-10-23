@@ -106,11 +106,11 @@ describe('Task 3 — Responsive Design, Search/Filter & Layout Polish', () => {
     assert.ok(body.includes('initial-scale=1.0'), 'Viewport must specify initial-scale=1.0');
   });
 
-  test('GET / — contains accessible skip-to-main-content link', async () => {
+  test('GET / — does not contain accessible skip-to-main-content link', async () => {
     const { status, body } = await get('/');
     assert.equal(status, 200);
-    assert.ok(body.includes('cp-skip-link'), 'Page should include skip link class');
-    assert.ok(body.includes('href="#mainContent"'), 'Skip link should target #mainContent');
+    assert.ok(!body.includes('cp-skip-link'), 'Page should not include skip link class');
+    assert.ok(!body.includes('Skip to main content'), 'Page should not include skip link text');
   });
 
   test('GET / — contains responsive collapsible navbar toggle', async () => {
