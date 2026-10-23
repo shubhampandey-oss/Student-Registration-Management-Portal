@@ -13,8 +13,9 @@ require('dotenv').config();
 const express   = require('express');
 const path      = require('path');
 const morgan    = require('morgan');
-const session   = require('express-session');
-const dbManager = require('./models/db');
+const session     = require('express-session');
+const dbManager   = require('./models/db');
+const cronService = require('./services/cron.service');
 
 // Security & Optimization Middleware (Task 7)
 const { helmetSecurity, corsSecurity } = require('./middleware/security.middleware');
@@ -129,6 +130,9 @@ app.use((err, req, res, next) => {
     message: isDev ? err.message : 'Something went wrong. Please try again.',
   });
 });
+
+// ── Initialize background tasks (Task 8) ──────────────────────
+cronService.initCronJobs();
 
 // ── Start server ───────────────────────────────────────────────
 const server = app.listen(PORT, () => {

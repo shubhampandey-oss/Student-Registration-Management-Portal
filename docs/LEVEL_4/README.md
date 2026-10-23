@@ -2,22 +2,22 @@
 
 ## Tasks in this Level
 - [Task 7 — Security Hardening, Rate Limiting, Input Sanitization & Performance Caching](../TASK_7.md) ✅
-- [Task 8 — Automated Background Tasks (Node-Cron), Production Bundling & Final Internship Deployment Package](../../docs/TASK_8.md) (Upcoming)
+- [Task 8 — Automated Background Tasks (Node-Cron), Production Bundling & Final Internship Deployment Package](../TASK_8.md) ✅
 
 ---
 
 ## What Level 4 Covers
-Level 4 equips the Student Registration and Management Portal with industrial-strength security hardening, multi-tiered DDoS and brute-force defenses, low-latency caching, and automated background jobs:
+Level 4 provides the production-grade reliability, security hardening, automated operations, and health telemetry expected in commercial software:
 
-1. **HTTP Security Headers (Helmet)**: Enforcing Content Security Policy (CSP), clickjacking defenses (`X-Frame-Options: SAMEORIGIN`), MIME-sniffing prevention (`X-Content-Type-Options: nosniff`), and server header obfuscation.
-2. **CORS Governance**: Configurable cross-origin resource sharing for secure external API consumption.
-3. **Multi-Tier Rate Limiting (`express-rate-limit`)**:
-   - Global rate limiter (250 req / 15m) preventing DoS.
-   - Strict authentication limiter (10 attempts / 15m) preventing credential stuffing.
-   - API rate limiter (120 req / 15m) protecting endpoints from scraping.
-4. **Recursive XSS Defense Middleware**: Sanitizes incoming user payloads across `req.body`, `req.query`, and `req.params`, eliminating malicious script tags and event handlers while preserving credentials.
-5. **In-Memory Caching Engine (`node-cache`)**: Micro-caching frequent student queries with automatic invalidation on mutations (`POST`, `PUT`, `DELETE`) and transparent `X-Cache: HIT / MISS` telemetry.
-6. **Live Security Diagnostics Dashboard**: Real-time observability interface at `/auth/security` tracking cache hit ratios, active keys, and enforced security standards.
+1. **HTTP Security Headers (Helmet) (Task 7)**: Content Security Policy (CSP), clickjacking defenses (`X-Frame-Options: SAMEORIGIN`), MIME-sniffing prevention (`X-Content-Type-Options: nosniff`), and server header obfuscation.
+2. **Multi-Tier Rate Limiting (Task 7)**: `express-rate-limit` defending against global DoS, authentication credential-stuffing, and API scraping.
+3. **Recursive XSS Defense (Task 7)**: Deep sanitization across `req.body`, `req.query`, and `req.params` while preserving credentials.
+4. **In-Memory Caching Engine (Task 7)**: `node-cache` integration with `X-Cache: HIT / MISS` telemetry and automatic invalidation on student mutations (`POST`, `PUT`, `DELETE`).
+5. **Live Diagnostics Portal (Task 7)**: Interactive telemetry dashboard at `/auth/security`.
+6. **Automated Background Tasks (Node-Cron) (Task 8)**: Scheduled cron jobs executing nightly SQLite database backups and hourly cache hygiene sweeps.
+7. **Automated Backup Rotation (Task 8)**: Rolling rotation policy preserving the latest 5 backups in `data/backups/`.
+8. **System Health & Telemetry API (Task 8)**: `/api/v1/health` providing live telemetry (memory RSS/heap, database metrics, uptime, node version).
+9. **On-Demand Backup Script (Task 8)**: `npm run backup` CLI runner for immediate manual database snapshots.
 
 ---
 
@@ -25,9 +25,13 @@ Level 4 equips the Student Registration and Management Portal with industrial-st
 ```powershell
 cd "c:\Users\shubh\OneDrive\Desktop\Cognifyz"
 npm test
+npm run backup
 npm run dev
 ```
 
-- Portal: http://localhost:3000
-- Security Diagnostics: http://localhost:3000/auth/security
-- REST API with Caching: http://localhost:3000/api/v1/students
+### Key URLs:
+- Web Portal: [http://localhost:3000](http://localhost:3000)
+- Security & Cache Diagnostics: [http://localhost:3000/auth/security](http://localhost:3000/auth/security)
+- Health API: [http://localhost:3000/api/v1/health](http://localhost:3000/api/v1/health)
+- Backups API: [http://localhost:3000/api/v1/cron/backups](http://localhost:3000/api/v1/cron/backups)
+- REST Documentation: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
