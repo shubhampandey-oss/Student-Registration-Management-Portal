@@ -98,7 +98,7 @@
                     name="email"
                     class="form-control cp-input <%= errors.some(e => e.field === 'email') ? 'is-invalid' : '' %>"
                     value="<%= old.email || '' %>"
-                    placeholder="e.g. priya.sharma@example.com"
+                    placeholder="e.g. name@domain.com or admin@cognifyz.com"
                     maxlength="254"
                     autocomplete="email"
                     aria-required="true"
@@ -108,7 +108,7 @@
                     <%= errors.find(e => e.field === 'email')?.message || '' %>
                   </div>
                 </div>
-                <small class="form-text text-muted" id="emailHelp">Official college or personal email address.</small>
+                <small class="form-text text-muted" id="emailHelp">Institutional or standard personal email (e.g., @gmail.com, @yahoo.com, @cognifyz.com).</small>
               </div>
 
               <!-- Date of Birth & Age -->

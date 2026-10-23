@@ -182,6 +182,33 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.equal(createdUser.role, 'student');
   });
 
+  it('POST /auth/register — accepts standard personal email providers (@gmail.com, @yahoo.com, @outlook.com)', async () => {
+    const providers = ['gmail.com', 'yahoo.com', 'outlook.com'];
+    for (const provider of providers) {
+      const email = `testuser_${Date.now()}_${Math.floor(Math.random() * 1000)}@${provider}`;
+      const payload = new URLSearchParams({
+        name: `User ${provider}`,
+        email,
+        role: 'student',
+        password: 'ValidPersonalPass@2026',
+        confirmPassword: 'ValidPersonalPass@2026',
+      }).toString();
+
+      const res = await request({
+        method: 'POST',
+        path: '/auth/register',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(payload),
+        },
+      }, payload);
+
+      assert.equal(res.statusCode, 302, `Registration with @${provider} must succeed with 302`);
+      const user = userStore.findByEmail(email);
+      assert.ok(user, `User with ${provider} must be found in database`);
+    }
+  });
+
   it('POST /auth/login — invalid credentials returns 401', async () => {
     const payload = new URLSearchParams({
       email: 'admin@cognifyz.com',

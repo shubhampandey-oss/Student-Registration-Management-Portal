@@ -65,12 +65,13 @@
                 class="form-control form-control-lg <%= errors.find(e => e.field === 'email') ? 'is-invalid' : '' %>"
                 id="userEmail"
                 name="email"
-                placeholder="aditi@example.com"
+                placeholder="e.g. name@domain.com or admin@cognifyz.com"
                 value="<%= old && old.email ? old.email : '' %>"
                 required
                 autocomplete="email"
               />
               <div class="invalid-feedback">Please enter a valid, unique email address.</div>
+              <small class="form-text text-muted">Institutional or standard personal email (e.g., @gmail.com, @yahoo.com, @cognifyz.com).</small>
             </div>
 
             <!-- Role Selection -->
