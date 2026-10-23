@@ -457,10 +457,10 @@ exports.getResetPassword = (req, res) => {
 
 /**
  * POST /auth/reset-password
- * Validates new password criteria, verifies admin secret key if admin, updates hash, redirects to login
+ * Validates new password criteria, updates hash in database, redirects to login
  */
 exports.postResetPassword = async (req, res) => {
-  const { email, newPassword, confirmPassword, adminSecretKey } = req.body;
+  const { email, newPassword, confirmPassword } = req.body;
   const cleanEmail = (typeof email === 'string') ? email.toLowerCase().trim() : '';
   const errors = [];
 
@@ -496,22 +496,13 @@ exports.postResetPassword = async (req, res) => {
     errors.push({ field: 'confirmPassword', msg: 'Passwords do not match.' });
   }
 
-  // 3. Admin Secret Key authorization if account is admin
-  if (user.role === 'admin') {
-    const validAdminSecret = process.env.ADMIN_SECRET_KEY || 'Admin@Secret2026';
-    const trimmedSecret = (typeof adminSecretKey === 'string') ? adminSecretKey.trim() : '';
-    if (!trimmedSecret || trimmedSecret !== validAdminSecret) {
-      errors.push({ field: 'adminSecretKey', msg: 'Invalid Admin Secret Key' });
-    }
-  }
-
   if (errors.length > 0) {
     return res.status(422).render('pages/reset-password', {
       title:    'Reset Password — Student Portal',
       email:    user.email,
       userRole: user.role,
       errors,
-      old:      { email: user.email, newPassword: trimmedPassword, confirmPassword: trimmedConfirm, adminSecretKey },
+      old:      { email: user.email, newPassword: trimmedPassword, confirmPassword: trimmedConfirm },
       flash:    null,
     });
   }

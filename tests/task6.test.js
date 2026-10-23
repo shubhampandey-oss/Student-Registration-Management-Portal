@@ -531,7 +531,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(res.headers.location.includes('student%40cognifyz.com') || res.headers.location.includes('student@cognifyz.com'));
   });
 
-  it('GET /auth/reset-password shows appropriate fields for student vs admin', async () => {
+  it('GET /auth/reset-password shows password fields and NO admin secret key for both roles', async () => {
     // Student reset form should NOT show admin secret key
     const studentRes = await request({ method: 'GET', path: '/auth/reset-password?email=student@cognifyz.com' });
     assert.equal(studentRes.statusCode, 200);
@@ -539,11 +539,12 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(studentRes.body.includes('name="newPassword"'), 'Should contain new password input');
     assert.ok(!studentRes.body.includes('name="adminSecretKey"'), 'Student should NOT have adminSecretKey field');
 
-    // Admin reset form MUST show admin secret key
+    // Admin reset form also should NOT show admin secret key
     const adminRes = await request({ method: 'GET', path: '/auth/reset-password?email=admin@cognifyz.com' });
     assert.equal(adminRes.statusCode, 200);
     assert.ok(adminRes.body.includes('Administrator'), 'Should show Administrator badge/label');
-    assert.ok(adminRes.body.includes('name="adminSecretKey"'), 'Admin reset form MUST contain adminSecretKey field');
+    assert.ok(adminRes.body.includes('name="newPassword"'), 'Should contain new password input');
+    assert.ok(!adminRes.body.includes('name="adminSecretKey"'), 'Admin reset form MUST NOT contain adminSecretKey field');
   });
 
   it('POST /auth/reset-password for student rejects weak password and updates on valid password', async () => {
@@ -597,7 +598,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(loginUser, 'Student must be able to authenticate with new password');
   });
 
-  it('POST /auth/reset-password for admin requires valid Admin Secret Key', async () => {
+  it('POST /auth/reset-password for admin resets password directly without requiring Admin Secret Key', async () => {
     const testAdminEmail = `rstadmin_${Date.now()}@example.com`;
     await userStore.create({
       name: 'Reset Admin User',
@@ -606,32 +607,12 @@ describe('Task 6 — Database Integration & User Authentication', () => {
       role: 'admin',
     });
 
-    // 1. Missing / invalid secret key rejected with 422
-    const invalidSecretPayload = new URLSearchParams({
-      email: testAdminEmail,
-      newPassword: 'NewAdmin@Password2026!',
-      confirmPassword: 'NewAdmin@Password2026!',
-      adminSecretKey: 'WrongSecretKey',
-    }).toString();
-
-    const rejectRes = await request({
-      method: 'POST',
-      path: '/auth/reset-password',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(invalidSecretPayload),
-      },
-    }, invalidSecretPayload);
-    assert.equal(rejectRes.statusCode, 422);
-    assert.ok(rejectRes.body.includes('Invalid Admin Secret Key'));
-
-    // 2. Valid secret key succeeds and updates password
+    // Directly submit new password without any adminSecretKey
     const newAdminPass = 'SuperAdmin@NewPass2026!';
     const validAdminPayload = new URLSearchParams({
       email: testAdminEmail,
       newPassword: newAdminPass,
       confirmPassword: newAdminPass,
-      adminSecretKey: process.env.ADMIN_SECRET_KEY || 'Admin@Secret2026',
     }).toString();
 
     const successRes = await request({
@@ -645,7 +626,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.equal(successRes.statusCode, 302);
     assert.equal(successRes.headers.location, '/login');
 
-    // 3. Admin can immediately authenticate with the new password
+    // Admin can immediately authenticate with the new password
     const loginAdmin = await userStore.authenticate(testAdminEmail, newAdminPass);
     assert.ok(loginAdmin, 'Admin must be able to authenticate with new password');
   });
