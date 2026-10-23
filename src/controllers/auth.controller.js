@@ -202,6 +202,39 @@ exports.postRegister = async (req, res) => {
 };
 
 /**
+ * GET /auth/quick-login
+ * Instant 1-click login for evaluator testing (?role=admin or ?role=student)
+ */
+exports.quickLogin = async (req, res) => {
+  const role = req.query.role === 'admin' ? 'admin' : 'student';
+  const targetEmail = role === 'admin' ? 'admin@cognifyz.com' : 'student@cognifyz.com';
+  const user = userStore.findByEmail(targetEmail);
+
+  if (!user) {
+    return res.redirect('/auth/login');
+  }
+
+  req.session.user = {
+    id:    user.id,
+    name:  user.name,
+    email: user.email,
+    role:  user.role,
+  };
+
+  const targetUrl = (req.query.returnUrl && req.query.returnUrl.startsWith('/') && !req.query.returnUrl.startsWith('//'))
+    ? req.query.returnUrl
+    : '/';
+
+  if (typeof req.setFlash === 'function') {
+    req.setFlash('success', `Signed in as ${user.name} (${user.role.toUpperCase()}).`);
+  }
+
+  req.session.save(() => {
+    res.redirect(targetUrl);
+  });
+};
+
+/**
  * GET /auth/logout & POST /auth/logout
  * Destroys user session and redirects to home
  */

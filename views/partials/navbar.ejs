@@ -45,45 +45,84 @@
       <!-- User Authentication Controls -->
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-2">
         <% if (typeof currentUser !== 'undefined' && currentUser) { %>
-          <li class="nav-item dropdown">
+          <!-- User Profile Badge -->
+          <li class="nav-item">
             <a
-              class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1 px-3 rounded-pill bg-light bg-opacity-10 text-white"
-              href="#"
-              id="userMenuDropdown"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
+              class="nav-link d-flex align-items-center gap-2 py-1 px-3 rounded-pill bg-light bg-opacity-10 text-white border border-light border-opacity-10 text-decoration-none shadow-sm"
+              href="<%= currentUser.role === 'admin' ? '/auth/admin' : '/auth/dashboard' %>"
+              title="Click to view account details"
             >
-              <i class="bi bi-person-circle fs-5 text-warning"></i>
+              <i class="bi <%= currentUser.role === 'admin' ? 'bi-shield-check text-warning' : 'bi-person-circle text-info' %> fs-5"></i>
               <span class="fw-semibold"><%= currentUser.name %></span>
               <span class="badge <%= currentUser.role === 'admin' ? 'bg-danger' : 'bg-info text-dark' %> text-uppercase" style="font-size: 0.65rem;">
                 <%= currentUser.role %>
               </span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="userMenuDropdown">
+          </li>
+
+          <!-- Dedicated Direct Log Out Button -->
+          <li class="nav-item">
+            <a
+              href="/auth/logout"
+              class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 rounded-pill px-3 py-1 fw-semibold shadow-sm"
+              id="<%= currentUser.role === 'admin' ? 'adminLogoutBtn' : 'userLogoutBtn' %>"
+              title="<%= currentUser.role === 'admin' ? 'Click to log out of Admin account' : 'Click to log out of User account' %>"
+            >
+              <i class="bi bi-box-arrow-right"></i>
+              <span><%= currentUser.role === 'admin' ? 'Admin Log Out' : 'User Log Out' %></span>
+            </a>
+          </li>
+        <% } else { %>
+          <!-- 1-Click Quick Log In (Admin / Student) -->
+          <li class="nav-item dropdown">
+            <button
+              class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center gap-1 shadow-sm"
+              type="button"
+              id="quickLoginDropdown"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              title="1-Click Quick Log In for evaluation testing"
+            >
+              <i class="bi bi-lightning-charge-fill"></i>
+              <span class="fw-semibold">Quick Log In</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="quickLoginDropdown">
+              <li><h6 class="dropdown-header text-uppercase tracking-wider small">1-Click Instant Login</h6></li>
               <li>
-                <div class="px-3 py-2 text-muted small">
-                  Signed in as<br />
-                  <strong class="text-dark"><%= currentUser.email %></strong>
-                </div>
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="/auth/quick-login?role=admin">
+                  <i class="bi bi-shield-check text-danger fs-5"></i>
+                  <div>
+                    <strong class="d-block text-dark">Log In as Admin</strong>
+                    <small class="text-muted">admin@cognifyz.com</small>
+                  </div>
+                </a>
               </li>
-              <li><hr class="dropdown-divider" /></li>
+              <li><hr class="dropdown-divider my-1" /></li>
               <li>
-                <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="/auth/logout">
-                  <i class="bi bi-box-arrow-right"></i>Sign Out
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="/auth/quick-login?role=student">
+                  <i class="bi bi-person-fill text-primary fs-5"></i>
+                  <div>
+                    <strong class="d-block text-dark">Log In as Student</strong>
+                    <small class="text-muted">student@cognifyz.com</small>
+                  </div>
                 </a>
               </li>
             </ul>
           </li>
-        <% } else { %>
+
+          <!-- Standard Sign In -->
           <li class="nav-item">
-            <a class="nav-link text-white-50" href="/auth/login">
-              <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+            <a class="nav-link text-white d-flex align-items-center gap-1 px-2" href="/auth/login" id="navLoginBtn">
+              <i class="bi bi-box-arrow-in-right"></i>
+              <span class="fw-semibold">Sign In</span>
             </a>
           </li>
+
+          <!-- Standard Sign Up -->
           <li class="nav-item">
-            <a class="btn btn-sm btn-outline-light rounded-pill px-3" href="/auth/register">
-              <i class="bi bi-person-plus me-1"></i>Sign Up
+            <a class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1 shadow-sm" href="/auth/register" id="navRegisterBtn">
+              <i class="bi bi-person-plus"></i>
+              <span>Sign Up</span>
             </a>
           </li>
         <% } %>

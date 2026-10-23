@@ -142,15 +142,17 @@
     }
   });
 
-  // Quick fill helper for internship evaluation
+  // Quick fill & auto-login helper for evaluation
   document.getElementById('quickFillAdminBtn')?.addEventListener('click', function() {
     document.getElementById('loginEmail').value = 'admin@cognifyz.com';
     document.getElementById('loginPassword').value = 'Admin@12345';
+    document.getElementById('loginForm')?.submit();
   });
 
   document.getElementById('quickFillStudentBtn')?.addEventListener('click', function() {
     document.getElementById('loginEmail').value = 'student@cognifyz.com';
     document.getElementById('loginPassword').value = 'Student@12345';
+    document.getElementById('loginForm')?.submit();
   });
 </script>
 

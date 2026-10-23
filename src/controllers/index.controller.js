@@ -6,7 +6,16 @@
  */
 
 exports.getHome = (req, res) => {
+  let flash = res.locals.flash;
+  if (!flash && req.query.logged_out === '1') {
+    flash = {
+      type: 'success',
+      message: 'You have been logged out successfully.',
+    };
+  }
+
   res.render('pages/home', {
     title: 'Student Portal — Cognifyz',
+    flash,
   });
 };
