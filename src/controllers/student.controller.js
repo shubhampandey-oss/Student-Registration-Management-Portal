@@ -13,8 +13,9 @@
  *   server interaction and EJS rendering as required by the brief.
  */
 
-const bcrypt = require('bcrypt');
-const store  = require('../models/student.store');
+const bcrypt       = require('bcrypt');
+const store        = require('../models/student.store');
+const cacheService = require('../services/cache.service');
 const { validateStudentTask4, calculateAge } = require('../utils/validation');
 
 // Central store reference
@@ -113,6 +114,7 @@ exports.postRegister = async (req, res) => {
     createdAt: new Date().toISOString(),
   };
   students.push(student);
+  cacheService.invalidateStudentsCache();
 
   // Redirect to the success / detail page (POST → Redirect → GET pattern)
   res.redirect(`/students/${student.id}?success=1`);

@@ -2,7 +2,8 @@
 
 /**
  * src/routes/auth.routes.js
- * Routing definitions for user authentication and session management.
+ * Routing definitions for user authentication, session management,
+ * and security diagnostics.
  */
 
 const express        = require('express');
@@ -13,13 +14,14 @@ const {
   requireAdmin,
   redirectIfAuthenticated,
 } = require('../middleware/auth.middleware');
+const { authLimiter } = require('../middleware/rateLimiter.middleware');
 
-// Public authentication pages (redirect if already logged in)
+// Public authentication pages (rate limited against brute force)
 router.get('/login',     redirectIfAuthenticated, authController.getLogin);
-router.post('/login',    authController.postLogin);
+router.post('/login',    authLimiter, authController.postLogin);
 
 router.get('/register',  redirectIfAuthenticated, authController.getRegister);
-router.post('/register', authController.postRegister);
+router.post('/register', authLimiter, authController.postRegister);
 
 // Session termination
 router.get('/logout',    authController.logout);
@@ -31,5 +33,9 @@ router.get('/me',        authController.getMe);
 // Protected routes (Task 6 Authentication & Role Guards)
 router.get('/dashboard', requireAuth, authController.getDashboard);
 router.get('/admin',     requireAuth, requireAdmin, authController.getAdmin);
+
+// Security & diagnostics (Task 7)
+router.get('/security',              requireAuth, authController.getSecurityStatus);
+router.post('/security/flush-cache', requireAuth, authController.postFlushCache);
 
 module.exports = router;

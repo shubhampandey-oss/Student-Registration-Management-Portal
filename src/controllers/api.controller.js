@@ -17,8 +17,9 @@
  *  - Strict HTTP status codes (200, 201, 400, 404, 422, 500).
  */
 
-const bcrypt = require('bcrypt');
-const store  = require('../models/student.store');
+const bcrypt       = require('bcrypt');
+const store        = require('../models/student.store');
+const cacheService = require('../services/cache.service');
 const {
   validateStudentTask1,
   validateStudentTask2,
@@ -172,6 +173,7 @@ exports.createStudent = async (req, res) => {
   };
 
   const saved = store.add(newStudentData);
+  cacheService.invalidateStudentsCache();
 
   return res.status(201).json({
     success: true,
@@ -248,6 +250,7 @@ exports.updateStudent = async (req, res) => {
   }
 
   const updated = store.update(id, updates);
+  cacheService.invalidateStudentsCache();
 
   return res.status(200).json({
     success: true,
@@ -273,6 +276,8 @@ exports.deleteStudent = (req, res) => {
       timestamp: new Date().toISOString(),
     });
   }
+
+  cacheService.invalidateStudentsCache();
 
   return res.status(200).json({
     success:   true,

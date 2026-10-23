@@ -6,7 +6,8 @@
  * registration, login, logout, and current user profile inspection.
  */
 
-const userStore = require('../models/user.store');
+const userStore    = require('../models/user.store');
+const cacheService = require('../services/cache.service');
 const { evaluatePasswordStrength } = require('../utils/validation');
 
 /**
@@ -260,5 +261,33 @@ exports.getAdmin = (req, res) => {
     users,
     flash: res.locals.flash,
   });
+};
+
+/**
+ * GET /auth/security
+ * Displays security status and cache analytics
+ */
+exports.getSecurityStatus = (req, res) => {
+  const cacheStats = cacheService.getStats();
+  res.render('pages/security-status', {
+    title:      'Security & Diagnostics — Student Portal',
+    user:       req.session.user,
+    cacheStats,
+    flash:      res.locals.flash,
+  });
+};
+
+/**
+ * POST /auth/security/flush-cache
+ * Flushes all active cache items
+ */
+exports.postFlushCache = (req, res) => {
+  cacheService.flush();
+  if (typeof req.setFlash === 'function') {
+    req.setFlash('success', 'In-memory cache successfully flushed.');
+  } else if (req.session) {
+    req.session.flash = { type: 'success', message: 'In-memory cache successfully flushed.' };
+  }
+  res.redirect('/auth/security');
 };
 

@@ -3,8 +3,9 @@
 /**
  * src/app.js
  * Main Express application entry point.
- * Loads environment variables, configures middleware, sessions,
- * database readiness, registers routes, and starts the HTTP server.
+ * Loads environment variables, configures security headers (Helmet),
+ * CORS, rate limiters, input sanitization, sessions, database readiness,
+ * registers routes, and starts the HTTP server.
  */
 
 require('dotenv').config();
@@ -15,8 +16,20 @@ const morgan    = require('morgan');
 const session   = require('express-session');
 const dbManager = require('./models/db');
 
+// Security & Optimization Middleware (Task 7)
+const { helmetSecurity, corsSecurity } = require('./middleware/security.middleware');
+const { globalLimiter, apiLimiter }    = require('./middleware/rateLimiter.middleware');
+const { sanitizeInput }                = require('./middleware/sanitize.middleware');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ── HTTP Security Headers & CORS (Task 7) ──────────────────────
+app.use(helmetSecurity);
+app.use(corsSecurity);
+
+// ── Rate Limiting (Task 7) ─────────────────────────────────────
+app.use(globalLimiter);
 
 // ── View engine ────────────────────────────────────────────────
 app.set('view engine', 'ejs');
@@ -28,6 +41,9 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 // ── Request parsing ────────────────────────────────────────────
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// ── Input Sanitization (Task 7 — XSS Defense) ──────────────────
+app.use(sanitizeInput);
 
 // ── HTTP request logging ───────────────────────────────────────
 if (process.env.NODE_ENV !== 'test') {
@@ -80,7 +96,7 @@ const apiRouter     = require('./routes/api.routes');
 app.use('/',         indexRouter);
 app.use('/students', studentRouter);
 app.use('/auth',     authRouter);
-app.use('/api',      apiRouter);
+app.use('/api',      apiLimiter, apiRouter);
 
 // ── 404 handler ────────────────────────────────────────────────
 app.use((req, res) => {

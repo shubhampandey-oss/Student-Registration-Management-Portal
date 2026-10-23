@@ -2,19 +2,26 @@
 
 /**
  * src/routes/api.routes.js
- * RESTful API Routes — Task 5 (Level 3)
+ * RESTful API Routes — Level 3 (Task 5) & Security/Caching — Level 4 (Task 7)
  */
 
-const express    = require('express');
-const router     = express.Router();
-const controller = require('../controllers/api.controller');
+const express        = require('express');
+const router         = express.Router();
+const controller     = require('../controllers/api.controller');
+const cacheService   = require('../services/cache.service');
+const { strictTestLimiter } = require('../middleware/rateLimiter.middleware');
 
 // ── Interactive API Documentation & Console ──────────────────────
 router.get('/docs', controller.getApiDocs);
 
-// ── Student CRUD Endpoints (v1) ──────────────────────────────────
-// List students (filtering, sorting, pagination)
-router.get('/v1/students', controller.getAllStudents);
+// ── Rate Limit Verification Endpoint (Task 7) ────────────────────
+router.get('/test-rate-limit', strictTestLimiter, (req, res) => {
+  res.json({ success: true, message: 'Request within rate limit.' });
+});
+
+// ── Student CRUD Endpoints (v1) with Response Caching ─────────────
+// List students (filtering, sorting, pagination, cached with X-Cache headers)
+router.get('/v1/students', cacheService.cacheMiddleware(60), controller.getAllStudents);
 
 // Get single student by ID
 router.get('/v1/students/:id', controller.getStudentById);
