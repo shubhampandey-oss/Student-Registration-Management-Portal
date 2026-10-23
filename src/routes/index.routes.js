@@ -11,5 +11,6 @@ const controller = require('../controllers/index.controller');
 
 // GET / → Landing / Home page
 router.get('/', controller.getHome);
+router.get('/signup', (req, res) => res.redirect('/auth/register'));
 
 module.exports = router;

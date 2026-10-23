@@ -123,11 +123,37 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(res.body.includes('name="password"'), 'Should contain password input');
   });
 
-  it('GET /auth/register — returns 200 with registration form', async () => {
+  it('GET /auth/register — returns 200 with registration form and no role selector', async () => {
     const res = await request({ method: 'GET', path: '/auth/register' });
     assert.equal(res.statusCode, 200);
     assert.ok(res.body.includes('Create Account'), 'Should display Create Account header');
     assert.ok(res.body.includes('name="name"'), 'Should contain name input');
+    assert.ok(!res.body.includes('name="role"'), 'Role selection dropdown must be removed from registration form');
+  });
+
+  it('POST /auth/register — protects admin creation and unconditionally assigns student role', async () => {
+    const testEmail = `tryadmin_${Date.now()}@example.com`;
+    const payload = new URLSearchParams({
+      name: 'Attempted Admin User',
+      email: testEmail,
+      role: 'admin', // Malicious attempt to self-grant admin role
+      password: 'SecurePass@2026',
+      confirmPassword: 'SecurePass@2026',
+    }).toString();
+
+    const res = await request({
+      method: 'POST',
+      path: '/auth/register',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, payload);
+
+    assert.equal(res.statusCode, 302);
+    const createdUser = userStore.findByEmail(testEmail);
+    assert.ok(createdUser, 'User account should be created');
+    assert.equal(createdUser.role, 'student', 'Role must strictly default to student regardless of request body payload');
   });
 
   it('POST /auth/register — rejects invalid password and returns synchronized error message', async () => {

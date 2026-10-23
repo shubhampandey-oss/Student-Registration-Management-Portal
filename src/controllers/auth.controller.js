@@ -179,13 +179,15 @@ exports.postRegister = async (req, res) => {
     return res.status(422).render('pages/user-register', {
       title:  'Create Account — Student Portal',
       errors,
-      old:    { name, email, role, password: trimmedPassword, confirmPassword: trimmedConfirm },
+      old:    { name, email, password: trimmedPassword, confirmPassword: trimmedConfirm },
       flash:  null,
     });
   }
 
   try {
-    const userRole = (role === 'admin') ? 'admin' : 'student';
+    // Unconditionally assign standard 'student' role for public registrations.
+    // Protects administrator privileges from payload manipulation or privilege escalation.
+    const userRole = 'student';
     const newUser = await userStore.create({
       name:     name.trim(),
       email:    email.trim(),

@@ -21,7 +21,9 @@ router.get('/login',       redirectIfAuthenticated, authController.getLogin);
 router.post('/login',      authLimiter, authController.postLogin);
 
 router.get('/register',    redirectIfAuthenticated, authController.getRegister);
-router.post('/register', authLimiter, authController.postRegister);
+router.post('/register',   authLimiter, authController.postRegister);
+router.get('/signup',      redirectIfAuthenticated, authController.getRegister);
+router.post('/signup',     authLimiter, authController.postRegister);
 
 // Session termination
 router.get('/logout',    authController.logout);

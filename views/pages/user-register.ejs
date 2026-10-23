@@ -74,18 +74,6 @@
               <small class="form-text text-muted">Institutional or standard personal email (e.g., @gmail.com, @yahoo.com, @cognifyz.com).</small>
             </div>
 
-            <!-- Role Selection -->
-            <div class="mb-3">
-              <label for="userRole" class="form-label cp-label fw-semibold">
-                <i class="bi bi-shield-check me-1 text-primary"></i>Account Role
-              </label>
-              <select class="form-select form-select-lg" id="userRole" name="role">
-                <option value="student" <%= (old && old.role === 'student') ? 'selected' : '' %>>Student User (Standard Access)</option>
-                <option value="admin" <%= (old && old.role === 'admin') ? 'selected' : '' %>>Administrator (Full CRUD & Delete Access)</option>
-              </select>
-              <div class="form-text">Administrators can perform protected actions like student record deletion.</div>
-            </div>
-
             <!-- Password -->
             <div class="mb-3">
               <label for="userPassword" class="form-label cp-label fw-semibold">
