@@ -14,12 +14,11 @@
  */
 
 const bcrypt = require('bcrypt');
+const store  = require('../models/student.store');
 const { validateStudentTask4, calculateAge } = require('../utils/validation');
 
-// Temporary in-memory store.
-// Each entry: { id, name, email, course, phone, dob, age, gender, year, linkedin, message, passwordHash, hasAccount, hostel, scholarship, createdAt }
-const students = [];
-let   nextId   = 1;
+// Central store reference
+const students = store.students;
 
 // ─────────────────────────────────────────────────────────────────
 // GET /students/register
@@ -88,7 +87,7 @@ exports.postRegister = async (req, res) => {
 
   // Store the valid submission with Task 4 attributes
   const student = {
-    id:           nextId++,
+    id:           store.getNextId(),
     name:         name.trim(),
     email:        email.trim().toLowerCase(),
     course:       course.trim(),

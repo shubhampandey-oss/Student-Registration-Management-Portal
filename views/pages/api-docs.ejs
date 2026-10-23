@@ -1,0 +1,189 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main id="mainContent" class="cp-page-main">
+  <div class="container py-5">
+
+    <!-- Page Title -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-10 text-center">
+        <span class="cp-badge mb-2">
+          <i class="bi bi-code-slash me-1"></i>Level 3 — Task 5
+        </span>
+        <h1 class="cp-page-title">RESTful API Documentation &amp; Live Explorer</h1>
+        <p class="text-muted">
+          Comprehensive REST API endpoints for student data management.
+          Test live HTTP requests directly below using the built-in interactive console.
+        </p>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+
+        <!-- ── Live Interactive API Test Console ────────────────── -->
+        <div class="cp-form-card mb-5 border border-primary border-opacity-50">
+          <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+            <h2 class="h5 text-white mb-0">
+              <i class="bi bi-terminal me-2 text-primary"></i>Interactive Live API Console
+            </h2>
+            <span class="badge bg-primary bg-opacity-25 text-info border border-info border-opacity-25">
+              Live Runner
+            </span>
+          </div>
+
+          <!-- Request Builder -->
+          <div class="row g-2 mb-3">
+            <div class="col-md-3">
+              <label for="apiMethodSelect" class="form-label cp-label small">HTTP Method</label>
+              <select id="apiMethodSelect" class="form-select cp-input fw-bold text-info">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+              </select>
+            </div>
+            <div class="col-md-7">
+              <label for="apiEndpointInput" class="form-label cp-label small">Endpoint Path</label>
+              <div class="input-group">
+                <span class="input-group-text cp-input-icon small">/api/</span>
+                <input
+                  type="text"
+                  id="apiEndpointInput"
+                  class="form-control cp-input"
+                  value="v1/students"
+                />
+              </div>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="button" class="btn cp-btn-primary w-100" id="sendApiRequestBtn">
+                <i class="bi bi-play-fill me-1"></i>Send
+              </button>
+            </div>
+          </div>
+
+          <!-- Request Body (Visible for POST/PUT) -->
+          <div id="apiRequestBodyContainer" class="mb-3 d-none">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label for="apiRequestBody" class="form-label cp-label small mb-0">Request Body (JSON)</label>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="loadSamplePostBtn">Sample POST</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="loadSamplePutBtn">Sample PUT</button>
+              </div>
+            </div>
+            <textarea
+              id="apiRequestBody"
+              class="form-control cp-input font-monospace small"
+              rows="6"
+              placeholder='{\n  "name": "Aarav Patel",\n  "email": "aarav@example.com",\n  "course": "Computer Science",\n  "phone": "+91 98765 00000"\n}'
+            ></textarea>
+          </div>
+
+          <!-- Response Display -->
+          <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-white small">Response:</span>
+                <span id="apiResponseStatus" class="badge bg-secondary">Awaiting Request</span>
+                <span id="apiResponseTime" class="text-muted small"></span>
+              </div>
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="copyApiResponseBtn" title="Copy response JSON">
+                <i class="bi bi-clipboard me-1"></i>Copy
+              </button>
+            </div>
+            <pre id="apiResponseViewer" class="p-3 rounded bg-dark border border-secondary border-opacity-25 text-light font-monospace small mb-0" style="max-height: 340px; overflow-y: auto;">
+Click "Send" above to execute a live HTTP request to the API.
+            </pre>
+          </div>
+        </div>
+
+        <!-- ── API Endpoints Specification ─────────────────────── -->
+        <h2 class="h4 text-white mb-3">
+          <i class="bi bi-journal-code me-2 text-primary"></i>RESTful API Endpoints Reference
+        </h2>
+
+        <!-- Endpoint 1: List Students -->
+        <div class="cp-form-card mb-4">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-success px-2 py-1 fw-bold">GET</span>
+            <code class="text-info fs-6">/api/v1/students</code>
+          </div>
+          <p class="text-muted small mb-2">
+            Retrieves a list of registered students. Supports query parameters for search, course filtering, year filtering, and pagination.
+          </p>
+          <div class="table-responsive">
+            <table class="table table-dark table-sm table-bordered border-secondary border-opacity-25 small mb-0">
+              <thead>
+                <tr><th>Query Parameter</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>q</code></td><td>string</td><td>Full-text search matching name, email, phone, or course.</td></tr>
+                <tr><td><code>course</code></td><td>string</td><td>Filter strictly by course name (e.g. <code>Data Science</code>).</td></tr>
+                <tr><td><code>year</code></td><td>string</td><td>Filter by year of study (e.g. <code>3rd Year</code>).</td></tr>
+                <tr><td><code>page</code></td><td>integer</td><td>Page number for pagination (default: <code>1</code>).</td></tr>
+                <tr><td><code>limit</code></td><td>integer</td><td>Items per page (default: <code>50</code>, max: <code>100</code>).</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Endpoint 2: Get Student by ID -->
+        <div class="cp-form-card mb-4">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-success px-2 py-1 fw-bold">GET</span>
+            <code class="text-info fs-6">/api/v1/students/:id</code>
+          </div>
+          <p class="text-muted small mb-0">
+            Returns detailed student profile information. Returns HTTP <code>200 OK</code> if found, or <code>404 Not Found</code>. Sensitive fields (like <code>passwordHash</code>) are automatically excluded.
+          </p>
+        </div>
+
+        <!-- Endpoint 3: Create Student -->
+        <div class="cp-form-card mb-4">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-primary px-2 py-1 fw-bold">POST</span>
+            <code class="text-info fs-6">/api/v1/students</code>
+          </div>
+          <p class="text-muted small mb-2">
+            Creates a new student record via a JSON payload. Returns HTTP <code>201 Created</code> on success, or <code>422 Unprocessable Entity</code> if validation rules fail.
+          </p>
+          <pre class="p-2 rounded bg-dark border border-secondary border-opacity-25 text-info font-monospace small mb-0">
+{
+  "name": "Aarav Patel",
+  "email": "aarav.patel@example.com",
+  "course": "Artificial Intelligence",
+  "year": "3rd Year",
+  "phone": "+91 98765 43210"
+}
+          </pre>
+        </div>
+
+        <!-- Endpoint 4: Update Student -->
+        <div class="cp-form-card mb-4">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-warning text-dark px-2 py-1 fw-bold">PUT</span>
+            <code class="text-info fs-6">/api/v1/students/:id</code>
+          </div>
+          <p class="text-muted small mb-0">
+            Updates an existing student's attributes. Accepts partial updates (e.g. updating course or phone). Returns HTTP <code>200 OK</code> on success, <code>404 Not Found</code> if ID is invalid, or <code>422</code> on validation failure.
+          </p>
+        </div>
+
+        <!-- Endpoint 5: Delete Student -->
+        <div class="cp-form-card mb-4">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-danger px-2 py-1 fw-bold">DELETE</span>
+            <code class="text-info fs-6">/api/v1/students/:id</code>
+          </div>
+          <p class="text-muted small mb-0">
+            Permanently deletes the student record with the specified ID. Returns HTTP <code>200 OK</code> with deletion confirmation, or <code>404 Not Found</code>.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

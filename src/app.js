@@ -43,12 +43,23 @@ app.use((req, res, next) => {
 // ── Routes ─────────────────────────────────────────────────────
 const indexRouter   = require('./routes/index.routes');
 const studentRouter = require('./routes/student.routes');
+const apiRouter     = require('./routes/api.routes');
 
 app.use('/',         indexRouter);
 app.use('/students', studentRouter);
+app.use('/api',      apiRouter);
 
 // ── 404 handler ────────────────────────────────────────────────
 app.use((req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({
+      success: false,
+      error:   'API Endpoint Not Found',
+      message: `The requested route ${req.method} ${req.path} does not exist. Refer to /api/docs for available endpoints.`,
+      code:    404,
+    });
+  }
+
   res.status(404).render('pages/error', {
     title:   '404 — Page Not Found',
     code:    404,

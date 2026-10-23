@@ -729,6 +729,220 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // ── 10. Task 5: Asynchronous fetch() Student Delete & Toast ────
+  function showApiToast(message, isSuccess = true) {
+    const toastEl = document.getElementById('apiToast');
+    const msgEl   = document.getElementById('apiToastMessage');
+    const iconEl  = document.getElementById('apiToastIcon');
+    if (!toastEl || !msgEl) return;
+
+    msgEl.textContent = message;
+    if (iconEl) {
+      iconEl.className = isSuccess
+        ? 'bi bi-check-circle-fill text-success fs-5'
+        : 'bi bi-exclamation-triangle-fill text-danger fs-5';
+    }
+
+    if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+      const bsToast = bootstrap.Toast.getOrCreateInstance(toastEl);
+      bsToast.show();
+    }
+  }
+
+  document.querySelectorAll('.cp-delete-btn').forEach(btn => {
+    btn.addEventListener('click', async function (e) {
+      e.preventDefault();
+      const id   = btn.getAttribute('data-id');
+      const name = btn.getAttribute('data-name') || `Student #${id}`;
+
+      if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+      try {
+        const response = await fetch(`/api/v1/students/${id}`, {
+          method: 'DELETE',
+          headers: { 'Accept': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          const cardCol = btn.closest('.cp-student-col');
+          if (cardCol) {
+            cardCol.style.transition = 'all 0.4s ease';
+            cardCol.style.opacity = '0';
+            cardCol.style.transform = 'scale(0.85)';
+            setTimeout(() => {
+              cardCol.remove();
+              // Update student counter
+              const remaining = document.querySelectorAll('.cp-student-col').length;
+              const counterEl = document.getElementById('studentResultsCounter');
+              if (counterEl) {
+                counterEl.textContent = `Showing ${remaining} of ${remaining} registered student${remaining !== 1 ? 's' : ''}.`;
+              }
+              if (remaining === 0) {
+                const noRes = document.getElementById('noFilterResults');
+                if (noRes) noRes.classList.remove('d-none');
+              }
+            }, 400);
+          }
+          showApiToast(`Student #${id} (${name}) was deleted via REST API.`, true);
+        } else {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-trash"></i>';
+          showApiToast(data.message || 'Failed to delete student.', false);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-trash"></i>';
+        showApiToast('Network error while attempting deletion.', false);
+      }
+    });
+  });
+
+  // ── 11. Task 5: Interactive Live API Documentation Console ─────
+  const methodSelect       = document.getElementById('apiMethodSelect');
+  const endpointInput      = document.getElementById('apiEndpointInput');
+  const bodyContainer      = document.getElementById('apiRequestBodyContainer');
+  const bodyTextarea       = document.getElementById('apiRequestBody');
+  const sendRequestBtn     = document.getElementById('sendApiRequestBtn');
+  const responseViewer     = document.getElementById('apiResponseViewer');
+  const responseStatus     = document.getElementById('apiResponseStatus');
+  const responseTime       = document.getElementById('apiResponseTime');
+  const copyResponseBtn    = document.getElementById('copyApiResponseBtn');
+  const loadSamplePostBtn  = document.getElementById('loadSamplePostBtn');
+  const loadSamplePutBtn   = document.getElementById('loadSamplePutBtn');
+
+  if (methodSelect && sendRequestBtn && responseViewer) {
+
+    // Toggle body container visibility for POST / PUT
+    methodSelect.addEventListener('change', function () {
+      const m = methodSelect.value;
+      if (m === 'POST' || m === 'PUT') {
+        bodyContainer.classList.remove('d-none');
+      } else {
+        bodyContainer.classList.add('d-none');
+      }
+    });
+
+    if (loadSamplePostBtn && bodyTextarea) {
+      loadSamplePostBtn.addEventListener('click', function () {
+        bodyTextarea.value = JSON.stringify({
+          name:     'Rhea Kapoor',
+          email:    `rhea.${Date.now().toString().slice(-4)}@example.com`,
+          course:   'Artificial Intelligence',
+          year:     '2nd Year',
+          phone:    '+91 98765 11223',
+          dob:      '2003-07-20',
+          gender:   'Female',
+          password: 'Secure@ApiPass1'
+        }, null, 2);
+      });
+    }
+
+    if (loadSamplePutBtn && bodyTextarea) {
+      loadSamplePutBtn.addEventListener('click', function () {
+        bodyTextarea.value = JSON.stringify({
+          phone:  '+91 99000 88776',
+          course: 'Data Science',
+          year:   '3rd Year'
+        }, null, 2);
+      });
+    }
+
+    sendRequestBtn.addEventListener('click', async function () {
+      const method   = methodSelect.value;
+      let   path     = endpointInput.value.trim();
+      if (!path.startsWith('/')) path = '/' + path;
+      const fullUrl  = path.startsWith('/api') ? path : `/api${path}`;
+
+      let options = {
+        method,
+        headers: {
+          'Accept': 'application/json'
+        }
+      };
+
+      if (method === 'POST' || method === 'PUT') {
+        const rawBody = bodyTextarea.value.trim();
+        if (rawBody) {
+          try {
+            JSON.parse(rawBody); // validate syntax
+            options.headers['Content-Type'] = 'application/json';
+            options.body = rawBody;
+          } catch (jsonErr) {
+            responseStatus.className = 'badge bg-danger';
+            responseStatus.textContent = 'Invalid JSON Body';
+            responseViewer.textContent = 'Error: The request body contains invalid JSON syntax.\n' + jsonErr.message;
+            return;
+          }
+        }
+      }
+
+      sendRequestBtn.disabled = true;
+      sendRequestBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Running...';
+      responseStatus.className = 'badge bg-secondary';
+      responseStatus.textContent = 'Sending request...';
+      responseViewer.textContent = 'Connecting to server...';
+
+      const startTime = performance.now();
+
+      try {
+        const res = await fetch(fullUrl, options);
+        const duration = Math.round(performance.now() - startTime);
+
+        let data;
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+
+        // Format status badge
+        if (res.status >= 200 && res.status < 300) {
+          responseStatus.className = 'badge bg-success';
+        } else if (res.status >= 400 && res.status < 500) {
+          responseStatus.className = 'badge bg-warning text-dark';
+        } else {
+          responseStatus.className = 'badge bg-danger';
+        }
+        responseStatus.textContent = `${res.status} ${res.statusText || ''}`;
+        if (responseTime) responseTime.textContent = `(${duration} ms)`;
+
+        responseViewer.textContent = typeof data === 'object'
+          ? JSON.stringify(data, null, 2)
+          : data;
+
+      } catch (networkErr) {
+        responseStatus.className = 'badge bg-danger';
+        responseStatus.textContent = 'Network Error';
+        responseViewer.textContent = 'Error: ' + networkErr.message;
+      } finally {
+        sendRequestBtn.disabled = false;
+        sendRequestBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Send';
+      }
+    });
+
+    if (copyResponseBtn) {
+      copyResponseBtn.addEventListener('click', function () {
+        const text = responseViewer.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          copyResponseBtn.innerHTML = '<i class="bi bi-check2 text-success me-1"></i>Copied!';
+          setTimeout(() => {
+            copyResponseBtn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy';
+          }, 2000);
+        });
+      });
+    }
+
+  }
+
 });
+
 
 
