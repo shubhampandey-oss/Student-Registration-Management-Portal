@@ -80,7 +80,7 @@
                 class="form-control form-control-lg <%= errors.find(e => e.field === 'email') ? 'is-invalid' : '' %>"
                 id="loginEmail"
                 name="email"
-                placeholder="<%= (typeof portal !== 'undefined' && portal === 'admin') ? 'admin@cognifyz.com' : 'student@cognifyz.com' %>"
+                placeholder="<%= (typeof portal !== 'undefined' && portal === 'admin') ? 'e.g. admin@cognifyz.com' : 'e.g. name@student.cognifyz.com' %>"
                 value="<%= old && old.email ? old.email : '' %>"
                 required
                 autocomplete="email"
@@ -128,38 +128,8 @@
             </button>
           </form>
 
-          <!-- 1-Click Instant Login Box -->
-          <div class="p-3 bg-light rounded-3 border mt-2" id="demoBox">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <span class="small fw-bold text-secondary text-uppercase tracking-wider">
-                <i class="bi bi-lightning-charge-fill text-warning me-1"></i>1-Click Instant Login
-              </span>
-              <span class="badge bg-secondary rounded-pill small">Auto-Submit</span>
-            </div>
-
-            <!-- Student 1-Click Action -->
-            <button
-              type="button"
-              class="btn btn-outline-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2 <%= (typeof portal !== 'undefined' && portal === 'admin') ? 'd-none' : '' %>"
-              id="quickStudentBtn"
-            >
-              <i class="bi bi-person-fill fs-5"></i>
-              <span>Log in as <strong>Student User</strong> (student@cognifyz.com)</span>
-            </button>
-
-            <!-- Admin 1-Click Action -->
-            <button
-              type="button"
-              class="btn btn-outline-danger w-100 py-2 d-flex align-items-center justify-content-center gap-2 <%= (typeof portal !== 'undefined' && portal === 'admin') ? '' : 'd-none' %>"
-              id="quickAdminBtn"
-            >
-              <i class="bi bi-shield-check fs-5"></i>
-              <span>Log in as <strong>Cognifyz Admin</strong> (admin@cognifyz.com)</span>
-            </button>
-          </div>
-
           <!-- Bottom Contextual Links -->
-          <div class="text-center mt-4" id="registerCta">
+          <div class="text-center mt-3" id="registerCta">
             <div id="studentRegisterPrompt" class="<%= (typeof portal !== 'undefined' && portal === 'admin') ? 'd-none' : '' %>">
               <span class="text-muted">New student?</span>
               <a href="/auth/register" class="fw-semibold text-primary ms-1">Register for an account</a>
@@ -204,8 +174,6 @@
   const loginEmail = document.getElementById('loginEmail');
   const submitLoginBtn = document.getElementById('submitLoginBtn');
   const submitBtnText = document.getElementById('submitBtnText');
-  const quickStudentBtn = document.getElementById('quickStudentBtn');
-  const quickAdminBtn = document.getElementById('quickAdminBtn');
   const studentRegisterPrompt = document.getElementById('studentRegisterPrompt');
   const adminNotice = document.getElementById('adminNotice');
 
@@ -220,13 +188,11 @@
     portalTitle.textContent = 'Student Sign In';
     portalSubtitle.textContent = 'Access your student portal, check registration status, and update your academic details.';
     emailLabelText.textContent = 'Student Email Address';
-    loginEmail.placeholder = 'student@cognifyz.com';
+    loginEmail.placeholder = 'e.g. name@student.cognifyz.com';
 
     submitLoginBtn.className = 'btn btn-primary btn-lg w-100 fw-semibold mb-3 shadow-sm';
     submitBtnText.textContent = 'Sign In as Student';
 
-    quickStudentBtn.classList.remove('d-none');
-    quickAdminBtn.classList.add('d-none');
     studentRegisterPrompt.classList.remove('d-none');
     adminNotice.classList.add('d-none');
 
@@ -244,13 +210,11 @@
     portalTitle.textContent = 'Administrator Sign In';
     portalSubtitle.textContent = 'Sign in to inspect registered students, manage records, and monitor user enrollments.';
     emailLabelText.textContent = 'Administrator Email Address';
-    loginEmail.placeholder = 'admin@cognifyz.com';
+    loginEmail.placeholder = 'e.g. admin@cognifyz.com';
 
     submitLoginBtn.className = 'btn btn-danger btn-lg w-100 fw-semibold mb-3 shadow-sm';
     submitBtnText.textContent = 'Sign In as Administrator';
 
-    quickAdminBtn.classList.remove('d-none');
-    quickStudentBtn.classList.add('d-none');
     adminNotice.classList.remove('d-none');
     studentRegisterPrompt.classList.add('d-none');
 
@@ -259,19 +223,6 @@
 
   tabStudent?.addEventListener('click', switchToStudent);
   tabAdmin?.addEventListener('click', switchToAdmin);
-
-  // 1-Click Instant Login Handlers
-  quickStudentBtn?.addEventListener('click', function() {
-    loginEmail.value = 'student@cognifyz.com';
-    document.getElementById('loginPassword').value = 'Student@12345';
-    document.getElementById('loginForm')?.submit();
-  });
-
-  quickAdminBtn?.addEventListener('click', function() {
-    loginEmail.value = 'admin@cognifyz.com';
-    document.getElementById('loginPassword').value = 'Admin@12345';
-    document.getElementById('loginForm')?.submit();
-  });
 </script>
 
 <%- include('../partials/footer') %>

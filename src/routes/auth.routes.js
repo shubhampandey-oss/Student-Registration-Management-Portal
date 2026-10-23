@@ -19,7 +19,6 @@ const { authLimiter } = require('../middleware/rateLimiter.middleware');
 // Public authentication pages (rate limited against brute force)
 router.get('/login',       redirectIfAuthenticated, authController.getLogin);
 router.post('/login',      authLimiter, authController.postLogin);
-router.get('/quick-login', authController.quickLogin);
 
 router.get('/register',    redirectIfAuthenticated, authController.getRegister);
 router.post('/register', authLimiter, authController.postRegister);

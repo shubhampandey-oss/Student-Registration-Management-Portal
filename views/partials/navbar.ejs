@@ -75,43 +75,6 @@
             </a>
           </li>
         <% } else { %>
-          <!-- 1-Click Quick Log In (Admin / Student) -->
-          <li class="nav-item dropdown">
-            <button
-              class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center gap-1 shadow-sm"
-              type="button"
-              id="quickLoginDropdown"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              title="1-Click Quick Log In for evaluation testing"
-            >
-              <i class="bi bi-lightning-charge-fill"></i>
-              <span class="fw-semibold">Quick Log In</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="quickLoginDropdown">
-              <li><h6 class="dropdown-header text-uppercase tracking-wider small">1-Click Instant Login</h6></li>
-              <li>
-                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="/auth/quick-login?role=admin">
-                  <i class="bi bi-shield-check text-danger fs-5"></i>
-                  <div>
-                    <strong class="d-block text-dark">Log In as Admin</strong>
-                    <small class="text-muted">admin@cognifyz.com</small>
-                  </div>
-                </a>
-              </li>
-              <li><hr class="dropdown-divider my-1" /></li>
-              <li>
-                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="/auth/quick-login?role=student">
-                  <i class="bi bi-person-fill text-primary fs-5"></i>
-                  <div>
-                    <strong class="d-block text-dark">Log In as Student</strong>
-                    <small class="text-muted">student@cognifyz.com</small>
-                  </div>
-                </a>
-              </li>
-            </ul>
-          </li>
-
           <!-- Sign In Portal Options -->
           <li class="nav-item dropdown">
             <a
