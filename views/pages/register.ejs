@@ -47,7 +47,7 @@
             novalidate
             aria-label="Student registration form"
           >
-            <input type="hidden" name="formVersion" value="2" />
+            <input type="hidden" name="formVersion" value="4" />
 
             <!-- SECTION 1: Personal Information -->
             <div class="cp-form-section mb-4">
@@ -364,6 +364,7 @@
                     type="password"
                     id="password"
                     name="password"
+                    value="<%= old.password || '' %>"
                     class="form-control cp-input <%= errors.some(e => e.field === 'password') ? 'is-invalid' : '' %>"
                     placeholder="Enter secure password"
                     autocomplete="new-password"
@@ -442,6 +443,7 @@
                     type="password"
                     id="confirmPassword"
                     name="confirmPassword"
+                    value="<%= old.confirmPassword || '' %>"
                     class="form-control cp-input <%= errors.some(e => e.field === 'confirmPassword') ? 'is-invalid' : '' %>"
                     placeholder="Re-enter your password"
                     autocomplete="new-password"

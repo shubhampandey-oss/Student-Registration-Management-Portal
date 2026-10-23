@@ -96,6 +96,7 @@
                   class="form-control form-control-lg <%= errors.find(e => e.field === 'password') ? 'is-invalid' : '' %>"
                   id="userPassword"
                   name="password"
+                  value="<%= old && old.password ? old.password : '' %>"
                   placeholder="Min 8 characters (mixed case, numbers, symbols)"
                   required
                   autocomplete="new-password"
@@ -152,6 +153,7 @@
                 class="form-control form-control-lg <%= errors.find(e => e.field === 'confirmPassword') ? 'is-invalid' : '' %>"
                 id="userConfirmPassword"
                 name="confirmPassword"
+                value="<%= old && old.confirmPassword ? old.confirmPassword : '' %>"
                 placeholder="Re-enter your password"
                 required
                 autocomplete="new-password"

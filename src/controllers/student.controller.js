@@ -75,9 +75,10 @@ exports.postRegister = async (req, res) => {
 
   // Hash password if provided
   let passwordHash = null;
-  if (password && password.length > 0) {
+  const trimmedPassword = (typeof password === 'string') ? password.trim() : '';
+  if (trimmedPassword && trimmedPassword.length > 0) {
     try {
-      passwordHash = await bcrypt.hash(password, 10);
+      passwordHash = await bcrypt.hash(trimmedPassword, 10);
     } catch (err) {
       console.error('[AUTH ERROR] Password hashing failed:', err.message);
     }

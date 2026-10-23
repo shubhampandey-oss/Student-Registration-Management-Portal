@@ -344,11 +344,14 @@ function validateStudentTask4(data, options = {}) {
 
   // ── Password Credentials ───────────────────────────────────────
   if (isTask4Form || (password && password.length > 0)) {
-    if (!password || password.length === 0) {
+    const trimmedPw = (typeof password === 'string') ? password.trim() : '';
+    const trimmedConfirm = (typeof confirmPassword === 'string') ? confirmPassword.trim() : '';
+
+    if (!trimmedPw || trimmedPw.length === 0) {
       errors.push({ field: 'password', message: 'Password is required to create your student account.' });
     } else {
-      const strength = evaluatePasswordStrength(password);
-      if (password.length < 8) {
+      const strength = evaluatePasswordStrength(trimmedPw);
+      if (trimmedPw.length < 8) {
         errors.push({ field: 'password', message: 'Password must be at least 8 characters long.' });
       } else if (!strength.isValid) {
         errors.push({
@@ -359,9 +362,9 @@ function validateStudentTask4(data, options = {}) {
     }
 
     // Confirm password
-    if (!confirmPassword || confirmPassword.length === 0) {
+    if (!trimmedConfirm || trimmedConfirm.length === 0) {
       errors.push({ field: 'confirmPassword', message: 'Please confirm your password.' });
-    } else if (password !== confirmPassword) {
+    } else if (trimmedPw !== trimmedConfirm) {
       errors.push({ field: 'confirmPassword', message: 'Passwords do not match.' });
     }
   }

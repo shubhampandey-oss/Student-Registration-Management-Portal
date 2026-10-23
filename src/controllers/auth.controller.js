@@ -179,7 +179,7 @@ exports.postRegister = async (req, res) => {
     return res.status(422).render('pages/user-register', {
       title:  'Create Account — Student Portal',
       errors,
-      old:    { name, email, role },
+      old:    { name, email, role, password: trimmedPassword, confirmPassword: trimmedConfirm },
       flash:  null,
     });
   }
