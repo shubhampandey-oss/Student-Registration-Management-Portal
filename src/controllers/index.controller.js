@@ -15,7 +15,7 @@ exports.getHome = (req, res) => {
   } else if (!flash && (req.query.deleted === '1' || req.query.deleted === 'account')) {
     flash = {
       type: 'success',
-      message: 'Your account has been deleted successfully.',
+      message: 'Your account has been permanently deleted.',
     };
   }
 

@@ -77,15 +77,15 @@
                 Permanently delete your user account and all associated registration records.
               </p>
             </div>
-            <button
-              type="button"
-              class="btn btn-outline-danger fw-semibold"
-              data-bs-toggle="modal"
-              data-bs-target="#deleteAccountModal"
-              id="deleteAccountBtn"
-            >
-              <i class="bi bi-trash3-fill me-1"></i>Delete My Account
-            </button>
+            <form action="/account/delete" method="POST" id="deleteAccountForm" onsubmit="return confirm('Are you sure you want to permanently delete your account?');" class="d-inline">
+              <button
+                type="submit"
+                class="btn btn-outline-danger fw-semibold"
+                id="deleteAccountBtn"
+              >
+                <i class="bi bi-trash3-fill me-1"></i>Delete My Account
+              </button>
+            </form>
           </div>
         </div>
 

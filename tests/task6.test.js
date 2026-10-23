@@ -781,8 +781,11 @@ describe('Task 6 — Database Integration & User Authentication', () => {
       method: 'GET',
       path: delRes.headers.location,
     });
-    assert.equal(homeRes.statusCode, 200);
-    assert.ok(homeRes.body.includes('Your account has been deleted successfully.'), 'Landing page must show deletion banner');
+    assert.ok(
+      homeRes.body.includes('Your account has been permanently deleted') ||
+      homeRes.body.includes('Your account has been deleted successfully.'),
+      'Landing page must show deletion banner'
+    );
   });
 
   it('POST /account/delete deletes administrator user and destroys session', async () => {

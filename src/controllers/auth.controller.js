@@ -9,6 +9,7 @@
 const bcrypt       = require('bcrypt');
 const userStore    = require('../models/user.store');
 const studentStore = require('../models/student.store');
+const dbManager    = require('../models/db');
 const cacheService = require('../services/cache.service');
 const { evaluatePasswordStrength } = require('../utils/validation');
 
@@ -118,6 +119,7 @@ exports.postLogin = async (req, res) => {
       role:  rawUser.role,
     };
     req.session.user = user;
+    req.session.userId = user.id;
 
     if (typeof req.setFlash === 'function') {
       req.setFlash('success', `Welcome back, ${user.name}! You are signed in as ${user.role}.`);
@@ -542,8 +544,10 @@ exports.postResetPassword = async (req, res) => {
  * Authenticates user, deletes user & linked student records, destroys session, redirects to /
  */
 exports.deleteAccount = async (req, res) => {
-  const currentUser = req.session && req.session.user ? req.session.user : null;
-  if (!currentUser) {
+  const userId = (req.session && (req.session.userId || (req.session.user && req.session.user.id))) ||
+                 (req.user && (req.user.id || req.user.userId));
+
+  if (!userId) {
     const isApi = req.path.startsWith('/api') || (req.headers.accept && req.headers.accept.includes('application/json'));
     if (isApi) {
       return res.status(401).json({ success: false, message: 'Authentication required' });
@@ -551,12 +555,17 @@ exports.deleteAccount = async (req, res) => {
     return res.status(401).redirect('/auth/login');
   }
 
-  const { password } = req.body;
+  // Retrieve user record if available
+  const existingUser = userStore.findById(userId) || (req.session && req.session.user) || req.user;
+  const userEmail = (existingUser && existingUser.email) ? existingUser.email : (req.session && req.session.user && req.session.user.email);
+  const userRole = (existingUser && existingUser.role) ? existingUser.role : (req.session && req.session.user && req.session.user.role);
+
+  const { password } = req.body || {};
 
   // Optional password verification if provided
   if (password && typeof password === 'string' && password.trim()) {
-    const rawUser = userStore.findByEmail(currentUser.email);
-    if (rawUser) {
+    const rawUser = userEmail ? userStore.findByEmail(userEmail) : userStore.findById(userId);
+    if (rawUser && rawUser.passwordHash) {
       const isMatch = await bcrypt.compare(password.trim(), rawUser.passwordHash);
       if (!isMatch) {
         if (typeof req.setFlash === 'function') {
@@ -564,29 +573,41 @@ exports.deleteAccount = async (req, res) => {
         } else if (req.session) {
           req.session.flash = { type: 'danger', message: 'Incorrect password. Account deletion cancelled.' };
         }
-        const returnUrl = currentUser.role === 'admin' ? '/auth/admin' : '/auth/dashboard';
+        const returnUrl = userRole === 'admin' ? '/auth/admin' : '/auth/dashboard';
         return res.status(422).redirect(returnUrl);
       }
     }
   }
 
   try {
-    // 1. Remove linked student records from students database table
-    studentStore.removeByEmail(currentUser.email);
+    // 1. Delete matching records in student registration table by email or user ID
+    if (userEmail) {
+      studentStore.removeByEmail(userEmail);
+    }
+    dbManager.run('DELETE FROM students WHERE id = ?', [userId]);
+    studentStore.syncFromDb();
 
-    // 2. Remove user from users database table
-    userStore.deleteById(currentUser.id);
+    // 2. Delete user row from the users table
+    userStore.deleteById(userId);
 
-    console.log(`[AUTH] Account deleted: User #${currentUser.id} (${currentUser.email}) [role=${currentUser.role}]`);
+    // 3. Persist changes to disk (sql.js file persistence)
+    dbManager.saveDb();
 
-    // 3. Destroy session, clear cookie, redirect to / with flash
-    req.session.destroy(err => {
-      if (err) {
-        console.error('[AUTH] Session destroy error during account deletion:', err.message);
-      }
+    console.log(`[AUTH] Account deleted: User #${userId} (${userEmail || 'unknown'}) [role=${userRole || 'student'}]`);
+
+    // 4. Session termination & clear cookies
+    if (req.session) {
+      req.session.destroy(err => {
+        if (err) {
+          console.error('[AUTH] Session destroy error during account deletion:', err.message);
+        }
+        res.clearCookie('connect.sid');
+        return res.redirect('/?deleted=1');
+      });
+    } else {
       res.clearCookie('connect.sid');
       return res.redirect('/?deleted=1');
-    });
+    }
   } catch (err) {
     console.error('[AUTH] Account deletion error:', err.message);
     return res.status(500).render('pages/error', {

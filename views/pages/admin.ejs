@@ -269,15 +269,15 @@
                 Permanently delete your administrator account from the system authentication registry.
               </p>
             </div>
-            <button
-              type="button"
-              class="btn btn-outline-danger fw-semibold"
-              data-bs-toggle="modal"
-              data-bs-target="#deleteAdminAccountModal"
-              id="deleteAdminAccountBtn"
-            >
-              <i class="bi bi-trash3-fill me-1"></i>Delete My Account
-            </button>
+            <form action="/account/delete" method="POST" id="deleteAdminAccountFormDirect" onsubmit="return confirm('Are you sure you want to permanently delete your account?');" class="d-inline">
+              <button
+                type="submit"
+                class="btn btn-outline-danger fw-semibold"
+                id="deleteAdminAccountBtn"
+              >
+                <i class="bi bi-trash3-fill me-1"></i>Delete My Account
+              </button>
+            </form>
           </div>
         </div>
 

@@ -10,7 +10,7 @@
  * Supports both web navigation (redirect to login) and JSON REST APIs (401 response).
  */
 function requireAuth(req, res, next) {
-  if (req.session && req.session.user) {
+  if ((req.session && (req.session.user || req.session.userId)) || (req.user && (req.user.id || req.user.userId))) {
     return next();
   }
 
