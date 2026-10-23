@@ -39,11 +39,13 @@ function requireAdminForStudents(req, res, next) {
   next();
 }
 
-// GET  /students/register  → Show the registration form (Open to all)
-router.get('/register', controller.getRegisterForm);
+const { isAuthenticated } = require('../middleware/auth.middleware');
 
-// POST /students/register  → Handle form submission (Open to all)
-router.post('/register', controller.postRegister);
+// GET  /students/register  → Show the registration form (Authenticated only)
+router.get('/register', isAuthenticated, controller.getRegisterForm);
+
+// POST /students/register  → Handle form submission (Authenticated only)
+router.post('/register', isAuthenticated, controller.postRegister);
 
 // GET  /students           → List all submitted students (Admin ONLY)
 router.get('/', requireAdminForStudents, controller.listStudents);

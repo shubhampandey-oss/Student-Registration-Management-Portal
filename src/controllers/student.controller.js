@@ -25,11 +25,16 @@ const students = store.students;
 // GET /students/register
 // ─────────────────────────────────────────────────────────────────
 exports.getRegisterForm = (req, res) => {
+  const formAction = req.originalUrl && req.originalUrl.includes('register-student')
+    ? '/register-student'
+    : '/students/register';
+
   res.render('pages/register', {
-    title:  'Register a Student',
-    errors: [],
-    old:    {},          // no previous input on fresh load
-    flash:  null,
+    title:      'Register a Student',
+    errors:     [],
+    old:        {},          // no previous input on fresh load
+    flash:      res.locals.flash,
+    formAction,
   });
 };
 
@@ -63,13 +68,17 @@ exports.postRegister = async (req, res) => {
   const errors = validateStudentTask4(req.body);
 
   if (errors.length > 0) {
+    const formAction = req.originalUrl && req.originalUrl.includes('register-student')
+      ? '/register-student'
+      : '/students/register';
     // Re-render the form with the errors AND the values the user typed,
     // so they don't have to retype everything.
     return res.status(422).render('pages/register', {
-      title:  'Register a Student',
+      title:      'Register a Student',
       errors,
-      old:    req.body,
-      flash:  null,
+      old:        req.body,
+      flash:      null,
+      formAction,
     });
   }
 

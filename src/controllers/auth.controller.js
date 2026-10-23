@@ -20,7 +20,7 @@ const { evaluatePasswordStrength } = require('../utils/validation');
 exports.getLogin = (req, res) => {
   const portal = (req.query.portal === 'admin' || req.query.tab === 'admin') ? 'admin' : 'student';
   const defaultReturnUrl = portal === 'admin' ? '/students' : '/auth/dashboard';
-  const returnUrl = req.query.returnUrl || defaultReturnUrl;
+  const returnUrl = req.query.returnUrl || (req.session && req.session.returnTo) || defaultReturnUrl;
 
   res.render('pages/login', {
     title:     portal === 'admin' ? 'Administrator Sign In — Student Portal' : 'Student Sign In — Student Portal',
@@ -130,14 +130,21 @@ exports.postLogin = async (req, res) => {
       };
     }
 
-    // Role-tailored destination:
-    // Admin goes directly to /students (to inspect registered students)
-    // Student goes directly to /auth/dashboard (their student workspace)
-    let finalTarget = targetUrl;
-    if (user.role === 'admin') {
-      finalTarget = (targetUrl && targetUrl !== '/auth/dashboard') ? targetUrl : '/students';
+    // Role-tailored destination or returnTo redirection:
+    const sessionReturnTo = req.session && req.session.returnTo;
+    if (req.session && req.session.returnTo) {
+      delete req.session.returnTo;
+    }
+
+    let finalTarget;
+    if (sessionReturnTo && sessionReturnTo.startsWith('/') && !sessionReturnTo.startsWith('//')) {
+      finalTarget = sessionReturnTo;
+    } else if (targetUrl && targetUrl !== '/auth/dashboard' && targetUrl !== '/students') {
+      finalTarget = targetUrl;
+    } else if (user.role === 'admin') {
+      finalTarget = '/students';
     } else {
-      finalTarget = (targetUrl && targetUrl !== '/students') ? targetUrl : '/auth/dashboard';
+      finalTarget = '/auth/dashboard';
     }
 
     return req.session.save(() => {

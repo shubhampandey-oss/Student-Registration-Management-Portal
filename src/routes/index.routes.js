@@ -18,6 +18,9 @@ router.get('/terms', controller.getTerms);
 
 // Authentication aliases with query parameter preservation
 router.get('/login', (req, res) => {
+  if (res.locals.flash && req.session) {
+    req.session.flash = res.locals.flash;
+  }
   const qs = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
   res.redirect(`/auth/login${qs}`);
 });
@@ -40,9 +43,15 @@ router.get('/reset-password', (req, res) => {
   res.redirect(`/auth/reset-password${qs}`);
 });
 
+// Student registration alias routes protected by isAuthenticated
+const studentController = require('../controllers/student.controller');
+const { requireAuth, isAuthenticated } = require('../middleware/auth.middleware');
+
+router.get('/register-student',  isAuthenticated, studentController.getRegisterForm);
+router.post('/register-student', isAuthenticated, studentController.postRegister);
+
 // Root account deletion routes
 const authController = require('../controllers/auth.controller');
-const { requireAuth } = require('../middleware/auth.middleware');
 router.post('/account/delete', requireAuth, authController.deleteAccount);
 router.delete('/account',      requireAuth, authController.deleteAccount);
 

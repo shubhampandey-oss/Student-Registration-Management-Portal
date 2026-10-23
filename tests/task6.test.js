@@ -883,4 +883,146 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.equal(userStore.findByEmail(adminEmail), null, 'Admin user must be permanently removed from database');
   });
 
+  // ── Student Registration Authentication Protection ──────────────
+  it('GET /students/register — unauthenticated guest is redirected to /login with flash warning and returnTo session', async () => {
+    const res = await request({
+      method: 'GET',
+      path: '/students/register',
+    });
+
+    assert.equal(res.statusCode, 302, 'Unauthenticated GET /students/register must return 302 redirect');
+    assert.equal(res.headers.location, '/login', 'Must redirect directly to /login');
+
+    const cookie = parseCookies(res);
+    assert.ok(cookie, 'Must set session cookie containing flash and returnTo');
+
+    // Follow redirect to /login and verify warning flash
+    const loginRes = await request({
+      method: 'GET',
+      path: '/login',
+      headers: { 'Cookie': cookie },
+    });
+    assert.equal(loginRes.statusCode, 302, '/login redirects to /auth/login');
+    const authLoginRes = await request({
+      method: 'GET',
+      path: loginRes.headers.location,
+      headers: { 'Cookie': cookie },
+    });
+    assert.equal(authLoginRes.statusCode, 200);
+    assert.ok(authLoginRes.body.includes('Please sign in to register a student record.'), 'Flash warning must be displayed');
+  });
+
+  it('POST /students/register — unauthenticated guest is redirected to /login', async () => {
+    const payload = new URLSearchParams({
+      name: 'Test Student',
+      email: 'testauth@example.com',
+      course: 'Computer Science',
+      phone: '9876543210',
+    }).toString();
+
+    const res = await request({
+      method: 'POST',
+      path: '/students/register',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, payload);
+
+    assert.equal(res.statusCode, 302);
+    assert.equal(res.headers.location, '/login');
+  });
+
+  it('GET and POST /register-student — unauthenticated guest is redirected to /login', async () => {
+    const getRes = await request({
+      method: 'GET',
+      path: '/register-student',
+    });
+    assert.equal(getRes.statusCode, 302);
+    assert.equal(getRes.headers.location, '/login');
+
+    const postRes = await request({
+      method: 'POST',
+      path: '/register-student',
+    });
+    assert.equal(postRes.statusCode, 302);
+    assert.equal(postRes.headers.location, '/login');
+  });
+
+  it('Upon successful login, user is redirected straight back to saved returnTo destination', async () => {
+    // 1. Visit /students/register unauthenticated to establish session with returnTo
+    const accessRes = await request({
+      method: 'GET',
+      path: '/students/register',
+    });
+    const sessionCookie = parseCookies(accessRes);
+
+    // 2. Log in with that session cookie
+    const loginPayload = new URLSearchParams({
+      portal: 'student',
+      email: 'student@cognifyz.com',
+      password: 'Student@12345',
+    }).toString();
+
+    const loginRes = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Cookie': sessionCookie,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(loginPayload),
+      },
+    }, loginPayload);
+
+    assert.equal(loginRes.statusCode, 302);
+    assert.equal(loginRes.headers.location, '/students/register', 'Must redirect back to saved returnTo (/students/register)');
+
+    // 3. Access /students/register with authenticated session -> should succeed (200)
+    const regRes = await request({
+      method: 'GET',
+      path: '/students/register',
+      headers: { 'Cookie': sessionCookie },
+    });
+    assert.equal(regRes.statusCode, 200, 'Authenticated user must be granted access');
+    assert.ok(regRes.body.includes('Student Registration'), 'Must render registration page');
+  });
+
+  it('Navbar conditionally shows "+ Register Student" only when user is logged in', async () => {
+    // 1. Unauthenticated request to home page
+    const guestRes = await request({
+      method: 'GET',
+      path: '/',
+    });
+    assert.equal(guestRes.statusCode, 200);
+    assert.ok(!guestRes.body.includes('id="navRegisterStudentBtn"'), 'Guest navbar must NOT contain register student button');
+    assert.ok(!guestRes.body.includes('+ Register Student'), 'Guest navbar must NOT show + Register Student text');
+
+    // 2. Authenticate as student
+    const loginPayload = new URLSearchParams({
+      portal: 'student',
+      email: 'student@cognifyz.com',
+      password: 'Student@12345',
+    }).toString();
+
+    const loginRes = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(loginPayload),
+      },
+    }, loginPayload);
+    const authCookie = parseCookies(loginRes);
+
+    // 3. Authenticated request to home page
+    const authHomeRes = await request({
+      method: 'GET',
+      path: '/',
+      headers: { 'Cookie': authCookie },
+    });
+    assert.equal(authHomeRes.statusCode, 200);
+    assert.ok(authHomeRes.body.includes('id="navRegisterStudentBtn"'), 'Logged-in navbar must display Register Student button');
+    assert.ok(authHomeRes.body.includes('+ Register Student'), 'Logged-in navbar must show "+ Register Student"');
+  });
+
 });

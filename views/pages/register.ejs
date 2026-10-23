@@ -41,7 +41,7 @@
         <!-- ── Registration Form ──────────────────────────────── -->
         <div class="cp-form-card">
           <form
-            action="/students/register"
+            action="<%= typeof formAction !== 'undefined' ? formAction : '/students/register' %>"
             method="POST"
             id="registrationForm"
             novalidate
