@@ -5,78 +5,309 @@
   <div class="container py-5">
 
     <div class="row justify-content-center mb-4">
-      <div class="col-lg-10">
+      <div class="col-lg-11">
         <%- include('../partials/flash') %>
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
           <div>
             <span class="cp-badge mb-2 bg-danger text-white">
-              <i class="bi bi-shield-shaded me-1"></i>Admin Access Only
+              <i class="bi bi-shield-shaded me-1"></i>Administrator Command Center
             </span>
             <h1 class="cp-page-title mb-1">Administrator Console</h1>
-            <p class="text-muted mb-0">System management, database status, and user registry.</p>
+            <p class="text-muted mb-0">Inspect all registered students, audit system user accounts, and manage portal records.</p>
           </div>
           <div class="d-flex gap-2">
-            <a href="/auth/dashboard" class="btn btn-outline-secondary">
-              <i class="bi bi-arrow-left me-1"></i>Dashboard
+            <a href="/students" class="btn btn-primary d-flex align-items-center gap-1">
+              <i class="bi bi-people-fill"></i>
+              <span>Full Students Directory</span>
             </a>
-            <a href="/students" class="btn btn-primary">
-              <i class="bi bi-people me-1"></i>Student Directory
+            <a href="/auth/security" class="btn btn-outline-secondary d-flex align-items-center gap-1">
+              <i class="bi bi-shield-lock"></i>
+              <span>Security Diagnostics</span>
             </a>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- ── Summary Metrics Cards ────────────────────────────────────── -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-11">
+        <div class="row g-3">
+          <div class="col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+              <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 fs-3">
+                  <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div>
+                  <span class="text-muted small text-uppercase fw-semibold d-block">Registered Students</span>
+                  <strong class="fs-3"><%= students ? students.length : 0 %></strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+              <div class="d-flex align-items-center gap-3">
+                <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 fs-3">
+                  <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                  <span class="text-muted small text-uppercase fw-semibold d-block">Registered System Users</span>
+                  <strong class="fs-3"><%= users ? users.length : 0 %></strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-sm-12">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+              <div class="d-flex align-items-center gap-3">
+                <div class="bg-info bg-opacity-10 text-info p-3 rounded-3 fs-3">
+                  <i class="bi bi-database-fill-check"></i>
+                </div>
+                <div>
+                  <span class="text-muted small text-uppercase fw-semibold d-block">Database Engine</span>
+                  <strong class="fs-5">SQLite (sql.js)</strong>
+                  <span class="badge bg-success ms-1 small">PERSISTENT</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Central Control Center Tabs ──────────────────────────────── -->
     <div class="row justify-content-center">
-      <div class="col-lg-10">
-        <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <h2 class="h5 fw-bold mb-0">
-              <i class="bi bi-people-fill me-2 text-primary"></i>Registered System Users
-            </h2>
-            <span class="badge bg-secondary rounded-pill"><%= users.length %> Users</span>
+      <div class="col-lg-11">
+        <div class="card shadow-sm border-0 rounded-4 p-4 mb-4 bg-white">
+
+          <ul class="nav nav-pills mb-4 gap-2" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active rounded-pill fw-semibold px-4"
+                id="students-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#tabStudentsContent"
+                type="button"
+                role="tab"
+              >
+                <i class="bi bi-mortarboard me-2"></i>Registered Students (<%= students ? students.length : 0 %>)
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link rounded-pill fw-semibold px-4"
+                id="users-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#tabUsersContent"
+                type="button"
+                role="tab"
+              >
+                <i class="bi bi-person-lines-fill me-2"></i>User Accounts (<%= users ? users.length : 0 %>)
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="adminTabContent">
+
+            <!-- TAB 1: Registered Students -->
+            <div class="tab-pane fade show active" id="tabStudentsContent" role="tabpanel">
+              <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div class="input-group" style="max-width: 380px;">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                  <input
+                    type="text"
+                    class="form-control bg-light border-start-0"
+                    id="searchStudentInput"
+                    placeholder="Search by student name or email..."
+                  />
+                </div>
+                <a href="/students/register" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                  <i class="bi bi-person-plus me-1"></i>Register New Student
+                </a>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="studentsTable">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">ID</th>
+                      <th scope="col">Student Name</th>
+                      <th scope="col">Course &amp; Year</th>
+                      <th scope="col">Contact</th>
+                      <th scope="col">Registration Date</th>
+                      <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (students && students.length > 0) { %>
+                      <% students.forEach(s => { %>
+                        <tr class="student-row">
+                          <td><strong>#<%= String(s.id).padStart(4, '0') %></strong></td>
+                          <td>
+                            <div class="d-flex align-items-center gap-2">
+                              <div class="cp-avatar cp-avatar-sm" style="width: 32px; height: 32px; font-size: 0.85rem;" aria-hidden="true">
+                                <%= (s.name || 'S').charAt(0).toUpperCase() %>
+                              </div>
+                              <span class="fw-semibold student-name"><%= s.name %></span>
+                            </div>
+                          </td>
+                          <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                              <%= s.course %>
+                            </span>
+                            <% if (s.year) { %>
+                              <span class="badge bg-secondary bg-opacity-10 text-secondary border ms-1">
+                                <%= s.year %>
+                              </span>
+                            <% } %>
+                          </td>
+                          <td>
+                            <div class="small">
+                              <span class="d-block student-email text-truncate" style="max-width: 200px;"><i class="bi bi-envelope me-1"></i><%= s.email %></span>
+                              <span class="text-muted"><i class="bi bi-telephone me-1"></i><%= s.phone %></span>
+                            </div>
+                          </td>
+                          <td class="text-muted small">
+                            <%= s.createdAt ? new Date(s.createdAt).toLocaleDateString('en-GB') : 'N/A' %>
+                          </td>
+                          <td class="text-end">
+                            <div class="d-flex justify-content-end gap-1">
+                              <a href="/students/<%= s.id %>" class="btn btn-sm btn-outline-secondary" title="View Profile">
+                                <i class="bi bi-eye"></i>
+                              </a>
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-outline-danger admin-delete-btn"
+                                data-student-id="<%= s.id %>"
+                                data-student-name="<%= s.name %>"
+                                title="Delete Student"
+                              >
+                                <i class="bi bi-trash"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                          No students are registered in the system yet.
+                        </td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 2: Registered User Accounts -->
+            <div class="tab-pane fade" id="tabUsersContent" role="tabpanel">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="text-muted small">All system authentication credentials currently active in SQLite.</span>
+                <a href="/auth/register" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                  <i class="bi bi-person-plus me-1"></i>Add New User
+                </a>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">User ID</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Email Address</th>
+                      <th scope="col">System Role</th>
+                      <th scope="col">Account Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (users && users.length > 0) { %>
+                      <% users.forEach(u => { %>
+                        <tr>
+                          <td><strong>#<%= u.id %></strong></td>
+                          <td>
+                            <div class="d-flex align-items-center gap-2">
+                              <i class="bi bi-person-circle fs-5 <%= u.role === 'admin' ? 'text-danger' : 'text-primary' %>"></i>
+                              <span class="fw-semibold"><%= u.name %></span>
+                            </div>
+                          </td>
+                          <td><code><%= u.email %></code></td>
+                          <td>
+                            <span class="badge <%= u.role === 'admin' ? 'bg-danger' : 'bg-success' %> text-uppercase">
+                              <%= u.role %>
+                            </span>
+                          </td>
+                          <td class="text-muted small">
+                            <%= u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-GB') : 'N/A' %>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">No user accounts found.</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
 
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th scope="col">ID</th>
-                  <th scope="col">User</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Role</th>
-                  <th scope="col">Registered At</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% users.forEach(u => { %>
-                  <tr>
-                    <td><strong>#<%= u.id %></strong></td>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-person-circle fs-5 <%= u.role === 'admin' ? 'text-danger' : 'text-primary' %>"></i>
-                        <span><%= u.name %></span>
-                      </div>
-                    </td>
-                    <td><code><%= u.email %></code></td>
-                    <td>
-                      <span class="badge <%= u.role === 'admin' ? 'bg-danger' : 'bg-success' %> text-uppercase">
-                        <%= u.role %>
-                      </span>
-                    </td>
-                    <td class="text-muted small">
-                      <%= new Date(u.createdAt).toLocaleDateString('en-GB') %>
-                    </td>
-                  </tr>
-                <% }); %>
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
     </div>
 
   </div>
 </main>
+
+<script>
+  // Live filtering in Registered Students table
+  document.getElementById('searchStudentInput')?.addEventListener('input', function() {
+    const query = this.value.toLowerCase().trim();
+    const rows = document.querySelectorAll('.student-row');
+    rows.forEach(row => {
+      const name = row.querySelector('.student-name')?.textContent.toLowerCase() || '';
+      const email = row.querySelector('.student-email')?.textContent.toLowerCase() || '';
+      if (name.includes(query) || email.includes(query)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+
+  // Direct Async Deletion from Administrator Console
+  document.querySelectorAll('.admin-delete-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const id = this.getAttribute('data-student-id');
+      const name = this.getAttribute('data-student-name');
+
+      if (!confirm(`Are you sure you want to delete student "${name}" (#${id})? This action cannot be undone.`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/v1/students/${id}`, {
+          method: 'DELETE',
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const row = this.closest('tr');
+          row.style.transition = 'all 0.3s ease';
+          row.style.opacity = '0';
+          setTimeout(() => row.remove(), 300);
+        } else {
+          alert('Failed to delete student: ' + (data.message || 'Error'));
+        }
+      } catch (err) {
+        alert('Network error while deleting student.');
+      }
+    });
+  });
+</script>
 
 <%- include('../partials/footer') %>

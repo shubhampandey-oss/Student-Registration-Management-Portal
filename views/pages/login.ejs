@@ -4,14 +4,23 @@
 <main id="mainContent" class="cp-page-main">
   <div class="container py-5">
 
+    <!-- Page Header -->
     <div class="row justify-content-center mb-4">
-      <div class="col-lg-5 text-center">
-        <span class="cp-badge mb-2">
-          <i class="bi bi-shield-lock me-1"></i>Authentication
+      <div class="col-lg-6 text-center">
+        <span class="cp-badge mb-2" id="portalBadge">
+          <% if (typeof portal !== 'undefined' && portal === 'admin') { %>
+            <i class="bi bi-shield-check me-1 text-danger"></i>Administrator Portal
+          <% } else { %>
+            <i class="bi bi-person-badge me-1 text-primary"></i>Student Portal
+          <% } %>
         </span>
-        <h1 class="cp-page-title">Sign In</h1>
-        <p class="text-muted">
-          Access your student portal account or manage system records.
+        <h1 class="cp-page-title" id="portalTitle">
+          <%= (typeof portal !== 'undefined' && portal === 'admin') ? 'Administrator Sign In' : 'Student Sign In' %>
+        </h1>
+        <p class="text-muted" id="portalSubtitle">
+          <%= (typeof portal !== 'undefined' && portal === 'admin')
+            ? 'Sign in to inspect registered students, manage records, and monitor user enrollments.'
+            : 'Access your student portal, check registration status, and update your academic details.' %>
         </p>
       </div>
     </div>
@@ -34,21 +43,44 @@
           </div>
         <% } %>
 
-        <div class="cp-form-card shadow-sm p-4 rounded-4 bg-white border">
-          <form action="/auth/login" method="POST" id="loginForm" novalidate>
-            <input type="hidden" name="returnUrl" value="<%= typeof returnUrl !== 'undefined' ? returnUrl : '/students' %>" />
+        <!-- ── Dual Interface Switcher (Tabs) ───────────────────────── -->
+        <div class="p-1 bg-light rounded-pill mb-4 border d-flex gap-1" role="tablist">
+          <button
+            type="button"
+            class="btn flex-fill rounded-pill fw-semibold py-2 d-flex align-items-center justify-content-center gap-2 <%= (typeof portal === 'undefined' || portal !== 'admin') ? 'btn-primary text-white shadow-sm' : 'btn-light text-muted' %>"
+            id="tabStudent"
+          >
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>Student Portal</span>
+          </button>
+          <button
+            type="button"
+            class="btn flex-fill rounded-pill fw-semibold py-2 d-flex align-items-center justify-content-center gap-2 <%= (typeof portal !== 'undefined' && portal === 'admin') ? 'btn-danger text-white shadow-sm' : 'btn-light text-muted' %>"
+            id="tabAdmin"
+          >
+            <i class="bi bi-shield-lock-fill"></i>
+            <span>Administrator Portal</span>
+          </button>
+        </div>
 
-            <!-- Email -->
+        <!-- ── Main Sign In Card ────────────────────────────────────── -->
+        <div class="cp-form-card shadow-sm p-4 rounded-4 bg-white border" id="loginCard">
+          <form action="/auth/login" method="POST" id="loginForm" novalidate>
+            <input type="hidden" name="portal" id="portalInput" value="<%= typeof portal !== 'undefined' ? portal : 'student' %>" />
+            <input type="hidden" name="returnUrl" id="returnUrlInput" value="<%= typeof returnUrl !== 'undefined' ? returnUrl : '/auth/dashboard' %>" />
+
+            <!-- Email Field -->
             <div class="mb-3">
-              <label for="loginEmail" class="form-label cp-label fw-semibold">
-                <i class="bi bi-envelope me-1 text-primary"></i>Email Address
+              <label for="loginEmail" class="form-label cp-label fw-semibold" id="emailLabel">
+                <i class="bi bi-envelope me-1 text-primary"></i>
+                <span id="emailLabelText"><%= (typeof portal !== 'undefined' && portal === 'admin') ? 'Administrator Email' : 'Student Email Address' %></span>
               </label>
               <input
                 type="email"
                 class="form-control form-control-lg <%= errors.find(e => e.field === 'email') ? 'is-invalid' : '' %>"
                 id="loginEmail"
                 name="email"
-                placeholder="name@example.com"
+                placeholder="<%= (typeof portal !== 'undefined' && portal === 'admin') ? 'admin@cognifyz.com' : 'student@cognifyz.com' %>"
                 value="<%= old && old.email ? old.email : '' %>"
                 required
                 autocomplete="email"
@@ -56,7 +88,7 @@
               <div class="invalid-feedback">Please enter a valid email address.</div>
             </div>
 
-            <!-- Password -->
+            <!-- Password Field -->
             <div class="mb-4">
               <div class="d-flex justify-content-between align-items-center mb-1">
                 <label for="loginPassword" class="form-label cp-label fw-semibold mb-0">
@@ -85,40 +117,58 @@
               <div class="invalid-feedback">Please enter your password.</div>
             </div>
 
-            <!-- Submit -->
-            <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold mb-3">
-              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="btn <%= (typeof portal !== 'undefined' && portal === 'admin') ? 'btn-danger' : 'btn-primary' %> btn-lg w-100 fw-semibold mb-3 shadow-sm"
+              id="submitLoginBtn"
+            >
+              <i class="bi bi-box-arrow-in-right me-2"></i>
+              <span id="submitBtnText"><%= (typeof portal !== 'undefined' && portal === 'admin') ? 'Sign In as Administrator' : 'Sign In as Student' %></span>
             </button>
           </form>
 
-          <!-- Quick Fill Credentials Box for Evaluator Testing -->
-          <div class="p-3 bg-light rounded-3 border mt-3">
+          <!-- 1-Click Instant Login Box -->
+          <div class="p-3 bg-light rounded-3 border mt-2" id="demoBox">
             <div class="d-flex align-items-center justify-content-between mb-2">
               <span class="small fw-bold text-secondary text-uppercase tracking-wider">
-                <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Demo Accounts (Quick-Fill)
+                <i class="bi bi-lightning-charge-fill text-warning me-1"></i>1-Click Instant Login
               </span>
+              <span class="badge bg-secondary rounded-pill small">Auto-Submit</span>
             </div>
-            <div class="d-flex gap-2">
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-primary flex-fill"
-                id="quickFillAdminBtn"
-              >
-                <i class="bi bi-shield-check me-1"></i>Admin User
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary flex-fill"
-                id="quickFillStudentBtn"
-              >
-                <i class="bi bi-person me-1"></i>Student User
-              </button>
-            </div>
+
+            <!-- Student 1-Click Action -->
+            <button
+              type="button"
+              class="btn btn-outline-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2 <%= (typeof portal !== 'undefined' && portal === 'admin') ? 'd-none' : '' %>"
+              id="quickStudentBtn"
+            >
+              <i class="bi bi-person-fill fs-5"></i>
+              <span>Log in as <strong>Student User</strong> (student@cognifyz.com)</span>
+            </button>
+
+            <!-- Admin 1-Click Action -->
+            <button
+              type="button"
+              class="btn btn-outline-danger w-100 py-2 d-flex align-items-center justify-content-center gap-2 <%= (typeof portal !== 'undefined' && portal === 'admin') ? '' : 'd-none' %>"
+              id="quickAdminBtn"
+            >
+              <i class="bi bi-shield-check fs-5"></i>
+              <span>Log in as <strong>Cognifyz Admin</strong> (admin@cognifyz.com)</span>
+            </button>
           </div>
 
-          <div class="text-center mt-4">
-            <span class="text-muted">Don't have an account yet?</span>
-            <a href="/auth/register" class="fw-semibold text-primary ms-1">Create one now</a>
+          <!-- Bottom Contextual Links -->
+          <div class="text-center mt-4" id="registerCta">
+            <div id="studentRegisterPrompt" class="<%= (typeof portal !== 'undefined' && portal === 'admin') ? 'd-none' : '' %>">
+              <span class="text-muted">New student?</span>
+              <a href="/auth/register" class="fw-semibold text-primary ms-1">Register for an account</a>
+            </div>
+            <div id="adminNotice" class="<%= (typeof portal !== 'undefined' && portal === 'admin') ? '' : 'd-none' %>">
+              <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>Administrator privileges grant full access to inspect all registered students and delete records.
+              </small>
+            </div>
           </div>
         </div>
 
@@ -142,16 +192,84 @@
     }
   });
 
-  // Quick fill & auto-login helper for evaluation
-  document.getElementById('quickFillAdminBtn')?.addEventListener('click', function() {
-    document.getElementById('loginEmail').value = 'admin@cognifyz.com';
-    document.getElementById('loginPassword').value = 'Admin@12345';
+  // Dual Interface Tab Switching
+  const tabStudent = document.getElementById('tabStudent');
+  const tabAdmin = document.getElementById('tabAdmin');
+  const portalInput = document.getElementById('portalInput');
+  const returnUrlInput = document.getElementById('returnUrlInput');
+  const portalBadge = document.getElementById('portalBadge');
+  const portalTitle = document.getElementById('portalTitle');
+  const portalSubtitle = document.getElementById('portalSubtitle');
+  const emailLabelText = document.getElementById('emailLabelText');
+  const loginEmail = document.getElementById('loginEmail');
+  const submitLoginBtn = document.getElementById('submitLoginBtn');
+  const submitBtnText = document.getElementById('submitBtnText');
+  const quickStudentBtn = document.getElementById('quickStudentBtn');
+  const quickAdminBtn = document.getElementById('quickAdminBtn');
+  const studentRegisterPrompt = document.getElementById('studentRegisterPrompt');
+  const adminNotice = document.getElementById('adminNotice');
+
+  function switchToStudent() {
+    portalInput.value = 'student';
+    returnUrlInput.value = '/auth/dashboard';
+
+    tabStudent.className = 'btn flex-fill rounded-pill fw-semibold py-2 d-flex align-items-center justify-content-center gap-2 btn-primary text-white shadow-sm';
+    tabAdmin.className = 'btn flex-fill rounded-pill fw-semibold py-2 d-flex align-items-center justify-content-center gap-2 btn-light text-muted';
+
+    portalBadge.innerHTML = '<i class="bi bi-person-badge me-1 text-primary"></i>Student Portal';
+    portalTitle.textContent = 'Student Sign In';
+    portalSubtitle.textContent = 'Access your student portal, check registration status, and update your academic details.';
+    emailLabelText.textContent = 'Student Email Address';
+    loginEmail.placeholder = 'student@cognifyz.com';
+
+    submitLoginBtn.className = 'btn btn-primary btn-lg w-100 fw-semibold mb-3 shadow-sm';
+    submitBtnText.textContent = 'Sign In as Student';
+
+    quickStudentBtn.classList.remove('d-none');
+    quickAdminBtn.classList.add('d-none');
+    studentRegisterPrompt.classList.remove('d-none');
+    adminNotice.classList.add('d-none');
+
+    history.replaceState(null, '', '/auth/login?portal=student');
+  }
+
+  function switchToAdmin() {
+    portalInput.value = 'admin';
+    returnUrlInput.value = '/students';
+
+    tabAdmin.className = 'btn flex-fill rounded-pill fw-semibold py-2 d-flex align-items-center justify-content-center gap-2 btn-danger text-white shadow-sm';
+    tabStudent.className = 'btn flex-fill rounded-pill fw-semibold py-2 d-flex align-items-center justify-content-center gap-2 btn-light text-muted';
+
+    portalBadge.innerHTML = '<i class="bi bi-shield-check me-1 text-danger"></i>Administrator Portal';
+    portalTitle.textContent = 'Administrator Sign In';
+    portalSubtitle.textContent = 'Sign in to inspect registered students, manage records, and monitor user enrollments.';
+    emailLabelText.textContent = 'Administrator Email Address';
+    loginEmail.placeholder = 'admin@cognifyz.com';
+
+    submitLoginBtn.className = 'btn btn-danger btn-lg w-100 fw-semibold mb-3 shadow-sm';
+    submitBtnText.textContent = 'Sign In as Administrator';
+
+    quickAdminBtn.classList.remove('d-none');
+    quickStudentBtn.classList.add('d-none');
+    adminNotice.classList.remove('d-none');
+    studentRegisterPrompt.classList.add('d-none');
+
+    history.replaceState(null, '', '/auth/login?portal=admin');
+  }
+
+  tabStudent?.addEventListener('click', switchToStudent);
+  tabAdmin?.addEventListener('click', switchToAdmin);
+
+  // 1-Click Instant Login Handlers
+  quickStudentBtn?.addEventListener('click', function() {
+    loginEmail.value = 'student@cognifyz.com';
+    document.getElementById('loginPassword').value = 'Student@12345';
     document.getElementById('loginForm')?.submit();
   });
 
-  document.getElementById('quickFillStudentBtn')?.addEventListener('click', function() {
-    document.getElementById('loginEmail').value = 'student@cognifyz.com';
-    document.getElementById('loginPassword').value = 'Student@12345';
+  quickAdminBtn?.addEventListener('click', function() {
+    loginEmail.value = 'admin@cognifyz.com';
+    document.getElementById('loginPassword').value = 'Admin@12345';
     document.getElementById('loginForm')?.submit();
   });
 </script>

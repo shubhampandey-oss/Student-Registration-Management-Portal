@@ -7,17 +7,22 @@
  */
 
 const userStore    = require('../models/user.store');
+const studentStore = require('../models/student.store');
 const cacheService = require('../services/cache.service');
 const { evaluatePasswordStrength } = require('../utils/validation');
 
 /**
  * GET /auth/login
- * Displays user login interface
+ * Displays dual user / admin login interface
  */
 exports.getLogin = (req, res) => {
-  const returnUrl = req.query.returnUrl || '/students';
+  const portal = req.query.portal === 'admin' ? 'admin' : 'student';
+  const defaultReturnUrl = portal === 'admin' ? '/students' : '/auth/dashboard';
+  const returnUrl = req.query.returnUrl || defaultReturnUrl;
+
   res.render('pages/login', {
-    title:     'Sign In — Student Portal',
+    title:     portal === 'admin' ? 'Administrator Sign In — Student Portal' : 'Student Sign In — Student Portal',
+    portal,
     returnUrl,
     errors:    [],
     old:       {},
@@ -30,10 +35,12 @@ exports.getLogin = (req, res) => {
  * Verifies credentials, initializes session on success
  */
 exports.postLogin = async (req, res) => {
-  const { email, password, returnUrl } = req.body;
+  const { email, password, returnUrl, portal } = req.body;
+  const currentPortal = portal === 'admin' ? 'admin' : 'student';
+  const defaultTarget = currentPortal === 'admin' ? '/students' : '/auth/dashboard';
   const targetUrl = (returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//'))
     ? returnUrl
-    : '/students';
+    : defaultTarget;
 
   const errors = [];
   if (!email || !email.trim()) {
@@ -45,7 +52,8 @@ exports.postLogin = async (req, res) => {
 
   if (errors.length > 0) {
     return res.status(422).render('pages/login', {
-      title:     'Sign In — Student Portal',
+      title:     currentPortal === 'admin' ? 'Administrator Sign In — Student Portal' : 'Student Sign In — Student Portal',
+      portal:    currentPortal,
       returnUrl: targetUrl,
       errors,
       old:       { email },
@@ -57,7 +65,8 @@ exports.postLogin = async (req, res) => {
     const user = await userStore.authenticate(email.trim(), password);
     if (!user) {
       return res.status(401).render('pages/login', {
-        title:     'Sign In — Student Portal',
+        title:     currentPortal === 'admin' ? 'Administrator Sign In — Student Portal' : 'Student Sign In — Student Portal',
+        portal:    currentPortal,
         returnUrl: targetUrl,
         errors:    [{ field: 'auth', msg: 'Invalid email address or password. Please try again.' }],
         old:       { email },
@@ -82,8 +91,18 @@ exports.postLogin = async (req, res) => {
       };
     }
 
+    // Role-tailored destination:
+    // Admin goes directly to /students (to inspect registered students)
+    // Student goes directly to /auth/dashboard (their student workspace)
+    let finalTarget = targetUrl;
+    if (user.role === 'admin') {
+      finalTarget = (targetUrl && targetUrl !== '/auth/dashboard') ? targetUrl : '/students';
+    } else {
+      finalTarget = (targetUrl && targetUrl !== '/students') ? targetUrl : '/auth/dashboard';
+    }
+
     return req.session.save(() => {
-      res.redirect(targetUrl);
+      res.redirect(finalTarget);
     });
   } catch (err) {
     console.error('[AUTH CONTROLLER] Login error:', err.message);
@@ -288,11 +307,13 @@ exports.getDashboard = (req, res) => {
  */
 exports.getAdmin = (req, res) => {
   const users = userStore.getAll();
+  const students = studentStore.getAll();
   res.render('pages/admin', {
-    title: 'Administrator Console — Student Portal',
-    user:  req.session.user,
+    title:    'Administrator Console — Student Portal',
+    user:     req.session.user,
     users,
-    flash: res.locals.flash,
+    students,
+    flash:    res.locals.flash,
   });
 };
 
