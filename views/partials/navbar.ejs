@@ -112,12 +112,41 @@
             </ul>
           </li>
 
-          <!-- Standard Sign In -->
-          <li class="nav-item">
-            <a class="nav-link text-white d-flex align-items-center gap-1 px-2" href="/auth/login" id="navLoginBtn">
+          <!-- Sign In Portal Options -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link text-white dropdown-toggle d-flex align-items-center gap-1 px-2"
+              href="/auth/login"
+              id="navLoginBtn"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
               <i class="bi bi-box-arrow-in-right"></i>
               <span class="fw-semibold">Sign In</span>
             </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="navLoginBtn">
+              <li><h6 class="dropdown-header text-uppercase tracking-wider small">Select Interface</h6></li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="/auth/login?portal=student" id="navStudentLoginBtn">
+                  <i class="bi bi-person-badge text-primary fs-5"></i>
+                  <div>
+                    <strong class="d-block text-dark">Student Sign In</strong>
+                    <small class="text-muted">Student dashboard & profile</small>
+                  </div>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider my-1" /></li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="/auth/login?portal=admin" id="navAdminLoginBtn">
+                  <i class="bi bi-shield-lock text-danger fs-5"></i>
+                  <div>
+                    <strong class="d-block text-dark">Admin Sign In</strong>
+                    <small class="text-muted">Inspect students & records</small>
+                  </div>
+                </a>
+              </li>
+            </ul>
           </li>
 
           <!-- Standard Sign Up -->
