@@ -171,7 +171,7 @@ exports.getRegister = (req, res) => {
  * Validates inputs, creates new user, logs them into session or redirects admin to login
  */
 exports.postRegister = async (req, res) => {
-  const { name, email, password, confirmPassword, role, adminSecretKey } = req.body;
+  const { name, email, password, confirmPassword, role } = req.body;
   const currentRole = (role === 'admin') ? 'admin' : 'student';
   const errors = [];
 
@@ -215,21 +215,12 @@ exports.postRegister = async (req, res) => {
     errors.push({ field: 'confirmPassword', msg: 'Passwords do not match.' });
   }
 
-  // 4. Admin Secret Key verification for Administrator registration
-  const validAdminSecret = process.env.ADMIN_SECRET_KEY || 'Admin@Secret2026';
-  if (currentRole === 'admin') {
-    const trimmedSecret = (typeof adminSecretKey === 'string') ? adminSecretKey.trim() : '';
-    if (!trimmedSecret || trimmedSecret !== validAdminSecret) {
-      errors.push({ field: 'adminSecretKey', msg: 'Invalid Admin Secret Key' });
-    }
-  }
-
   if (errors.length > 0) {
     return res.status(422).render('pages/user-register', {
       title:  currentRole === 'admin' ? 'Create Administrator Account — Student Portal' : 'Create Account — Student Portal',
       role:   currentRole,
       errors,
-      old:    { name, email, password: trimmedPassword, confirmPassword: trimmedConfirm, role: currentRole, adminSecretKey },
+      old:    { name, email, password: trimmedPassword, confirmPassword: trimmedConfirm, role: currentRole },
       flash:  null,
     });
   }

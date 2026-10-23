@@ -103,36 +103,6 @@
               <small class="form-text text-muted">Institutional or standard personal email (e.g., @gmail.com, @yahoo.com, @cognifyz.com).</small>
             </div>
 
-            <!-- Admin Secret Key Field (Visible when Admin Account tab is active) -->
-            <div class="mb-3 <%= (typeof role !== 'undefined' && role === 'admin') ? '' : 'd-none' %>" id="adminSecretGroup">
-              <label for="adminSecretKey" class="form-label cp-label fw-semibold">
-                <i class="bi bi-key-fill me-1 text-danger"></i>Admin Secret Key <span class="text-danger">*</span>
-              </label>
-              <div class="input-group">
-                <input
-                  type="password"
-                  class="form-control form-control-lg <%= errors.find(e => e.field === 'adminSecretKey') ? 'is-invalid' : '' %>"
-                  id="adminSecretKey"
-                  name="adminSecretKey"
-                  placeholder="Enter organization admin secret key"
-                  value="<%= old && old.adminSecretKey ? old.adminSecretKey : '' %>"
-                  autocomplete="off"
-                />
-                <button
-                  class="btn btn-outline-secondary"
-                  type="button"
-                  id="toggleSecretKeyBtn"
-                  title="Toggle secret key visibility"
-                >
-                  <i class="bi bi-eye" id="toggleSecretKeyIcon"></i>
-                </button>
-              </div>
-              <div class="invalid-feedback <%= errors.find(e => e.field === 'adminSecretKey') ? 'd-block' : '' %>" id="secretKeyFeedback">
-                <%= errors.find(e => e.field === 'adminSecretKey')?.msg || errors.find(e => e.field === 'adminSecretKey')?.message || 'Valid Admin Secret Key is required.' %>
-              </div>
-              <small class="form-text text-muted">Authorized administrator passkey required to register administrative privileges.</small>
-            </div>
-
             <!-- Password -->
             <div class="mb-3">
               <label for="userPassword" class="form-label cp-label fw-semibold">
@@ -244,9 +214,6 @@
   const registerRoleBadge = document.getElementById('registerRoleBadge');
   const registerTitle = document.getElementById('registerTitle');
   const registerSubtitle = document.getElementById('registerSubtitle');
-  const adminSecretGroup = document.getElementById('adminSecretGroup');
-  const adminSecretKey = document.getElementById('adminSecretKey');
-  const secretKeyFeedback = document.getElementById('secretKeyFeedback');
   const submitUserRegisterBtn = document.getElementById('submitUserRegisterBtn');
   const submitBtnText = document.getElementById('submitBtnText');
 
@@ -258,10 +225,6 @@
     registerRoleBadge.innerHTML = '<i class="bi bi-person-plus me-1 text-primary"></i>Student Registration';
     registerTitle.textContent = 'Create Account';
     registerSubtitle.textContent = 'Register an account to securely access the student portal and view academic records.';
-    adminSecretGroup.classList.add('d-none');
-    adminSecretKey.required = false;
-    adminSecretKey.classList.remove('is-invalid');
-    if (secretKeyFeedback) secretKeyFeedback.classList.remove('d-block');
     submitUserRegisterBtn.className = 'btn btn-primary btn-lg w-100 fw-semibold mb-3 shadow-sm';
     submitBtnText.textContent = 'Create Account';
     history.replaceState(null, '', '/auth/register?role=student');
@@ -273,9 +236,7 @@
     tabStudent.className = 'btn flex-fill rounded-pill fw-semibold py-2 d-flex align-items-center justify-content-center gap-2 btn-light text-muted';
     registerRoleBadge.innerHTML = '<i class="bi bi-shield-check me-1 text-danger"></i>Administrator Registration';
     registerTitle.textContent = 'Create Administrator Account';
-    registerSubtitle.textContent = 'Register an administrator profile with administrative secret key authorization.';
-    adminSecretGroup.classList.remove('d-none');
-    adminSecretKey.required = true;
+    registerSubtitle.textContent = 'Register an administrator profile to inspect registered students and manage records.';
     submitUserRegisterBtn.className = 'btn btn-danger btn-lg w-100 fw-semibold mb-3 shadow-sm';
     submitBtnText.textContent = 'Create Administrator Account';
     history.replaceState(null, '', '/auth/register?role=admin');
@@ -283,23 +244,6 @@
 
   tabStudent?.addEventListener('click', switchToStudent);
   tabAdmin?.addEventListener('click', switchToAdmin);
-
-  // Toggle secret key visibility
-  document.getElementById('toggleSecretKeyBtn')?.addEventListener('click', function() {
-    const icon = document.getElementById('toggleSecretKeyIcon');
-    if (adminSecretKey.type === 'password') {
-      adminSecretKey.type = 'text';
-      icon.classList.replace('bi-eye', 'bi-eye-slash');
-    } else {
-      adminSecretKey.type = 'password';
-      icon.classList.replace('bi-eye-slash', 'bi-eye');
-    }
-  });
-
-  adminSecretKey?.addEventListener('input', function() {
-    adminSecretKey.classList.remove('is-invalid');
-    if (secretKeyFeedback) secretKeyFeedback.classList.remove('d-block');
-  });
 
   // Toggle password visibility
   document.getElementById('toggleUserPasswordBtn')?.addEventListener('click', function() {
@@ -416,20 +360,6 @@
   // Client-side submission validation
   form?.addEventListener('submit', function(e) {
     let hasError = false;
-
-    // Check admin secret key if role is admin
-    if (roleInput?.value === 'admin') {
-      const secret = (adminSecretKey?.value || '').trim();
-      if (!secret) {
-        e.preventDefault();
-        hasError = true;
-        adminSecretKey?.classList.add('is-invalid');
-        if (secretKeyFeedback) {
-          secretKeyFeedback.textContent = 'Admin Secret Key is required to create an administrator account.';
-          secretKeyFeedback.classList.add('d-block');
-        }
-      }
-    }
 
     const { isValid } = validatePasswordRules(pwInput?.value || '');
     if (!isValid) {

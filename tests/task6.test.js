@@ -123,50 +123,23 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(res.body.includes('name="password"'), 'Should contain password input');
   });
 
-  it('GET /auth/register — returns 200 with registration form, tabs toggle, and secret key field', async () => {
+  it('GET /auth/register — returns 200 with registration form, tabs toggle, and no secret key field', async () => {
     const res = await request({ method: 'GET', path: '/auth/register' });
     assert.equal(res.statusCode, 200);
     assert.ok(res.body.includes('Create Account'), 'Should display Create Account header');
     assert.ok(res.body.includes('name="name"'), 'Should contain name input');
     assert.ok(res.body.includes('Student Account'), 'Should contain Student Account tab');
     assert.ok(res.body.includes('Admin Account'), 'Should contain Admin Account tab');
-    assert.ok(res.body.includes('name="adminSecretKey"'), 'Should contain Admin Secret Key field');
+    assert.ok(!res.body.includes('name="adminSecretKey"'), 'Admin Secret Key field must be completely removed');
     assert.ok(!res.body.includes('<select name="role"'), 'Role selection dropdown must not exist');
   });
 
-  it('POST /auth/register — rejects admin creation with missing or invalid secret key', async () => {
-    const testEmail = `fakeadmin_${Date.now()}@example.com`;
-    const payload = new URLSearchParams({
-      name: 'Unauthorized Admin',
-      email: testEmail,
-      role: 'admin',
-      adminSecretKey: 'WrongSecretKey123',
-      password: 'SecurePass@2026',
-      confirmPassword: 'SecurePass@2026',
-    }).toString();
-
-    const res = await request({
-      method: 'POST',
-      path: '/auth/register',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(payload),
-      },
-    }, payload);
-
-    assert.equal(res.statusCode, 422, 'Should reject invalid admin secret key with 422');
-    assert.ok(res.body.includes('Invalid Admin Secret Key'), 'Should display Invalid Admin Secret Key error');
-    const createdUser = userStore.findByEmail(testEmail);
-    assert.equal(createdUser, null, 'User account must not be created');
-  });
-
-  it('POST /auth/register — creates admin account with valid secret key and redirects to /login?tab=admin', async () => {
+  it('POST /auth/register — directly creates admin account under Admin tab without requiring any secret key', async () => {
     const testEmail = `validadmin_${Date.now()}@example.com`;
     const payload = new URLSearchParams({
-      name: 'Valid Registered Admin',
+      name: 'Direct Admin User',
       email: testEmail,
       role: 'admin',
-      adminSecretKey: process.env.ADMIN_SECRET_KEY || 'Admin@Secret2026',
       password: 'ValidAdminPass@2026',
       confirmPassword: 'ValidAdminPass@2026',
     }).toString();
@@ -180,11 +153,11 @@ describe('Task 6 — Database Integration & User Authentication', () => {
       },
     }, payload);
 
-    assert.equal(res.statusCode, 302, 'Should redirect after successful admin registration');
+    assert.equal(res.statusCode, 302, 'Should succeed with 302 redirect without any secret key');
     assert.equal(res.headers.location, '/login?tab=admin', 'Must redirect to /login?tab=admin');
     const createdUser = userStore.findByEmail(testEmail);
     assert.ok(createdUser, 'Admin user account should be created in database');
-    assert.equal(createdUser.role, 'admin', 'Role must be admin');
+    assert.equal(createdUser.role, 'admin', 'Role must directly be admin');
   });
 
   it('POST /auth/register — rejects invalid password and returns synchronized error message', async () => {
