@@ -3,15 +3,17 @@
 /**
  * src/app.js
  * Main Express application entry point.
- * Loads environment variables, configures middleware,
- * registers routes, and starts the HTTP server.
+ * Loads environment variables, configures middleware, sessions,
+ * database readiness, registers routes, and starts the HTTP server.
  */
 
 require('dotenv').config();
 
-const express  = require('express');
-const path     = require('path');
-const morgan   = require('morgan');
+const express   = require('express');
+const path      = require('path');
+const morgan    = require('morgan');
+const session   = require('express-session');
+const dbManager = require('./models/db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,10 +34,39 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// ── Flash-like local helpers (Task 1 — simple in-memory flash) ─
-// We use res.locals so every EJS template can read flash messages.
-app.use((req, res, next) => {
-  res.locals.flash = null;
+// ── Session management (Task 6) ────────────────────────────────
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'cognifyz-internship-session-secret-2024',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  },
+}));
+
+// ── Database readiness & view locals middleware ────────────────
+app.use(async (req, res, next) => {
+  try {
+    await dbManager.ensureDbReady();
+  } catch (err) {
+    console.error('[DB] Ready check error:', err.message);
+  }
+
+  // Session-based flash message support
+  res.locals.flash = (req.session && req.session.flash) ? req.session.flash : null;
+  if (req.session && req.session.flash) {
+    delete req.session.flash;
+  }
+
+  req.setFlash = (type, message) => {
+    if (req.session) {
+      req.session.flash = { type, message };
+    }
+  };
+
+  // Expose current authenticated user to all EJS templates
+  res.locals.currentUser = (req.session && req.session.user) ? req.session.user : null;
   res.locals.currentYear = new Date().getFullYear();
   next();
 });
@@ -43,10 +74,12 @@ app.use((req, res, next) => {
 // ── Routes ─────────────────────────────────────────────────────
 const indexRouter   = require('./routes/index.routes');
 const studentRouter = require('./routes/student.routes');
+const authRouter    = require('./routes/auth.routes');
 const apiRouter     = require('./routes/api.routes');
 
 app.use('/',         indexRouter);
 app.use('/students', studentRouter);
+app.use('/auth',     authRouter);
 app.use('/api',      apiRouter);
 
 // ── 404 handler ────────────────────────────────────────────────

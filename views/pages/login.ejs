@@ -1,0 +1,157 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main id="mainContent" class="cp-page-main">
+  <div class="container py-5">
+
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-5 text-center">
+        <span class="cp-badge mb-2">
+          <i class="bi bi-shield-lock me-1"></i>Authentication
+        </span>
+        <h1 class="cp-page-title">Sign In</h1>
+        <p class="text-muted">
+          Access your student portal account or manage system records.
+        </p>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-5 col-md-8">
+
+        <%- include('../partials/flash') %>
+
+        <% if (errors && errors.length > 0) { %>
+          <div class="alert alert-danger cp-error-summary mb-4" role="alert" id="errorSummary">
+            <h2 class="alert-heading h6 mb-2">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>Please fix the following:
+            </h2>
+            <ul class="mb-0 ps-3">
+              <% errors.forEach(e => { %>
+                <li><%= e.msg || e.message %></li>
+              <% }); %>
+            </ul>
+          </div>
+        <% } %>
+
+        <div class="cp-form-card shadow-sm p-4 rounded-4 bg-white border">
+          <form action="/auth/login" method="POST" id="loginForm" novalidate>
+            <input type="hidden" name="returnUrl" value="<%= typeof returnUrl !== 'undefined' ? returnUrl : '/students' %>" />
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="loginEmail" class="form-label cp-label fw-semibold">
+                <i class="bi bi-envelope me-1 text-primary"></i>Email Address
+              </label>
+              <input
+                type="email"
+                class="form-control form-control-lg <%= errors.find(e => e.field === 'email') ? 'is-invalid' : '' %>"
+                id="loginEmail"
+                name="email"
+                placeholder="name@example.com"
+                value="<%= old && old.email ? old.email : '' %>"
+                required
+                autocomplete="email"
+              />
+              <div class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="loginPassword" class="form-label cp-label fw-semibold mb-0">
+                  <i class="bi bi-lock me-1 text-primary"></i>Password
+                </label>
+              </div>
+              <div class="input-group">
+                <input
+                  type="password"
+                  class="form-control form-control-lg <%= errors.find(e => e.field === 'password' || e.field === 'auth') ? 'is-invalid' : '' %>"
+                  id="loginPassword"
+                  name="password"
+                  placeholder="Enter your password"
+                  required
+                  autocomplete="current-password"
+                />
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  id="toggleLoginPasswordBtn"
+                  title="Toggle password visibility"
+                >
+                  <i class="bi bi-eye" id="toggleLoginPasswordIcon"></i>
+                </button>
+              </div>
+              <div class="invalid-feedback">Please enter your password.</div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold mb-3">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </button>
+          </form>
+
+          <!-- Quick Fill Credentials Box for Evaluator Testing -->
+          <div class="p-3 bg-light rounded-3 border mt-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="small fw-bold text-secondary text-uppercase tracking-wider">
+                <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Demo Accounts (Quick-Fill)
+              </span>
+            </div>
+            <div class="d-flex gap-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary flex-fill"
+                id="quickFillAdminBtn"
+              >
+                <i class="bi bi-shield-check me-1"></i>Admin User
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary flex-fill"
+                id="quickFillStudentBtn"
+              >
+                <i class="bi bi-person me-1"></i>Student User
+              </button>
+            </div>
+          </div>
+
+          <div class="text-center mt-4">
+            <span class="text-muted">Don't have an account yet?</span>
+            <a href="/auth/register" class="fw-semibold text-primary ms-1">Create one now</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Toggle password visibility
+  document.getElementById('toggleLoginPasswordBtn')?.addEventListener('click', function() {
+    const input = document.getElementById('loginPassword');
+    const icon = document.getElementById('toggleLoginPasswordIcon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+  });
+
+  // Quick fill helper for internship evaluation
+  document.getElementById('quickFillAdminBtn')?.addEventListener('click', function() {
+    document.getElementById('loginEmail').value = 'admin@cognifyz.com';
+    document.getElementById('loginPassword').value = 'Admin@12345';
+  });
+
+  document.getElementById('quickFillStudentBtn')?.addEventListener('click', function() {
+    document.getElementById('loginEmail').value = 'student@cognifyz.com';
+    document.getElementById('loginPassword').value = 'Student@12345';
+  });
+</script>
+
+<%- include('../partials/footer') %>

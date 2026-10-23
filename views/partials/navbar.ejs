@@ -25,7 +25,7 @@
 
     <!-- Nav links -->
     <div class="collapse navbar-collapse" id="navbarContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-1">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
         <li class="nav-item">
           <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Home</a>
         </li>
@@ -33,13 +33,60 @@
           <a class="nav-link" href="/students"><i class="bi bi-people me-1"></i>Students</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/api/docs"><i class="bi bi-code-slash me-1"></i>API Docs</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link nav-cta" href="/students/register">
-            <i class="bi bi-person-plus me-1"></i>Register
+            <i class="bi bi-person-plus me-1"></i>Register Student
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/api/docs"><i class="bi bi-code-slash me-1"></i>API Docs</a>
+        </li>
+      </ul>
+
+      <!-- User Authentication Controls -->
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-2">
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1 px-3 rounded-pill bg-light bg-opacity-10 text-white"
+              href="#"
+              id="userMenuDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="bi bi-person-circle fs-5 text-warning"></i>
+              <span class="fw-semibold"><%= currentUser.name %></span>
+              <span class="badge <%= currentUser.role === 'admin' ? 'bg-danger' : 'bg-info text-dark' %> text-uppercase" style="font-size: 0.65rem;">
+                <%= currentUser.role %>
+              </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="userMenuDropdown">
+              <li>
+                <div class="px-3 py-2 text-muted small">
+                  Signed in as<br />
+                  <strong class="text-dark"><%= currentUser.email %></strong>
+                </div>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="/auth/logout">
+                  <i class="bi bi-box-arrow-right"></i>Sign Out
+                </a>
+              </li>
+            </ul>
+          </li>
+        <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="/auth/login">
+              <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-light rounded-pill px-3" href="/auth/register">
+              <i class="bi bi-person-plus me-1"></i>Sign Up
+            </a>
+          </li>
+        <% } %>
       </ul>
     </div>
 
