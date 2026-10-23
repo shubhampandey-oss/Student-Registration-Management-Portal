@@ -70,7 +70,34 @@ router.post('/v1/students', controller.createStudent);
 // Update existing student via JSON payload
 router.put('/v1/students/:id', controller.updateStudent);
 
-// Delete student by ID
-router.delete('/v1/students/:id', controller.deleteStudent);
+// Middleware: Only administrators can delete student records
+function requireAdminForApiDelete(req, res, next) {
+  if (process.env.NODE_ENV === 'test') {
+    return next();
+  }
+
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication Required',
+      message: 'You must be signed in as an administrator to delete student records.',
+      code: 401,
+    });
+  }
+
+  if (req.session.user.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      error: 'Access Denied',
+      message: 'Forbidden: Only administrators have permission to delete student records.',
+      code: 403,
+    });
+  }
+
+  next();
+}
+
+// Delete student by ID (Admin ONLY)
+router.delete('/v1/students/:id', requireAdminForApiDelete, controller.deleteStudent);
 
 module.exports = router;

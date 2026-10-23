@@ -175,16 +175,18 @@
                 <a href="/students/<%= s.id %>" class="btn cp-btn-sm-outline flex-grow-1" id="viewStudent<%= s.id %>">
                   <i class="bi bi-eye me-1"></i>View Profile
                 </a>
-                <button
-                  type="button"
-                  class="btn cp-btn-sm-outline text-danger border-danger border-opacity-25 cp-delete-btn px-2"
-                  data-id="<%= s.id %>"
-                  data-name="<%= s.name %>"
-                  id="deleteStudentBtn<%= s.id %>"
-                  title="Delete student via REST API"
-                >
-                  <i class="bi bi-trash"></i>
-                </button>
+                <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') { %>
+                  <button
+                    type="button"
+                    class="btn cp-btn-sm-outline text-danger border-danger border-opacity-25 cp-delete-btn px-2"
+                    data-id="<%= s.id %>"
+                    data-name="<%= s.name %>"
+                    id="deleteStudentBtn<%= s.id %>"
+                    title="Delete student via REST API (Admin Only)"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                <% } %>
               </div>
             </div>
           </div>
