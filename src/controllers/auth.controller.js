@@ -17,7 +17,7 @@ const { evaluatePasswordStrength } = require('../utils/validation');
  * Displays dual user / admin login interface
  */
 exports.getLogin = (req, res) => {
-  const portal = req.query.portal === 'admin' ? 'admin' : 'student';
+  const portal = (req.query.portal === 'admin' || req.query.tab === 'admin') ? 'admin' : 'student';
   const defaultReturnUrl = portal === 'admin' ? '/students' : '/auth/dashboard';
   const returnUrl = req.query.returnUrl || defaultReturnUrl;
 
@@ -153,11 +153,13 @@ exports.postLogin = async (req, res) => {
 
 /**
  * GET /auth/register
- * Displays user account creation interface
+ * Displays user account creation interface with Student/Admin tabs
  */
 exports.getRegister = (req, res) => {
+  const role = (req.query.role === 'admin' || req.query.tab === 'admin') ? 'admin' : 'student';
   res.render('pages/user-register', {
-    title:  'Create Account — Student Portal',
+    title:  role === 'admin' ? 'Create Administrator Account — Student Portal' : 'Create Account — Student Portal',
+    role,
     errors: [],
     old:    {},
     flash:  res.locals.flash,
@@ -166,10 +168,11 @@ exports.getRegister = (req, res) => {
 
 /**
  * POST /auth/register
- * Validates inputs, creates new user, logs them into session
+ * Validates inputs, creates new user, logs them into session or redirects admin to login
  */
 exports.postRegister = async (req, res) => {
-  const { name, email, password, confirmPassword, role } = req.body;
+  const { name, email, password, confirmPassword, role, adminSecretKey } = req.body;
+  const currentRole = (role === 'admin') ? 'admin' : 'student';
   const errors = [];
 
   // 1. Name validation
@@ -212,27 +215,50 @@ exports.postRegister = async (req, res) => {
     errors.push({ field: 'confirmPassword', msg: 'Passwords do not match.' });
   }
 
+  // 4. Admin Secret Key verification for Administrator registration
+  const validAdminSecret = process.env.ADMIN_SECRET_KEY || 'Admin@Secret2026';
+  if (currentRole === 'admin') {
+    const trimmedSecret = (typeof adminSecretKey === 'string') ? adminSecretKey.trim() : '';
+    if (!trimmedSecret || trimmedSecret !== validAdminSecret) {
+      errors.push({ field: 'adminSecretKey', msg: 'Invalid Admin Secret Key' });
+    }
+  }
+
   if (errors.length > 0) {
     return res.status(422).render('pages/user-register', {
-      title:  'Create Account — Student Portal',
+      title:  currentRole === 'admin' ? 'Create Administrator Account — Student Portal' : 'Create Account — Student Portal',
+      role:   currentRole,
       errors,
-      old:    { name, email, password: trimmedPassword, confirmPassword: trimmedConfirm },
+      old:    { name, email, password: trimmedPassword, confirmPassword: trimmedConfirm, role: currentRole, adminSecretKey },
       flash:  null,
     });
   }
 
   try {
-    // Unconditionally assign standard 'student' role for public registrations.
-    // Protects administrator privileges from payload manipulation or privilege escalation.
-    const userRole = 'student';
     const newUser = await userStore.create({
       name:     name.trim(),
       email:    email.trim(),
       password: trimmedPassword,
-      role:     userRole,
+      role:     currentRole,
     });
 
-    // Log the user into session immediately
+    // Post-Registration flow:
+    // If Admin: redirect directly to /login?tab=admin
+    if (currentRole === 'admin') {
+      if (typeof req.setFlash === 'function') {
+        req.setFlash('success', 'Administrator account created successfully! Please sign in with your credentials.');
+      } else if (req.session) {
+        req.session.flash = {
+          type: 'success',
+          message: 'Administrator account created successfully! Please sign in with your credentials.',
+        };
+      }
+      return req.session.save(() => {
+        res.redirect('/login?tab=admin');
+      });
+    }
+
+    // If Student: log the user into session immediately and redirect to dashboard
     req.session.user = {
       id:    newUser.id,
       name:  newUser.name,
@@ -250,7 +276,7 @@ exports.postRegister = async (req, res) => {
     }
 
     return req.session.save(() => {
-      res.redirect('/students');
+      res.redirect('/auth/dashboard');
     });
   } catch (err) {
     console.error('[AUTH CONTROLLER] Registration error:', err.message);
