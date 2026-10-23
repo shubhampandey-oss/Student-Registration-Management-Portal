@@ -46,4 +46,8 @@ router.get('/admin',     requireAuth, requireAdmin, authController.getAdmin);
 router.get('/security',              requireAuth, authController.getSecurityStatus);
 router.post('/security/flush-cache', requireAuth, authController.postFlushCache);
 
+// Account deletion (Task 6 User Management)
+router.post('/account/delete', requireAuth, authController.deleteAccount);
+router.delete('/account',      requireAuth, authController.deleteAccount);
+
 module.exports = router;

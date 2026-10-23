@@ -36,4 +36,10 @@ router.get('/reset-password', (req, res) => {
   res.redirect(`/auth/reset-password${qs}`);
 });
 
+// Root account deletion routes
+const authController = require('../controllers/auth.controller');
+const { requireAuth } = require('../middleware/auth.middleware');
+router.post('/account/delete', requireAuth, authController.deleteAccount);
+router.delete('/account',      requireAuth, authController.deleteAccount);
+
 module.exports = router;

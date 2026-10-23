@@ -240,6 +240,16 @@ function clear() {
   students.length = 0;
 }
 
+/**
+ * Remove student records by email (case-insensitive)
+ */
+function removeByEmail(email) {
+  if (!email) return false;
+  dbManager.run('DELETE FROM students WHERE LOWER(email) = LOWER(?)', [email.trim()]);
+  syncFromDb();
+  return true;
+}
+
 module.exports = {
   students,
   getAll,
@@ -248,6 +258,7 @@ module.exports = {
   add,
   update,
   remove,
+  removeByEmail,
   clear,
   syncFromDb,
 };

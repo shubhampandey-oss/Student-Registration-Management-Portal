@@ -537,4 +537,65 @@ exports.postResetPassword = async (req, res) => {
   }
 };
 
+/**
+ * POST /account/delete or DELETE /account
+ * Authenticates user, deletes user & linked student records, destroys session, redirects to /
+ */
+exports.deleteAccount = async (req, res) => {
+  const currentUser = req.session && req.session.user ? req.session.user : null;
+  if (!currentUser) {
+    const isApi = req.path.startsWith('/api') || (req.headers.accept && req.headers.accept.includes('application/json'));
+    if (isApi) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+    return res.status(401).redirect('/auth/login');
+  }
+
+  const { password } = req.body;
+
+  // Optional password verification if provided
+  if (password && typeof password === 'string' && password.trim()) {
+    const rawUser = userStore.findByEmail(currentUser.email);
+    if (rawUser) {
+      const isMatch = await bcrypt.compare(password.trim(), rawUser.passwordHash);
+      if (!isMatch) {
+        if (typeof req.setFlash === 'function') {
+          req.setFlash('danger', 'Incorrect password. Account deletion cancelled.');
+        } else if (req.session) {
+          req.session.flash = { type: 'danger', message: 'Incorrect password. Account deletion cancelled.' };
+        }
+        const returnUrl = currentUser.role === 'admin' ? '/auth/admin' : '/auth/dashboard';
+        return res.status(422).redirect(returnUrl);
+      }
+    }
+  }
+
+  try {
+    // 1. Remove linked student records from students database table
+    studentStore.removeByEmail(currentUser.email);
+
+    // 2. Remove user from users database table
+    userStore.deleteById(currentUser.id);
+
+    console.log(`[AUTH] Account deleted: User #${currentUser.id} (${currentUser.email}) [role=${currentUser.role}]`);
+
+    // 3. Destroy session, clear cookie, redirect to / with flash
+    req.session.destroy(err => {
+      if (err) {
+        console.error('[AUTH] Session destroy error during account deletion:', err.message);
+      }
+      res.clearCookie('connect.sid');
+      return res.redirect('/?deleted=1');
+    });
+  } catch (err) {
+    console.error('[AUTH] Account deletion error:', err.message);
+    return res.status(500).render('pages/error', {
+      title:   'Account Deletion Error',
+      code:    500,
+      message: 'Failed to delete account. Please try again.',
+    });
+  }
+};
+
+
 

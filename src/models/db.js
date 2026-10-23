@@ -62,6 +62,12 @@ async function seedInitialData() {
       ['Cognifyz Admin', adminEmail, adminHash, 'admin', now]
     );
     console.log('[DB] Seeded default administrator account (admin@cognifyz.com / Admin@12345)');
+  } else {
+    const isMatch = await bcrypt.compare('Admin@12345', existingAdmin.passwordHash);
+    if (!isMatch) {
+      const adminHash = await bcrypt.hash('Admin@12345', 10);
+      run('UPDATE users SET passwordHash = ? WHERE id = ?', [adminHash, existingAdmin.id]);
+    }
   }
 
   // 2. Ensure default Student user account exists
@@ -76,6 +82,12 @@ async function seedInitialData() {
       ['Student User', studentEmail, studentHash, 'student', now]
     );
     console.log('[DB] Seeded default student user account (student@cognifyz.com / Student@12345)');
+  } else {
+    const isMatch = await bcrypt.compare('Student@12345', existingStudent.passwordHash);
+    if (!isMatch) {
+      const studentHash = await bcrypt.hash('Student@12345', 10);
+      run('UPDATE users SET passwordHash = ? WHERE id = ?', [studentHash, existingStudent.id]);
+    }
   }
 
   // 2. Seed initial demo students if empty

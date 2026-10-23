@@ -56,6 +56,8 @@ describe('Task 6 — Database Integration & User Authentication', () => {
 
   before(async () => {
     await dbManager.ensureDbReady();
+    await userStore.updatePassword('admin@cognifyz.com', 'Admin@12345');
+    await userStore.updatePassword('student@cognifyz.com', 'Student@12345');
   });
 
   after(() => {
@@ -545,9 +547,17 @@ describe('Task 6 — Database Integration & User Authentication', () => {
   });
 
   it('POST /auth/reset-password for student rejects weak password and updates on valid password', async () => {
+    const testEmail = `rststudent_${Date.now()}@example.com`;
+    await userStore.create({
+      name: 'Reset Student User',
+      email: testEmail,
+      password: 'OldPassword@123',
+      role: 'student',
+    });
+
     // 1. Weak password rejected
     const weakPayload = new URLSearchParams({
-      email: 'student@cognifyz.com',
+      email: testEmail,
       newPassword: 'weak',
       confirmPassword: 'weak',
     }).toString();
@@ -566,7 +576,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     // 2. Valid password updates credentials and redirects to /login
     const validPassword = 'NewStudent@Password2026!';
     const validPayload = new URLSearchParams({
-      email: 'student@cognifyz.com',
+      email: testEmail,
       newPassword: validPassword,
       confirmPassword: validPassword,
     }).toString();
@@ -583,14 +593,22 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.equal(validRes.headers.location, '/login');
 
     // 3. User can immediately authenticate with the new password
-    const loginUser = await userStore.authenticate('student@cognifyz.com', validPassword);
+    const loginUser = await userStore.authenticate(testEmail, validPassword);
     assert.ok(loginUser, 'Student must be able to authenticate with new password');
   });
 
   it('POST /auth/reset-password for admin requires valid Admin Secret Key', async () => {
+    const testAdminEmail = `rstadmin_${Date.now()}@example.com`;
+    await userStore.create({
+      name: 'Reset Admin User',
+      email: testAdminEmail,
+      password: 'OldAdminPassword@123',
+      role: 'admin',
+    });
+
     // 1. Missing / invalid secret key rejected with 422
     const invalidSecretPayload = new URLSearchParams({
-      email: 'admin@cognifyz.com',
+      email: testAdminEmail,
       newPassword: 'NewAdmin@Password2026!',
       confirmPassword: 'NewAdmin@Password2026!',
       adminSecretKey: 'WrongSecretKey',
@@ -610,7 +628,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     // 2. Valid secret key succeeds and updates password
     const newAdminPass = 'SuperAdmin@NewPass2026!';
     const validAdminPayload = new URLSearchParams({
-      email: 'admin@cognifyz.com',
+      email: testAdminEmail,
       newPassword: newAdminPass,
       confirmPassword: newAdminPass,
       adminSecretKey: process.env.ADMIN_SECRET_KEY || 'Admin@Secret2026',
@@ -628,8 +646,192 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.equal(successRes.headers.location, '/login');
 
     // 3. Admin can immediately authenticate with the new password
-    const loginAdmin = await userStore.authenticate('admin@cognifyz.com', newAdminPass);
+    const loginAdmin = await userStore.authenticate(testAdminEmail, newAdminPass);
     assert.ok(loginAdmin, 'Admin must be able to authenticate with new password');
+  });
+
+  // ── Account Deletion Feature ──────────────────────────────────
+  it('GET /auth/dashboard and /auth/admin contain Delete My Account button and modal', async () => {
+    // 1. Student dashboard check
+    const studentPayload = new URLSearchParams({
+      portal: 'student',
+      email: 'student@cognifyz.com',
+      password: 'Student@12345',
+    }).toString();
+
+    const studentLogin = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(studentPayload),
+      },
+    }, studentPayload);
+
+    const studentCookie = parseCookies(studentLogin);
+    const dashRes = await request({
+      method: 'GET',
+      path: '/auth/dashboard',
+      headers: { 'Cookie': studentCookie },
+    });
+    assert.equal(dashRes.statusCode, 200);
+    assert.ok(dashRes.body.includes('Delete My Account'), 'Student dashboard must contain Delete My Account button');
+    assert.ok(dashRes.body.includes('deleteAccountModal'), 'Student dashboard must contain delete modal');
+
+    // 2. Admin dashboard check
+    const adminPayload = new URLSearchParams({
+      portal: 'admin',
+      email: 'admin@cognifyz.com',
+      password: 'Admin@12345',
+    }).toString();
+
+    const adminLogin = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(adminPayload),
+      },
+    }, adminPayload);
+
+    const adminCookie = parseCookies(adminLogin);
+    const adminRes = await request({
+      method: 'GET',
+      path: '/auth/admin',
+      headers: { 'Cookie': adminCookie },
+    });
+    assert.equal(adminRes.statusCode, 200);
+    assert.ok(adminRes.body.includes('Delete My Account'), 'Admin console must contain Delete My Account button');
+    assert.ok(adminRes.body.includes('deleteAdminAccountModal'), 'Admin console must contain admin delete modal');
+  });
+
+  it('POST /account/delete requires authentication', async () => {
+    const res = await request({
+      method: 'POST',
+      path: '/account/delete',
+    });
+    assert.equal(res.statusCode, 302, 'Unauthenticated account deletion request must redirect');
+    assert.ok(res.headers.location.includes('/auth/login'));
+  });
+
+  it('POST /account/delete deletes student user, linked student records, destroys session, and redirects to home', async () => {
+    const testEmail = `delstudent_${Date.now()}@example.com`;
+    const password = 'DeleteMePass@123';
+
+    // 1. Create student user
+    await userStore.create({
+      name: 'To Be Deleted Student',
+      email: testEmail,
+      password,
+      role: 'student',
+    });
+
+    // 2. Create linked student record
+    studentStore.add({
+      name: 'To Be Deleted Student',
+      email: testEmail,
+      phone: '9888877777',
+      course: 'Computer Science',
+      dob: '2001-01-01',
+      gender: 'Male',
+      year: '2nd Year',
+    });
+
+    // Verify both exist before deletion
+    assert.ok(userStore.findByEmail(testEmail), 'User record must exist prior to deletion');
+    assert.ok(studentStore.getAll().some(s => s.email.toLowerCase() === testEmail.toLowerCase()), 'Student record must exist prior to deletion');
+
+    // 3. Log in to establish session
+    const loginPayload = new URLSearchParams({
+      portal: 'student',
+      email: testEmail,
+      password,
+    }).toString();
+
+    const loginRes = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(loginPayload),
+      },
+    }, loginPayload);
+
+    const cookie = parseCookies(loginRes);
+
+    // 4. Submit account deletion request
+    const delRes = await request({
+      method: 'POST',
+      path: '/account/delete',
+      headers: {
+        'Cookie': cookie,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    assert.equal(delRes.statusCode, 302, 'Account deletion should redirect');
+    assert.ok(delRes.headers.location.startsWith('/?deleted='), 'Must redirect to landing page with deleted flag');
+
+    // 5. Verify records removed from database
+    assert.equal(userStore.findByEmail(testEmail), null, 'User record must be permanently removed from database');
+    assert.ok(!studentStore.getAll().some(s => s.email.toLowerCase() === testEmail.toLowerCase()), 'Linked student record must be deleted');
+
+    // 6. Verify landing page renders success message
+    const homeRes = await request({
+      method: 'GET',
+      path: delRes.headers.location,
+    });
+    assert.equal(homeRes.statusCode, 200);
+    assert.ok(homeRes.body.includes('Your account has been deleted successfully.'), 'Landing page must show deletion banner');
+  });
+
+  it('POST /account/delete deletes administrator user and destroys session', async () => {
+    const adminEmail = `deladmin_${Date.now()}@example.com`;
+    const password = 'DeleteAdmin@123';
+
+    // 1. Create admin user
+    await userStore.create({
+      name: 'To Be Deleted Admin',
+      email: adminEmail,
+      password,
+      role: 'admin',
+    });
+
+    assert.ok(userStore.findByEmail(adminEmail), 'Admin user must exist');
+
+    // 2. Log in
+    const loginPayload = new URLSearchParams({
+      portal: 'admin',
+      email: adminEmail,
+      password,
+    }).toString();
+
+    const loginRes = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(loginPayload),
+      },
+    }, loginPayload);
+
+    const cookie = parseCookies(loginRes);
+
+    // 3. Delete admin account
+    const delRes = await request({
+      method: 'POST',
+      path: '/account/delete',
+      headers: {
+        'Cookie': cookie,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    assert.equal(delRes.statusCode, 302);
+    assert.ok(delRes.headers.location.startsWith('/?deleted='));
+
+    // 4. Verify admin user is gone from database
+    assert.equal(userStore.findByEmail(adminEmail), null, 'Admin user must be permanently removed from database');
   });
 
 });

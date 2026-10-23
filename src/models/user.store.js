@@ -124,12 +124,26 @@ async function updatePassword(email, newPassword) {
   return sanitizeUser(updated);
 }
 
+/**
+ * Delete user by ID
+ */
+function deleteById(id) {
+  const numericId = parseInt(id, 10);
+  if (isNaN(numericId)) return false;
+  const user = findById(numericId);
+  if (!user) return false;
+
+  dbManager.run('DELETE FROM users WHERE id = ?', [numericId]);
+  return true;
+}
+
 module.exports = {
   findByEmail,
   findById,
   create,
   authenticate,
   updatePassword,
+  deleteById,
   getAll,
   count,
   sanitizeUser,

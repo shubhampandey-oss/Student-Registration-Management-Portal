@@ -12,6 +12,11 @@ exports.getHome = (req, res) => {
       type: 'success',
       message: 'You have been logged out successfully.',
     };
+  } else if (!flash && (req.query.deleted === '1' || req.query.deleted === 'account')) {
+    flash = {
+      type: 'success',
+      message: 'Your account has been deleted successfully.',
+    };
   }
 
   res.render('pages/home', {
