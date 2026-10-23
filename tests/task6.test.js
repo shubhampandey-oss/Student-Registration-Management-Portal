@@ -510,4 +510,153 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(unknownRes.body.includes('Invalid email address or password'));
   });
 
+  // ── Forgot & Reset Password Flows ─────────────────────────────
+  it('GET /auth/login contains Forgot Password link', async () => {
+    const res = await request({ method: 'GET', path: '/auth/login' });
+    assert.equal(res.statusCode, 200);
+    assert.ok(res.body.includes('Forgot Password?'), 'Login page must contain Forgot Password link');
+    assert.ok(res.body.includes('/auth/forgot-password'), 'Link must direct to /auth/forgot-password');
+  });
+
+  it('GET /auth/forgot-password renders password recovery page', async () => {
+    const res = await request({ method: 'GET', path: '/auth/forgot-password' });
+    assert.equal(res.statusCode, 200);
+    assert.ok(res.body.includes('Forgot Password'), 'Should render Forgot Password header');
+    assert.ok(res.body.includes('name="email"'), 'Should contain registered email input');
+  });
+
+  it('POST /auth/forgot-password rejects non-existent email address', async () => {
+    const payload = new URLSearchParams({ email: 'nonexistent_user@cognifyz.com' }).toString();
+    const res = await request({
+      method: 'POST',
+      path: '/auth/forgot-password',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, payload);
+
+    assert.equal(res.statusCode, 422);
+    assert.ok(res.body.includes('No registered account found with this email address.'));
+  });
+
+  it('POST /auth/forgot-password verifies registered email and redirects to reset-password', async () => {
+    const payload = new URLSearchParams({ email: 'student@cognifyz.com' }).toString();
+    const res = await request({
+      method: 'POST',
+      path: '/auth/forgot-password',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, payload);
+
+    assert.equal(res.statusCode, 302);
+    assert.ok(res.headers.location.includes('/auth/reset-password'));
+    assert.ok(res.headers.location.includes('student%40cognifyz.com') || res.headers.location.includes('student@cognifyz.com'));
+  });
+
+  it('GET /auth/reset-password shows appropriate fields for student vs admin', async () => {
+    // Student reset form should NOT show admin secret key
+    const studentRes = await request({ method: 'GET', path: '/auth/reset-password?email=student@cognifyz.com' });
+    assert.equal(studentRes.statusCode, 200);
+    assert.ok(studentRes.body.includes('Student'), 'Should show Student badge/label');
+    assert.ok(studentRes.body.includes('name="newPassword"'), 'Should contain new password input');
+    assert.ok(!studentRes.body.includes('name="adminSecretKey"'), 'Student should NOT have adminSecretKey field');
+
+    // Admin reset form MUST show admin secret key
+    const adminRes = await request({ method: 'GET', path: '/auth/reset-password?email=admin@cognifyz.com' });
+    assert.equal(adminRes.statusCode, 200);
+    assert.ok(adminRes.body.includes('Administrator'), 'Should show Administrator badge/label');
+    assert.ok(adminRes.body.includes('name="adminSecretKey"'), 'Admin reset form MUST contain adminSecretKey field');
+  });
+
+  it('POST /auth/reset-password for student rejects weak password and updates on valid password', async () => {
+    // 1. Weak password rejected
+    const weakPayload = new URLSearchParams({
+      email: 'student@cognifyz.com',
+      newPassword: 'weak',
+      confirmPassword: 'weak',
+    }).toString();
+
+    const weakRes = await request({
+      method: 'POST',
+      path: '/auth/reset-password',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(weakPayload),
+      },
+    }, weakPayload);
+    assert.equal(weakRes.statusCode, 422);
+    assert.ok(weakRes.body.includes('Password must be at least 8 characters'));
+
+    // 2. Valid password updates credentials and redirects to /login
+    const validPassword = 'NewStudent@Password2026!';
+    const validPayload = new URLSearchParams({
+      email: 'student@cognifyz.com',
+      newPassword: validPassword,
+      confirmPassword: validPassword,
+    }).toString();
+
+    const validRes = await request({
+      method: 'POST',
+      path: '/auth/reset-password',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(validPayload),
+      },
+    }, validPayload);
+    assert.equal(validRes.statusCode, 302);
+    assert.equal(validRes.headers.location, '/login');
+
+    // 3. User can immediately authenticate with the new password
+    const loginUser = await userStore.authenticate('student@cognifyz.com', validPassword);
+    assert.ok(loginUser, 'Student must be able to authenticate with new password');
+  });
+
+  it('POST /auth/reset-password for admin requires valid Admin Secret Key', async () => {
+    // 1. Missing / invalid secret key rejected with 422
+    const invalidSecretPayload = new URLSearchParams({
+      email: 'admin@cognifyz.com',
+      newPassword: 'NewAdmin@Password2026!',
+      confirmPassword: 'NewAdmin@Password2026!',
+      adminSecretKey: 'WrongSecretKey',
+    }).toString();
+
+    const rejectRes = await request({
+      method: 'POST',
+      path: '/auth/reset-password',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(invalidSecretPayload),
+      },
+    }, invalidSecretPayload);
+    assert.equal(rejectRes.statusCode, 422);
+    assert.ok(rejectRes.body.includes('Invalid Admin Secret Key'));
+
+    // 2. Valid secret key succeeds and updates password
+    const newAdminPass = 'SuperAdmin@NewPass2026!';
+    const validAdminPayload = new URLSearchParams({
+      email: 'admin@cognifyz.com',
+      newPassword: newAdminPass,
+      confirmPassword: newAdminPass,
+      adminSecretKey: process.env.ADMIN_SECRET_KEY || 'Admin@Secret2026',
+    }).toString();
+
+    const successRes = await request({
+      method: 'POST',
+      path: '/auth/reset-password',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(validAdminPayload),
+      },
+    }, validAdminPayload);
+    assert.equal(successRes.statusCode, 302);
+    assert.equal(successRes.headers.location, '/login');
+
+    // 3. Admin can immediately authenticate with the new password
+    const loginAdmin = await userStore.authenticate('admin@cognifyz.com', newAdminPass);
+    assert.ok(loginAdmin, 'Admin must be able to authenticate with new password');
+  });
+
 });

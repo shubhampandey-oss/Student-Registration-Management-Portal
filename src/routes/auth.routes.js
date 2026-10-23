@@ -25,6 +25,12 @@ router.post('/register',   authLimiter, authController.postRegister);
 router.get('/signup',      redirectIfAuthenticated, authController.getRegister);
 router.post('/signup',     authLimiter, authController.postRegister);
 
+// Password recovery & reset
+router.get('/forgot-password',  redirectIfAuthenticated, authController.getForgotPassword);
+router.post('/forgot-password', authLimiter, authController.postForgotPassword);
+router.get('/reset-password',   redirectIfAuthenticated, authController.getResetPassword);
+router.post('/reset-password',  authLimiter, authController.postResetPassword);
+
 // Session termination
 router.get('/logout',    authController.logout);
 router.post('/logout',   authController.logout);

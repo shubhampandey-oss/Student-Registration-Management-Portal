@@ -95,11 +95,41 @@ function count() {
   return res ? res.count : 0;
 }
 
+/**
+ * Update user's password hash by email
+ */
+async function updatePassword(email, newPassword) {
+  const user = findByEmail(email);
+  if (!user) return null;
+
+  const saltRounds = 10;
+  const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+
+  dbManager.run(
+    'UPDATE users SET passwordHash = ? WHERE id = ?',
+    [passwordHash, user.id]
+  );
+
+  // If this email also exists in students table, update it for data consistency
+  try {
+    dbManager.run(
+      'UPDATE students SET passwordHash = ? WHERE LOWER(email) = LOWER(?)',
+      [passwordHash, user.email]
+    );
+  } catch (err) {
+    // Non-fatal if table/row does not exist
+  }
+
+  const updated = findById(user.id);
+  return sanitizeUser(updated);
+}
+
 module.exports = {
   findByEmail,
   findById,
   create,
   authenticate,
+  updatePassword,
   getAll,
   count,
   sanitizeUser,

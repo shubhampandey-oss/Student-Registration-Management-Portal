@@ -26,4 +26,14 @@ router.get('/signup', (req, res) => {
   res.redirect(`/auth/register${qs}`);
 });
 
+router.get('/forgot-password', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+  res.redirect(`/auth/forgot-password${qs}`);
+});
+
+router.get('/reset-password', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+  res.redirect(`/auth/reset-password${qs}`);
+});
+
 module.exports = router;

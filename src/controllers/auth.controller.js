@@ -380,3 +380,170 @@ exports.postFlushCache = (req, res) => {
   res.redirect('/auth/security');
 };
 
+/**
+ * GET /auth/forgot-password
+ * Displays email lookup form for password recovery
+ */
+exports.getForgotPassword = (req, res) => {
+  res.render('pages/forgot-password', {
+    title:  'Forgot Password — Student Portal',
+    errors: [],
+    old:    {},
+    flash:  res.locals.flash,
+  });
+};
+
+/**
+ * POST /auth/forgot-password
+ * Verifies email exists in database, redirects to reset page
+ */
+exports.postForgotPassword = (req, res) => {
+  const { email } = req.body;
+  const cleanEmail = (typeof email === 'string') ? email.toLowerCase().trim() : '';
+  const errors = [];
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!cleanEmail) {
+    errors.push({ field: 'email', msg: 'Email address is required.' });
+  } else if (!emailRegex.test(cleanEmail)) {
+    errors.push({ field: 'email', msg: 'Please enter a valid email address.' });
+  } else {
+    const user = userStore.findByEmail(cleanEmail);
+    if (!user) {
+      errors.push({ field: 'email', msg: 'No registered account found with this email address.' });
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(422).render('pages/forgot-password', {
+      title:  'Forgot Password — Student Portal',
+      errors,
+      old:    { email: cleanEmail },
+      flash:  null,
+    });
+  }
+
+  return res.redirect(`/auth/reset-password?email=${encodeURIComponent(cleanEmail)}`);
+};
+
+/**
+ * GET /auth/reset-password
+ * Displays password reset form (with conditional Admin Secret Key if user is admin)
+ */
+exports.getResetPassword = (req, res) => {
+  const emailParam = (typeof req.query.email === 'string') ? req.query.email.toLowerCase().trim() : '';
+
+  if (!emailParam) {
+    if (typeof req.setFlash === 'function') {
+      req.setFlash('error', 'Please enter your registered email address first.');
+    } else if (req.session) {
+      req.session.flash = { type: 'error', message: 'Please enter your registered email address first.' };
+    }
+    return res.redirect('/auth/forgot-password');
+  }
+
+  const user = userStore.findByEmail(emailParam);
+  if (!user) {
+    return res.status(404).render('pages/forgot-password', {
+      title:  'Forgot Password — Student Portal',
+      errors: [{ field: 'email', msg: 'No registered account found with this email address.' }],
+      old:    { email: emailParam },
+      flash:  null,
+    });
+  }
+
+  res.render('pages/reset-password', {
+    title:    'Reset Password — Student Portal',
+    email:    user.email,
+    userRole: user.role,
+    errors:   [],
+    old:      { email: user.email },
+    flash:    res.locals.flash,
+  });
+};
+
+/**
+ * POST /auth/reset-password
+ * Validates new password criteria, verifies admin secret key if admin, updates hash, redirects to login
+ */
+exports.postResetPassword = async (req, res) => {
+  const { email, newPassword, confirmPassword, adminSecretKey } = req.body;
+  const cleanEmail = (typeof email === 'string') ? email.toLowerCase().trim() : '';
+  const errors = [];
+
+  const user = userStore.findByEmail(cleanEmail);
+  if (!user) {
+    errors.push({ field: 'email', msg: 'No account found with this email address.' });
+    return res.status(404).render('pages/forgot-password', {
+      title:  'Forgot Password — Student Portal',
+      errors,
+      old:    { email: cleanEmail },
+      flash:  null,
+    });
+  }
+
+  const trimmedPassword = (typeof newPassword === 'string') ? newPassword.trim() : '';
+  const trimmedConfirm = (typeof confirmPassword === 'string') ? confirmPassword.trim() : '';
+
+  // 1. Password security criteria
+  if (!trimmedPassword) {
+    errors.push({ field: 'newPassword', msg: 'New password is required.' });
+  } else {
+    const strength = evaluatePasswordStrength(trimmedPassword);
+    if (!strength.isValid) {
+      errors.push({
+        field: 'newPassword',
+        msg: 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.',
+      });
+    }
+  }
+
+  // 2. Password matching
+  if (trimmedPassword !== trimmedConfirm) {
+    errors.push({ field: 'confirmPassword', msg: 'Passwords do not match.' });
+  }
+
+  // 3. Admin Secret Key authorization if account is admin
+  if (user.role === 'admin') {
+    const validAdminSecret = process.env.ADMIN_SECRET_KEY || 'Admin@Secret2026';
+    const trimmedSecret = (typeof adminSecretKey === 'string') ? adminSecretKey.trim() : '';
+    if (!trimmedSecret || trimmedSecret !== validAdminSecret) {
+      errors.push({ field: 'adminSecretKey', msg: 'Invalid Admin Secret Key' });
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(422).render('pages/reset-password', {
+      title:    'Reset Password — Student Portal',
+      email:    user.email,
+      userRole: user.role,
+      errors,
+      old:      { email: user.email, newPassword: trimmedPassword, confirmPassword: trimmedConfirm, adminSecretKey },
+      flash:    null,
+    });
+  }
+
+  try {
+    await userStore.updatePassword(user.email, trimmedPassword);
+
+    const successMessage = 'Password reset successful! Please log in with your new credentials.';
+    if (typeof req.setFlash === 'function') {
+      req.setFlash('success', successMessage);
+    } else if (req.session) {
+      req.session.flash = { type: 'success', message: successMessage };
+    }
+
+    return req.session.save(() => {
+      res.redirect('/login');
+    });
+  } catch (err) {
+    console.error('[AUTH] Password reset error:', err.message);
+    return res.status(500).render('pages/error', {
+      title:   'Password Reset Error',
+      code:    500,
+      message: 'Failed to reset password. Please try again.',
+    });
+  }
+};
+
+
