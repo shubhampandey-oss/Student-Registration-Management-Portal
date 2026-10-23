@@ -247,6 +247,7 @@ function evaluatePasswordStrength(password) {
       label: 'Too Short',
       percent: 0,
       color: 'danger',
+      isValid: false,
       checks: {
         minLength: false,
         hasUpper: false,
@@ -257,13 +258,22 @@ function evaluatePasswordStrength(password) {
     };
   }
 
+  // Support standard symbols like !@#$%^&*()_+\-=[]{};':"|,.<>/?`~ as well as any other non-alphanumeric chars
   const checks = {
     minLength: password.length >= 8,
     hasUpper: /[A-Z]/.test(password),
     hasLower: /[a-z]/.test(password),
     hasDigit: /[0-9]/.test(password),
-    hasSpecial: /[^A-Za-z0-9]/.test(password),
+    hasSpecial: /[^A-Za-z0-9]/.test(password) || /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password),
   };
+
+  const isValid = Boolean(
+    checks.minLength &&
+    checks.hasUpper &&
+    checks.hasLower &&
+    checks.hasDigit &&
+    checks.hasSpecial
+  );
 
   let score = 0;
   if (checks.minLength) score++;
@@ -299,7 +309,7 @@ function evaluatePasswordStrength(password) {
     percent = 100;
   }
 
-  return { score, label, color, percent, checks };
+  return { score, label, color, percent, checks, isValid };
 }
 
 /**
@@ -340,10 +350,10 @@ function validateStudentTask4(data, options = {}) {
       const strength = evaluatePasswordStrength(password);
       if (password.length < 8) {
         errors.push({ field: 'password', message: 'Password must be at least 8 characters long.' });
-      } else if (!strength.checks.hasUpper || !strength.checks.hasLower || !strength.checks.hasDigit || !strength.checks.hasSpecial) {
+      } else if (!strength.isValid) {
         errors.push({
           field: 'password',
-          message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+          message: 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.',
         });
       }
     }

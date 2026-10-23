@@ -244,16 +244,17 @@ document.addEventListener('DOMContentLoaded', function () {
         el: document.getElementById('password'),
         err: document.getElementById('passwordError'),
         validate(val) {
-          if (!val || val.length === 0) return 'Password is required.';
-          if (val.length < 8) return 'Password must be at least 8 characters long.';
+          const trimmed = (val || '').trim();
+          if (!trimmed || trimmed.length === 0) return 'Password is required.';
+          if (trimmed.length < 8) return 'Password must be at least 8 characters long.';
           const checks = {
-            hasUpper: /[A-Z]/.test(val),
-            hasLower: /[a-z]/.test(val),
-            hasDigit: /[0-9]/.test(val),
-            hasSpecial: /[^A-Za-z0-9]/.test(val),
+            hasUpper: /[A-Z]/.test(trimmed),
+            hasLower: /[a-z]/.test(trimmed),
+            hasDigit: /[0-9]/.test(trimmed),
+            hasSpecial: /[^A-Za-z0-9]/.test(trimmed) || /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(trimmed),
           };
           if (!checks.hasUpper || !checks.hasLower || !checks.hasDigit || !checks.hasSpecial) {
-            return 'Password must contain uppercase, lowercase, number, and special character.';
+            return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.';
           }
           return '';
         }
@@ -399,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const hasUpper  = /[A-Z]/.test(val);
       const hasLower  = /[a-z]/.test(val);
       const hasDigit  = /[0-9]/.test(val);
-      const hasSpec   = /[^A-Za-z0-9]/.test(val);
+      const hasSpec   = /[^A-Za-z0-9]/.test(val) || /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(val);
       const isMatch   = val.length > 0 && confirmVal.length > 0 && val === confirmVal;
 
       updateChecklistItem(chkMinLength, minLength);

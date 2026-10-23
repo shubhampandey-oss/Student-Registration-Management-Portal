@@ -228,6 +228,7 @@ describe('Task 4 — evaluatePasswordStrength Unit Tests', () => {
   test('evaluates weak passwords properly', () => {
     const weak = evaluatePasswordStrength('simple');
     assert.equal(weak.checks.minLength, false);
+    assert.equal(weak.isValid, false);
     assert.equal(weak.label, 'Very Weak');
   });
 
@@ -238,8 +239,18 @@ describe('Task 4 — evaluatePasswordStrength Unit Tests', () => {
     assert.equal(strong.checks.hasLower, true);
     assert.equal(strong.checks.hasDigit, true);
     assert.equal(strong.checks.hasSpecial, true);
+    assert.equal(strong.isValid, true);
     assert.equal(strong.label, 'Very Strong');
     assert.equal(strong.percent, 100);
+  });
+
+  test('accepts all standard special characters', () => {
+    const symbols = "!@#$%^&*()_+-=[]{};':\"|,.<>/?`~";
+    for (const char of symbols) {
+      const result = evaluatePasswordStrength(`Aa1${char}bcdef`);
+      assert.equal(result.checks.hasSpecial, true, `Symbol ${char} must be accepted as special character`);
+      assert.equal(result.isValid, true, `Password with symbol ${char} must be valid`);
+    }
   });
 
 });

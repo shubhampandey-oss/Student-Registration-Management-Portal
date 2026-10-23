@@ -96,7 +96,7 @@
                   class="form-control form-control-lg <%= errors.find(e => e.field === 'password') ? 'is-invalid' : '' %>"
                   id="userPassword"
                   name="password"
-                  placeholder="Min 8 characters"
+                  placeholder="Min 8 characters (mixed case, numbers, symbols)"
                   required
                   autocomplete="new-password"
                 />
@@ -109,6 +109,9 @@
                   <i class="bi bi-eye" id="toggleUserPasswordIcon"></i>
                 </button>
               </div>
+              <div class="invalid-feedback <%= errors.find(e => e.field === 'password') ? 'd-block' : '' %>" id="userPasswordFeedback">
+                <%= errors.find(e => e.field === 'password')?.msg || errors.find(e => e.field === 'password')?.message || 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.' %>
+              </div>
 
               <!-- Password Strength Meter -->
               <div class="progress mt-2" style="height: 6px;">
@@ -116,15 +119,26 @@
                   id="userStrengthBar"
                   class="progress-bar bg-danger"
                   role="progressbar"
-                  style="width: 0%;"
+                  style="width: 0%; transition: width 0.3s ease;"
                   aria-valuenow="0"
                   aria-valuemin="0"
                   aria-valuemax="100"
                 ></div>
               </div>
               <div class="d-flex justify-content-between align-items-center mt-1">
-                <small id="userStrengthLabel" class="text-muted">Enter a password</small>
+                <small id="userStrengthLabel" class="text-muted fw-bold">Enter a password</small>
                 <small class="text-muted">Min 8 chars, mixed case, numbers & symbols</small>
+              </div>
+
+              <!-- Password Requirements Checklist -->
+              <div class="p-2 mt-2 bg-light rounded border border-light-subtle small">
+                <div class="row g-1">
+                  <div class="col-6" id="ruleLen"><i class="bi bi-circle text-muted me-1"></i>8+ characters</div>
+                  <div class="col-6" id="ruleUpper"><i class="bi bi-circle text-muted me-1"></i>Uppercase (A-Z)</div>
+                  <div class="col-6" id="ruleLower"><i class="bi bi-circle text-muted me-1"></i>Lowercase (a-z)</div>
+                  <div class="col-6" id="ruleDigit"><i class="bi bi-circle text-muted me-1"></i>Number (0-9)</div>
+                  <div class="col-12" id="ruleSpec"><i class="bi bi-circle text-muted me-1"></i>Special character (!@#$%^&*...)</div>
+                </div>
               </div>
             </div>
 
@@ -142,11 +156,13 @@
                 required
                 autocomplete="new-password"
               />
-              <div class="invalid-feedback">Passwords must match exactly.</div>
+              <div class="invalid-feedback <%= errors.find(e => e.field === 'confirmPassword') ? 'd-block' : '' %>" id="userConfirmFeedback">
+                <%= errors.find(e => e.field === 'confirmPassword')?.msg || errors.find(e => e.field === 'confirmPassword')?.message || 'Passwords must match exactly.' %>
+              </div>
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold mb-3">
+            <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold mb-3 shadow-sm" id="submitUserRegisterBtn">
               <i class="bi bi-check-circle me-2"></i>Create Account
             </button>
           </form>
@@ -179,36 +195,135 @@
     }
   });
 
-  // Dynamic password strength evaluation
-  document.getElementById('userPassword')?.addEventListener('input', function() {
-    const val = this.value;
-    const bar = document.getElementById('userStrengthBar');
-    const label = document.getElementById('userStrengthLabel');
+  const pwInput = document.getElementById('userPassword');
+  const confirmInput = document.getElementById('userConfirmPassword');
+  const pwFeedback = document.getElementById('userPasswordFeedback');
+  const confirmFeedback = document.getElementById('userConfirmFeedback');
+  const bar = document.getElementById('userStrengthBar');
+  const label = document.getElementById('userStrengthLabel');
+  const form = document.getElementById('userRegisterForm');
+
+  function updateRule(elemId, passed) {
+    const el = document.getElementById(elemId);
+    if (!el) return;
+    if (passed) {
+      el.className = 'text-success fw-semibold';
+      el.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>' + el.textContent.replace(/^.*?([A-Za-z0-9])/, '$1');
+    } else {
+      el.className = 'text-muted';
+      el.innerHTML = '<i class="bi bi-circle text-muted me-1"></i>' + el.textContent.replace(/^.*?([A-Za-z0-9])/, '$1');
+    }
+  }
+
+  function validatePasswordRules(val) {
+    const trimmed = (val || '').trim();
+    const checks = {
+      minLength: trimmed.length >= 8,
+      hasUpper: /[A-Z]/.test(trimmed),
+      hasLower: /[a-z]/.test(trimmed),
+      hasDigit: /[0-9]/.test(trimmed),
+      hasSpecial: /[^A-Za-z0-9]/.test(trimmed) || /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(trimmed),
+    };
+    const isValid = checks.minLength && checks.hasUpper && checks.hasLower && checks.hasDigit && checks.hasSpecial;
+    return { checks, isValid, trimmed };
+  }
+
+  function evaluateLivePassword() {
+    if (!pwInput) return;
+    const val = pwInput.value;
+    const { checks, isValid } = validatePasswordRules(val);
+
+    updateRule('ruleLen', checks.minLength);
+    updateRule('ruleUpper', checks.hasUpper);
+    updateRule('ruleLower', checks.hasLower);
+    updateRule('ruleDigit', checks.hasDigit);
+    updateRule('ruleSpec', checks.hasSpecial);
+
     if (!bar || !label) return;
 
-    let score = 0;
-    if (val.length >= 8) score += 25;
-    if (/[a-z]/.test(val) && /[A-Z]/.test(val)) score += 25;
-    if (/\d/.test(val)) score += 25;
-    if (/[^A-Za-z0-9]/.test(val)) score += 25;
-
-    bar.style.width = score + '%';
-    if (score <= 25) {
+    if (val.length === 0) {
+      bar.style.width = '0%';
       bar.className = 'progress-bar bg-danger';
-      label.textContent = 'Weak';
+      label.textContent = 'Enter a password';
+      label.className = 'text-muted fw-bold';
+      return;
+    }
+
+    let score = 0;
+    if (checks.minLength) score++;
+    if (checks.hasUpper) score++;
+    if (checks.hasLower) score++;
+    if (checks.hasDigit) score++;
+    if (checks.hasSpecial) score++;
+    if (val.length >= 12 && score >= 4) score = 5;
+
+    const percent = Math.min(score * 20, 100);
+    bar.style.width = percent + '%';
+
+    if (score <= 1) {
+      bar.className = 'progress-bar bg-danger';
+      label.textContent = 'Very Weak';
       label.className = 'text-danger fw-bold';
-    } else if (score <= 50) {
+    } else if (score === 2) {
       bar.className = 'progress-bar bg-warning';
-      label.textContent = 'Fair';
+      label.textContent = 'Weak';
       label.className = 'text-warning fw-bold';
-    } else if (score <= 75) {
+    } else if (score === 3) {
       bar.className = 'progress-bar bg-info';
-      label.textContent = 'Good';
+      label.textContent = 'Medium';
       label.className = 'text-info fw-bold';
+    } else if (score === 4) {
+      bar.className = 'progress-bar bg-primary';
+      label.textContent = 'Strong';
+      label.className = 'text-primary fw-bold';
     } else {
       bar.className = 'progress-bar bg-success';
-      label.textContent = 'Strong';
+      label.textContent = 'Very Strong';
       label.className = 'text-success fw-bold';
+    }
+  }
+
+  pwInput?.addEventListener('input', function() {
+    evaluateLivePassword();
+    pwInput.classList.remove('is-invalid');
+    if (pwFeedback) pwFeedback.classList.remove('d-block');
+  });
+
+  confirmInput?.addEventListener('input', function() {
+    confirmInput.classList.remove('is-invalid');
+    if (confirmFeedback) confirmFeedback.classList.remove('d-block');
+  });
+
+  // Client-side submission validation
+  form?.addEventListener('submit', function(e) {
+    let hasError = false;
+    const { isValid } = validatePasswordRules(pwInput?.value || '');
+
+    if (!isValid) {
+      e.preventDefault();
+      hasError = true;
+      pwInput?.classList.add('is-invalid');
+      if (pwFeedback) {
+        pwFeedback.textContent = 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.';
+        pwFeedback.classList.add('d-block');
+      }
+    }
+
+    const pw = (pwInput?.value || '').trim();
+    const cpw = (confirmInput?.value || '').trim();
+    if (cpw.length === 0 || pw !== cpw) {
+      e.preventDefault();
+      hasError = true;
+      confirmInput?.classList.add('is-invalid');
+      if (confirmFeedback) {
+        confirmFeedback.textContent = 'Passwords do not match.';
+        confirmFeedback.classList.add('d-block');
+      }
+    }
+
+    if (hasError) {
+      const firstInvalid = form.querySelector('.is-invalid');
+      firstInvalid?.focus();
     }
   });
 </script>

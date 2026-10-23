@@ -156,10 +156,13 @@ exports.postRegister = async (req, res) => {
   }
 
   // 3. Password strength & confirmation
-  if (!password || !password.trim()) {
+  const trimmedPassword = (typeof password === 'string') ? password.trim() : '';
+  const trimmedConfirm = (typeof confirmPassword === 'string') ? confirmPassword.trim() : '';
+
+  if (!trimmedPassword) {
     errors.push({ field: 'password', msg: 'Password is required.' });
   } else {
-    const strength = evaluatePasswordStrength(password);
+    const strength = evaluatePasswordStrength(trimmedPassword);
     if (!strength.isValid) {
       errors.push({
         field: 'password',
@@ -168,7 +171,7 @@ exports.postRegister = async (req, res) => {
     }
   }
 
-  if (password !== confirmPassword) {
+  if (trimmedPassword !== trimmedConfirm) {
     errors.push({ field: 'confirmPassword', msg: 'Passwords do not match.' });
   }
 
@@ -186,7 +189,7 @@ exports.postRegister = async (req, res) => {
     const newUser = await userStore.create({
       name:     name.trim(),
       email:    email.trim(),
-      password,
+      password: trimmedPassword,
       role:     userRole,
     });
 

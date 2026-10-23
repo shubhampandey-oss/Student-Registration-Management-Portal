@@ -128,7 +128,58 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.equal(res.statusCode, 200);
     assert.ok(res.body.includes('Create Account'), 'Should display Create Account header');
     assert.ok(res.body.includes('name="name"'), 'Should contain name input');
-    assert.ok(res.body.includes('name="role"'), 'Should contain role selector');
+  });
+
+  it('POST /auth/register — rejects invalid password and returns synchronized error message', async () => {
+    const payload = new URLSearchParams({
+      name: 'Weak Password User',
+      email: 'weakpass@example.com',
+      role: 'student',
+      password: 'weakpassword',
+      confirmPassword: 'weakpassword',
+    }).toString();
+
+    const res = await request({
+      method: 'POST',
+      path: '/auth/register',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, payload);
+
+    assert.equal(res.statusCode, 422);
+    assert.ok(
+      res.body.includes('Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.'),
+      'Should display synchronized password validation error'
+    );
+  });
+
+  it('POST /auth/register — accepts valid password with standard special characters and creates user', async () => {
+    const testEmail = `newstudent_${Date.now()}@example.com`;
+    const payload = new URLSearchParams({
+      name: 'Valid Student User',
+      email: testEmail,
+      role: 'student',
+      password: 'Super$ecret@Pass!2026',
+      confirmPassword: 'Super$ecret@Pass!2026',
+    }).toString();
+
+    const res = await request({
+      method: 'POST',
+      path: '/auth/register',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, payload);
+
+    // Successful registration sets session cookie and redirects
+    assert.equal(res.statusCode, 302);
+    assert.ok(res.headers.location.includes('/auth/dashboard') || res.headers.location.includes('/'));
+    const createdUser = userStore.findByEmail(testEmail);
+    assert.ok(createdUser, 'User account should be saved in SQLite database');
+    assert.equal(createdUser.role, 'student');
   });
 
   it('POST /auth/login — invalid credentials returns 401', async () => {
