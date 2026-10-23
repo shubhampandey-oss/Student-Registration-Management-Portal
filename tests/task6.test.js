@@ -398,4 +398,85 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(res.headers.location.startsWith('/'), 'Should redirect to home page');
   });
 
+  it('POST /auth/login with portal=admin rejects student account with specific message', async () => {
+    const studentAdminPayload = new URLSearchParams({
+      portal: 'admin',
+      email: 'student@cognifyz.com',
+      password: 'Student@12345',
+    }).toString();
+
+    const res = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(studentAdminPayload),
+      },
+    }, studentAdminPayload);
+
+    assert.equal(res.statusCode, 401, 'Student attempting admin portal login should receive 401');
+    assert.ok(
+      res.body.includes('This account is a student. Please sign in via the Student Portal.'),
+      'Should display clear message directing student to Student Portal'
+    );
+  });
+
+  it('POST /auth/login with portal=admin accepts trimmed and mixed-case admin email', async () => {
+    const mixedCasePayload = new URLSearchParams({
+      portal: 'admin',
+      email: '   AdMiN@Cognifyz.Com   ',
+      password: 'Admin@12345',
+    }).toString();
+
+    const res = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(mixedCasePayload),
+      },
+    }, mixedCasePayload);
+
+    assert.equal(res.statusCode, 302, 'Admin should authenticate and redirect');
+    assert.equal(res.headers.location, '/students', 'Admin should redirect to /students');
+  });
+
+  it('POST /auth/login returns 401 for incorrect password and unknown user', async () => {
+    const wrongPassPayload = new URLSearchParams({
+      portal: 'admin',
+      email: 'admin@cognifyz.com',
+      password: 'WrongPassword@999',
+    }).toString();
+
+    const wrongPassRes = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(wrongPassPayload),
+      },
+    }, wrongPassPayload);
+
+    assert.equal(wrongPassRes.statusCode, 401);
+    assert.ok(wrongPassRes.body.includes('Invalid email address or password'));
+
+    const unknownUserPayload = new URLSearchParams({
+      portal: 'admin',
+      email: 'nonexistent@cognifyz.com',
+      password: 'AnyPassword@123',
+    }).toString();
+
+    const unknownRes = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(unknownUserPayload),
+      },
+    }, unknownUserPayload);
+
+    assert.equal(unknownRes.statusCode, 401);
+    assert.ok(unknownRes.body.includes('Invalid email address or password'));
+  });
+
 });

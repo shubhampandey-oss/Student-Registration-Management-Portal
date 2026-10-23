@@ -50,24 +50,32 @@ function saveDb() {
  * Seed initial administrative & student accounts and demo data
  */
 async function seedInitialData() {
-  // 1. Seed default users if empty
-  const userCount = queryOne('SELECT COUNT(*) as count FROM users');
-  if (!userCount || userCount.count === 0) {
+  // 1. Ensure default Admin account exists
+  const adminEmail = 'admin@cognifyz.com';
+  const existingAdmin = queryOne('SELECT * FROM users WHERE LOWER(email) = LOWER(?)', [adminEmail]);
+  if (!existingAdmin) {
     const adminHash = await bcrypt.hash('Admin@12345', 10);
+    const now = new Date().toISOString();
+    run(
+      `INSERT INTO users (name, email, passwordHash, role, createdAt)
+       VALUES (?, ?, ?, ?, ?)`,
+      ['Cognifyz Admin', adminEmail, adminHash, 'admin', now]
+    );
+    console.log('[DB] Seeded default administrator account (admin@cognifyz.com / Admin@12345)');
+  }
+
+  // 2. Ensure default Student user account exists
+  const studentEmail = 'student@cognifyz.com';
+  const existingStudent = queryOne('SELECT * FROM users WHERE LOWER(email) = LOWER(?)', [studentEmail]);
+  if (!existingStudent) {
     const studentHash = await bcrypt.hash('Student@12345', 10);
     const now = new Date().toISOString();
-
     run(
       `INSERT INTO users (name, email, passwordHash, role, createdAt)
        VALUES (?, ?, ?, ?, ?)`,
-      ['Cognifyz Admin', 'admin@cognifyz.com', adminHash, 'admin', now]
+      ['Student User', studentEmail, studentHash, 'student', now]
     );
-
-    run(
-      `INSERT INTO users (name, email, passwordHash, role, createdAt)
-       VALUES (?, ?, ?, ?, ?)`,
-      ['Student User', 'student@cognifyz.com', studentHash, 'student', now]
-    );
+    console.log('[DB] Seeded default student user account (student@cognifyz.com / Student@12345)');
   }
 
   // 2. Seed initial demo students if empty

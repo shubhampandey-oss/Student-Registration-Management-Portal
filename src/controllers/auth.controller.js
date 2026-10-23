@@ -6,6 +6,7 @@
  * registration, login, logout, and current user profile inspection.
  */
 
+const bcrypt       = require('bcrypt');
 const userStore    = require('../models/user.store');
 const studentStore = require('../models/student.store');
 const cacheService = require('../services/cache.service');
@@ -42,11 +43,14 @@ exports.postLogin = async (req, res) => {
     ? returnUrl
     : defaultTarget;
 
+  const cleanEmail = (typeof email === 'string') ? email.toLowerCase().trim() : '';
+  const cleanPassword = (typeof password === 'string') ? password : '';
+
   const errors = [];
-  if (!email || !email.trim()) {
+  if (!cleanEmail) {
     errors.push({ field: 'email', msg: 'Email address is required.' });
   }
-  if (!password || !password.trim()) {
+  if (!cleanPassword || !cleanPassword.trim()) {
     errors.push({ field: 'password', msg: 'Password is required.' });
   }
 
@@ -62,8 +66,11 @@ exports.postLogin = async (req, res) => {
   }
 
   try {
-    const user = await userStore.authenticate(email.trim(), password);
-    if (!user) {
+    // 1. Look up user by lowercase trimmed email
+    const rawUser = userStore.findByEmail(cleanEmail);
+
+    if (!rawUser) {
+      console.warn(`[AUTH] Login failed: User not found for email "${cleanEmail}" on ${currentPortal.toUpperCase()} portal.`);
       return res.status(401).render('pages/login', {
         title:     currentPortal === 'admin' ? 'Administrator Sign In — Student Portal' : 'Student Sign In — Student Portal',
         portal:    currentPortal,
@@ -74,13 +81,43 @@ exports.postLogin = async (req, res) => {
       });
     }
 
-    // Save user in session
-    req.session.user = {
-      id:    user.id,
-      name:  user.name,
-      email: user.email,
-      role:  user.role,
+    // 2. Properly verify hashed password with bcrypt.compare()
+    const isPasswordValid = await bcrypt.compare(cleanPassword, rawUser.passwordHash);
+    if (!isPasswordValid) {
+      console.warn(`[AUTH] Login failed: Password mismatch for user "${cleanEmail}" on ${currentPortal.toUpperCase()} portal.`);
+      return res.status(401).render('pages/login', {
+        title:     currentPortal === 'admin' ? 'Administrator Sign In — Student Portal' : 'Student Sign In — Student Portal',
+        portal:    currentPortal,
+        returnUrl: targetUrl,
+        errors:    [{ field: 'auth', msg: 'Invalid email address or password. Please try again.' }],
+        old:       { email },
+        flash:     null,
+      });
+    }
+
+    // 3. Check role authorization when logging in through Admin Portal
+    if (currentPortal === 'admin' && rawUser.role === 'student') {
+      console.warn(`[AUTH] Login failed: Role unauthorized — user "${cleanEmail}" is a student attempting Admin Portal login.`);
+      return res.status(401).render('pages/login', {
+        title:     'Administrator Sign In — Student Portal',
+        portal:    'admin',
+        returnUrl: targetUrl,
+        errors:    [{ field: 'auth', msg: 'This account is a student. Please sign in via the Student Portal.' }],
+        old:       { email },
+        flash:     null,
+      });
+    }
+
+    console.log(`[AUTH] Successful login for "${rawUser.email}" [role=${rawUser.role}] on ${currentPortal.toUpperCase()} portal.`);
+
+    // 4. Save user in session (sanitized)
+    const user = {
+      id:    rawUser.id,
+      name:  rawUser.name,
+      email: rawUser.email,
+      role:  rawUser.role,
     };
+    req.session.user = user;
 
     if (typeof req.setFlash === 'function') {
       req.setFlash('success', `Welcome back, ${user.name}! You are signed in as ${user.role}.`);
