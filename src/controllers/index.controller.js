@@ -24,3 +24,23 @@ exports.getHome = (req, res) => {
     flash,
   });
 };
+
+/**
+ * GET /privacy
+ * Displays public Privacy Policy page
+ */
+exports.getPrivacy = (req, res) => {
+  res.render('privacy', {
+    title: 'Privacy Policy — Cognifyz Student Portal',
+  });
+};
+
+/**
+ * GET /terms
+ * Displays public Terms & Conditions page
+ */
+exports.getTerms = (req, res) => {
+  res.render('terms', {
+    title: 'Terms & Conditions — Cognifyz Student Portal',
+  });
+};

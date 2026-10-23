@@ -90,11 +90,13 @@ app.use(async (req, res, next) => {
 
 // ── Routes ─────────────────────────────────────────────────────
 const indexRouter   = require('./routes/index.routes');
+const pagesRouter   = require('./routes/pages');
 const studentRouter = require('./routes/student.routes');
 const authRouter    = require('./routes/auth.routes');
 const apiRouter     = require('./routes/api.routes');
 
 app.use('/',         indexRouter);
+app.use('/',         pagesRouter);
 app.use('/students', studentRouter);
 app.use('/auth',     authRouter);
 app.use('/api',      apiLimiter, apiRouter);

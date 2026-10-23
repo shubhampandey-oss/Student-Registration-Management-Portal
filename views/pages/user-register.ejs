@@ -181,6 +181,25 @@
               </div>
             </div>
 
+            <!-- Terms & Conditions / Privacy Policy Agreement -->
+            <div class="mb-4 form-check">
+              <input
+                type="checkbox"
+                class="form-check-input <%= errors.find(e => e.field === 'agreeTerms' || e.field === 'terms') ? 'is-invalid' : '' %>"
+                id="agreeTerms"
+                name="agreeTerms"
+                value="on"
+                required
+                <%= (old && (old.agreeTerms === 'on' || old.agreeTerms === true || old.terms === 'on')) ? 'checked' : '' %>
+              />
+              <label class="form-check-label small text-muted" for="agreeTerms">
+                I agree to the <a href="/terms" target="_blank" class="text-primary">Terms & Conditions</a> and <a href="/privacy" target="_blank" class="text-primary">Privacy Policy</a> <span class="text-danger">*</span>
+              </label>
+              <div class="invalid-feedback <%= errors.find(e => e.field === 'agreeTerms' || e.field === 'terms') ? 'd-block' : '' %>" id="agreeTermsFeedback">
+                <%= errors.find(e => e.field === 'agreeTerms' || e.field === 'terms')?.msg || 'You must agree to the Terms & Conditions and Privacy Policy.' %>
+              </div>
+            </div>
+
             <!-- Submit Button -->
             <button
               type="submit"
@@ -357,6 +376,12 @@
     if (confirmFeedback) confirmFeedback.classList.remove('d-block');
   });
 
+  document.getElementById('agreeTerms')?.addEventListener('change', function() {
+    this.classList.remove('is-invalid');
+    const agreeFeedback = document.getElementById('agreeTermsFeedback');
+    if (agreeFeedback) agreeFeedback.classList.remove('d-block');
+  });
+
   // Client-side submission validation
   form?.addEventListener('submit', function(e) {
     let hasError = false;
@@ -381,6 +406,18 @@
       if (confirmFeedback) {
         confirmFeedback.textContent = 'Passwords do not match.';
         confirmFeedback.classList.add('d-block');
+      }
+    }
+
+    const agreeCheck = document.getElementById('agreeTerms');
+    if (agreeCheck && !agreeCheck.checked) {
+      e.preventDefault();
+      hasError = true;
+      agreeCheck.classList.add('is-invalid');
+      const agreeFeedback = document.getElementById('agreeTermsFeedback');
+      if (agreeFeedback) {
+        agreeFeedback.textContent = 'You must agree to the Terms & Conditions and Privacy Policy.';
+        agreeFeedback.classList.add('d-block');
       }
     }
 

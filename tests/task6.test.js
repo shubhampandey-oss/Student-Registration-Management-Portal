@@ -125,7 +125,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(res.body.includes('name="password"'), 'Should contain password input');
   });
 
-  it('GET /auth/register — returns 200 with registration form, tabs toggle, and no secret key field', async () => {
+  it('GET /auth/register — returns 200 with registration form, tabs toggle, and terms agreement checkbox', async () => {
     const res = await request({ method: 'GET', path: '/auth/register' });
     assert.equal(res.statusCode, 200);
     assert.ok(res.body.includes('Create Account'), 'Should display Create Account header');
@@ -134,9 +134,39 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(res.body.includes('Admin Account'), 'Should contain Admin Account tab');
     assert.ok(!res.body.includes('name="adminSecretKey"'), 'Admin Secret Key field must be completely removed');
     assert.ok(!res.body.includes('<select name="role"'), 'Role selection dropdown must not exist');
+    assert.ok(res.body.includes('name="agreeTerms"'), 'Registration form must contain agreeTerms checkbox');
+    assert.ok(res.body.includes('required'), 'agreeTerms checkbox must have required attribute');
+    assert.ok(res.body.includes('/terms'), 'Must contain link to /terms');
+    assert.ok(res.body.includes('/privacy'), 'Must contain link to /privacy');
   });
 
-  it('POST /auth/register — directly creates admin account under Admin tab without requiring any secret key', async () => {
+  it('POST /auth/register — rejects registration when terms agreement checkbox is not checked', async () => {
+    const payload = new URLSearchParams({
+      name: 'No Agreement User',
+      email: `noagree_${Date.now()}@example.com`,
+      role: 'student',
+      password: 'ValidPassword@2026',
+      confirmPassword: 'ValidPassword@2026',
+      // agreeTerms omitted
+    }).toString();
+
+    const res = await request({
+      method: 'POST',
+      path: '/auth/register',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, payload);
+
+    assert.equal(res.statusCode, 422, 'Must reject registration with 422 if terms agreement is missing');
+    assert.ok(
+      res.body.includes('You must agree to the Terms & Conditions and Privacy Policy'),
+      'Must display clear terms validation error'
+    );
+  });
+
+  it('POST /auth/register — directly creates admin account under Admin tab with agreement checked', async () => {
     const testEmail = `validadmin_${Date.now()}@example.com`;
     const payload = new URLSearchParams({
       name: 'Direct Admin User',
@@ -144,6 +174,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
       role: 'admin',
       password: 'ValidAdminPass@2026',
       confirmPassword: 'ValidAdminPass@2026',
+      agreeTerms: 'on',
     }).toString();
 
     const res = await request({
@@ -169,6 +200,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
       role: 'student',
       password: 'weakpassword',
       confirmPassword: 'weakpassword',
+      agreeTerms: 'on',
     }).toString();
 
     const res = await request({
@@ -195,6 +227,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
       role: 'student',
       password: 'Super$ecret@Pass!2026',
       confirmPassword: 'Super$ecret@Pass!2026',
+      agreeTerms: 'on',
     }).toString();
 
     const res = await request({
@@ -224,6 +257,7 @@ describe('Task 6 — Database Integration & User Authentication', () => {
         role: 'student',
         password: 'ValidPersonalPass@2026',
         confirmPassword: 'ValidPersonalPass@2026',
+        agreeTerms: 'on',
       }).toString();
 
       const res = await request({
@@ -239,6 +273,37 @@ describe('Task 6 — Database Integration & User Authentication', () => {
       const user = userStore.findByEmail(email);
       assert.ok(user, `User with ${provider} must be found in database`);
     }
+  });
+
+  it('GET /privacy — renders Privacy Policy page with dark theme container and required sections', async () => {
+    const res = await request({ method: 'GET', path: '/privacy' });
+    assert.equal(res.statusCode, 200);
+    assert.ok(res.body.includes('Privacy Policy'), 'Must contain Privacy Policy title');
+    assert.ok(res.body.includes('Information We Collect'), 'Must contain Information We Collect');
+    assert.ok(res.body.includes('How We Use Data'), 'Must contain How We Use Data');
+    assert.ok(res.body.includes('Data Security & Storage') || res.body.includes('Data Security &amp; Storage'), 'Must contain Data Security & Storage');
+    assert.ok(res.body.includes('User Rights & Account Deletion') || res.body.includes('User Rights &amp; Account Deletion'), 'Must contain User Rights');
+    assert.ok(res.body.includes('Contact Support'), 'Must contain Contact Support');
+    assert.ok(res.body.includes('max-width: 900px') || res.body.includes('max-width:900px'), 'Must be in centered container with max-width 900px');
+  });
+
+  it('GET /terms — renders Terms & Conditions page with dark theme container and required sections', async () => {
+    const res = await request({ method: 'GET', path: '/terms' });
+    assert.equal(res.statusCode, 200);
+    assert.ok(res.body.includes('Terms & Conditions') || res.body.includes('Terms &amp; Conditions'), 'Must contain Terms & Conditions title');
+    assert.ok(res.body.includes('Acceptance of Terms'), 'Must contain Acceptance of Terms');
+    assert.ok(res.body.includes('User Responsibilities & Credential Confidentiality') || res.body.includes('User Responsibilities &amp; Credential Confidentiality'), 'Must contain User Responsibilities');
+    assert.ok(res.body.includes('Role Access Privileges'), 'Must contain Role Access Privileges');
+    assert.ok(res.body.includes('Acceptable Use Policy'), 'Must contain Acceptable Use Policy');
+    assert.ok(res.body.includes('Account Termination & Disclaimers') || res.body.includes('Account Termination &amp; Disclaimers'), 'Must contain Account Termination');
+    assert.ok(res.body.includes('max-width: 900px') || res.body.includes('max-width:900px'), 'Must be in centered container with max-width 900px');
+  });
+
+  it('Footer contains direct links to /privacy and /terms', async () => {
+    const res = await request({ method: 'GET', path: '/' });
+    assert.equal(res.statusCode, 200);
+    assert.ok(res.body.includes('href="/privacy"'), 'Footer must contain link to /privacy');
+    assert.ok(res.body.includes('href="/terms"'), 'Footer must contain link to /terms');
   });
 
   it('POST /auth/login — invalid credentials returns 401', async () => {

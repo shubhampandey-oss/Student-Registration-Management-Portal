@@ -12,6 +12,10 @@ const controller = require('../controllers/index.controller');
 // GET / → Landing / Home page
 router.get('/', controller.getHome);
 
+// Public legal pages
+router.get('/privacy', controller.getPrivacy);
+router.get('/terms', controller.getTerms);
+
 // Authentication aliases with query parameter preservation
 router.get('/login', (req, res) => {
   const qs = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';

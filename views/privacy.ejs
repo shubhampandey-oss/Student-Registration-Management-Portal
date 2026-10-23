@@ -1,0 +1,147 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<main id="mainContent" class="py-5" style="min-height: calc(100vh - 160px);">
+  <div class="container d-flex justify-content-center">
+    <div class="card p-4 p-md-5 rounded-4 shadow-lg border text-light" style="max-width: 900px; width: 100%; background: var(--cp-card-bg, #1e1e35); border-color: var(--cp-border, rgba(255,255,255,0.08)) !important;">
+
+      <!-- Header Banner -->
+      <div class="border-bottom pb-4 mb-4" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50 px-3 py-2 rounded-pill fw-semibold mb-2">
+          <i class="bi bi-shield-lock-fill me-1"></i>Privacy &amp; Data Protection
+        </span>
+        <h1 class="display-6 fw-bold text-white mb-2">Privacy Policy</h1>
+        <p class="text-muted small mb-0">
+          Last Updated: October 2026 &bull; Effective for all registered students, applicants, and administrators.
+        </p>
+      </div>
+
+      <div class="pe-md-2" style="line-height: 1.75;">
+
+        <p class="lead text-light mb-4" style="font-size: 1.05rem;">
+          At <strong>Cognifyz Technologies</strong>, protecting the privacy, security, and integrity of your personal information is paramount. This Privacy Policy details how we collect, process, store, and protect your data across the Student Registration and Management Portal.
+        </p>
+
+        <!-- Section 1 -->
+        <section class="mb-5">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-file-earmark-person"></i>
+            </span>
+            1. Information We Collect
+          </h2>
+          <p class="text-muted">
+            We collect only the data necessary to provide seamless authentication, secure portal access, and educational management services:
+          </p>
+          <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+            <ul class="mb-0 text-muted ps-3">
+              <li class="mb-2"><strong class="text-light">Account Identifiers:</strong> Full legal name and contact email address (supporting institutional domains as well as standard personal email providers like @gmail.com, @yahoo.com, and @outlook.com).</li>
+              <li class="mb-2"><strong class="text-light">Authentication Credentials:</strong> Secure, cryptographically one-way salted password hashes generated with <code>bcrypt</code> (10 salt rounds). Plaintext passwords are never logged, stored, or readable.</li>
+              <li class="mb-2"><strong class="text-light">Student Registration &amp; Enrollment Details:</strong> Contact phone numbers, dates of birth, age, gender, chosen academic courses (e.g., Computer Science, Data Science, Cybersecurity), academic year, LinkedIn profile links, professional skills, and optional hostel accommodations or scholarship preferences.</li>
+              <li><strong class="text-light">System Telemetry &amp; Access Logs:</strong> HTTP request metadata, IP addresses for rate limiting security defense, and session timestamps.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Section 2 -->
+        <section class="mb-5">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-gear-wide-connected"></i>
+            </span>
+            2. How We Use Data
+          </h2>
+          <p class="text-muted">
+            Collected data is utilized strictly for portal functionality and academic administration:
+          </p>
+          <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+            <ul class="mb-0 text-muted ps-3">
+              <li class="mb-2"><strong class="text-light">Authentication &amp; Session Handling:</strong> Authenticating student and administrative logins, issuing secure session cookies, enforcing role-based access control, and validating password resets.</li>
+              <li class="mb-2"><strong class="text-light">Record Management &amp; Directory Operations:</strong> Maintaining accurate student rosters, allowing administrators to review submissions, update academic information, and track program enrollments.</li>
+              <li><strong class="text-light">Security &amp; Abuse Prevention:</strong> Enforcing rate-limiting thresholds, detecting suspicious login bursts, and sanitizing inputs against Cross-Site Scripting (XSS) and injection vulnerabilities.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Section 3 -->
+        <section class="mb-5">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-shield-check"></i>
+            </span>
+            3. Data Security &amp; Storage
+          </h2>
+          <p class="text-muted">
+            We adhere to rigorous industry best practices to safeguard user data against unauthorized access, alteration, or disclosure:
+          </p>
+          <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+            <ul class="mb-0 text-muted ps-3">
+              <li class="mb-2"><strong class="text-light">Persistent SQLite Storage (sql.js):</strong> Relational tables managed via WebAssembly SQLite and persisted to secure disk storage with parameterized SQL queries preventing SQL injection attacks.</li>
+              <li class="mb-2"><strong class="text-light">Bcrypt Password Encryption:</strong> Passwords are hashed asynchronously with high work-factor salting prior to disk commitment.</li>
+              <li class="mb-2"><strong class="text-light">Secure Cookie Management:</strong> Session cookies (<code>connect.sid</code>) are configured with <code>httpOnly: true</code> and <code>sameSite: 'lax'</code> to prevent client-side JavaScript theft.</li>
+              <li><strong class="text-light">Helmet Security Headers &amp; Input Sanitization:</strong> Strict Content Security Policies (CSP), anti-clickjacking headers, and HTML tag sanitization across all request vectors.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Section 4 -->
+        <section class="mb-5">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-danger rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-trash3"></i>
+            </span>
+            4. User Rights &amp; Account Deletion
+          </h2>
+          <p class="text-muted">
+            You hold complete control over your personal records. Under modern privacy regulations, you have the right to inspect, update, or permanently delete your account at any time:
+          </p>
+          <div class="p-3 rounded-3 mb-3 border border-danger border-opacity-25" style="background: rgba(239, 68, 68, 0.04);">
+            <p class="text-light small mb-2">
+              <i class="bi bi-exclamation-octagon-fill text-danger me-2"></i><strong>Self-Service Account Deletion (Danger Zone):</strong>
+            </p>
+            <p class="text-muted small mb-0">
+              Both Student and Administrator dashboards feature an <strong>Account Actions / Danger Zone</strong> section with a red "Delete My Account" button. When submitted with confirmation, our backend (<code>POST /account/delete</code>) permanently removes your record from the <code>users</code> table, deletes all linked student registration entries, destroys the active session, wipes authentication cookies, and returns you to the homepage. This deletion is immediate, irreversible, and complete.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 5 -->
+        <section class="mb-4">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-envelope-at"></i>
+            </span>
+            5. Contact Support
+          </h2>
+          <p class="text-muted">
+            If you have questions regarding this Privacy Policy, wish to exercise your data privacy rights, or require assistance with your account, please reach out to our administrative team:
+          </p>
+          <div class="d-flex flex-wrap gap-3 align-items-center p-3 rounded-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+            <div>
+              <i class="bi bi-envelope-fill text-primary me-2"></i>
+              <span class="text-light fw-semibold">support@cognifyz.com</span>
+            </div>
+            <div class="text-muted">&bull;</div>
+            <div>
+              <i class="bi bi-building me-2 text-primary"></i>
+              <span class="text-muted">Cognifyz Technologies &mdash; Student Portal Administrative Office</span>
+            </div>
+          </div>
+        </section>
+
+        <div class="pt-4 border-top text-center" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+          <a href="/register" class="btn cp-btn-primary me-2">
+            <i class="bi bi-person-plus me-1"></i>Create an Account
+          </a>
+          <a href="/terms" class="btn btn-outline-secondary">
+            <i class="bi bi-file-text me-1"></i>View Terms &amp; Conditions
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

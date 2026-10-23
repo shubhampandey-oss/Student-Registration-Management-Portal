@@ -1,0 +1,153 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<main id="mainContent" class="py-5" style="min-height: calc(100vh - 160px);">
+  <div class="container d-flex justify-content-center">
+    <div class="card p-4 p-md-5 rounded-4 shadow-lg border text-light" style="max-width: 900px; width: 100%; background: var(--cp-card-bg, #1e1e35); border-color: var(--cp-border, rgba(255,255,255,0.08)) !important;">
+
+      <!-- Header Banner -->
+      <div class="border-bottom pb-4 mb-4" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50 px-3 py-2 rounded-pill fw-semibold mb-2">
+          <i class="bi bi-file-earmark-check-fill me-1"></i>Portal Governance
+        </span>
+        <h1 class="display-6 fw-bold text-white mb-2">Terms &amp; Conditions</h1>
+        <p class="text-muted small mb-0">
+          Last Updated: October 2026 &bull; Binding terms for all student registrants, users, and administrators.
+        </p>
+      </div>
+
+      <div class="pe-md-2" style="line-height: 1.75;">
+
+        <p class="lead text-light mb-4" style="font-size: 1.05rem;">
+          Welcome to the <strong>Cognifyz Technologies Student Registration &amp; Management Portal</strong>. These Terms &amp; Conditions constitute a legally binding agreement between you and Cognifyz Technologies governing access to and use of our web application.
+        </p>
+
+        <!-- Section 1 -->
+        <section class="mb-5">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-check2-circle"></i>
+            </span>
+            1. Acceptance of Terms
+          </h2>
+          <p class="text-muted">
+            By creating an account, selecting the registration agreement checkbox, signing into your dashboard, or submitting student enrollment applications, you explicitly acknowledge that you have read, understood, and agree to be bound by these Terms &amp; Conditions alongside our <a href="/privacy" class="text-primary text-decoration-underline">Privacy Policy</a>. If you do not agree with any provision stated herein, you must refrain from creating an account and immediately discontinue portal usage.
+          </p>
+        </section>
+
+        <!-- Section 2 -->
+        <section class="mb-5">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-key"></i>
+            </span>
+            2. User Responsibilities &amp; Credential Confidentiality
+          </h2>
+          <p class="text-muted">
+            All registered users are responsible for maintaining the security and integrity of their account:
+          </p>
+          <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+            <ul class="mb-0 text-muted ps-3">
+              <li class="mb-2"><strong class="text-light">Credential Secrecy:</strong> You must maintain strict confidentiality over your authentication password. Sharing account credentials, allowing third parties to access your portal session, or using shared unauthorized devices is strictly prohibited.</li>
+              <li class="mb-2"><strong class="text-light">Accurate Information:</strong> You certify that all data provided during registration, student enrolment, or profile management is truthful, accurate, and current.</li>
+              <li><strong class="text-light">Account Activity:</strong> You assume full responsibility for all activities conducted under your user credentials until the account is terminated or security compromise is reported.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Section 3 -->
+        <section class="mb-5">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-person-badge"></i>
+            </span>
+            3. Role Access Privileges
+          </h2>
+          <p class="text-muted">
+            The portal enforces strict Role-Based Access Control (RBAC) separated into two distinct tiers:
+          </p>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="p-3 rounded-3 h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+                <span class="badge bg-primary mb-2">Student Role</span>
+                <h3 class="h6 text-white fw-bold mb-2">Student Access</h3>
+                <p class="text-muted small mb-0">
+                  Enrolled students receive dedicated access to their personal dashboard, enabling them to inspect enrollment status, review profile details, access learning resources, and execute self-service account deletion via the danger zone.
+                </p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded-3 h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+                <span class="badge bg-danger mb-2">Administrator Role</span>
+                <h3 class="h6 text-white fw-bold mb-2">Administrator Full CRUD</h3>
+                <p class="text-muted small mb-0">
+                  Designated administrative users receive complete system oversight: inspecting student registries, filtering and searching enrolled records, executing updates (PUT), creating records (POST), and deleting invalid registrations (DELETE).
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 4 -->
+        <section class="mb-5">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-shield-slash"></i>
+            </span>
+            4. Acceptable Use Policy
+          </h2>
+          <p class="text-muted">
+            Users agree not to engage in any prohibited or disruptive activities on the platform, including but not limited to:
+          </p>
+          <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);">
+            <ul class="mb-0 text-muted ps-3">
+              <li class="mb-2"><strong class="text-light">Security Attacks &amp; Exploitation:</strong> Attempting SQL injection, cross-site scripting (XSS), cross-site request forgery, or bypassing access control barriers.</li>
+              <li class="mb-2"><strong class="text-light">Automated Scraping &amp; DoS:</strong> Deploying bots, crawlers, or load-stressing scripts against portal endpoints. Rate limiting algorithms actively monitor and throttle aggressive traffic.</li>
+              <li><strong class="text-light">Unauthorized Privilege Escalation:</strong> Attempting to tamper with session cookies, headers, or query parameters to gain unauthorized administrative privileges.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Section 5 -->
+        <section class="mb-4">
+          <h2 class="h5 fw-bold text-white d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-danger rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="bi bi-x-octagon"></i>
+            </span>
+            5. Account Termination &amp; Disclaimers
+          </h2>
+          <p class="text-muted">
+            Terms governing termination and legal disclaimers:
+          </p>
+          <div class="p-3 rounded-3 mb-3 border border-secondary border-opacity-25" style="background: rgba(255, 255, 255, 0.02);">
+            <p class="text-light small mb-2">
+              <strong class="text-white">Voluntary &amp; Involuntary Termination:</strong>
+            </p>
+            <p class="text-muted small mb-3">
+              Users may permanently delete their accounts at any time through the dashboard Danger Zone (<code>POST /account/delete</code>). Cognifyz administration reserves the right to immediately suspend or permanently revoke access for any user found in violation of these Terms.
+            </p>
+            <p class="text-light small mb-2">
+              <strong class="text-white">Service Disclaimer:</strong>
+            </p>
+            <p class="text-muted small mb-0">
+              The portal is provided on an "as is" and "as available" basis as part of the Cognifyz Technologies Internship educational program. While high availability and performance caching are implemented, Cognifyz Technologies disclaims liability for indirect, incidental, or consequential damages resulting from portal operation or temporary downtime.
+            </p>
+          </div>
+        </section>
+
+        <div class="pt-4 border-top text-center" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+          <a href="/register" class="btn cp-btn-primary me-2">
+            <i class="bi bi-check-circle me-1"></i>Accept &amp; Create Account
+          </a>
+          <a href="/privacy" class="btn btn-outline-secondary">
+            <i class="bi bi-shield-lock me-1"></i>View Privacy Policy
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

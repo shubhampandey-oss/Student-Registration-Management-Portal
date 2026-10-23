@@ -173,7 +173,7 @@ exports.getRegister = (req, res) => {
  * Validates inputs, creates new user, logs them into session or redirects admin to login
  */
 exports.postRegister = async (req, res) => {
-  const { name, email, password, confirmPassword, role } = req.body;
+  const { name, email, password, confirmPassword, role, agreeTerms, terms, agreement } = req.body;
   const currentRole = (role === 'admin') ? 'admin' : 'student';
   const errors = [];
 
@@ -217,12 +217,24 @@ exports.postRegister = async (req, res) => {
     errors.push({ field: 'confirmPassword', msg: 'Passwords do not match.' });
   }
 
+  // 4. Terms & Conditions and Privacy Policy agreement validation
+  const isAgreed = (agreeTerms === 'on' || agreeTerms === 'true' || agreeTerms === true ||
+                    terms === 'on' || terms === 'true' || terms === true ||
+                    agreement === 'on' || agreement === 'true' || agreement === true);
+
+  if (!isAgreed) {
+    errors.push({
+      field: 'agreeTerms',
+      msg: 'You must agree to the Terms & Conditions and Privacy Policy before creating an account.',
+    });
+  }
+
   if (errors.length > 0) {
     return res.status(422).render('pages/user-register', {
       title:  currentRole === 'admin' ? 'Create Administrator Account — Student Portal' : 'Create Account — Student Portal',
       role:   currentRole,
       errors,
-      old:    { name, email, password: trimmedPassword, confirmPassword: trimmedConfirm, role: currentRole },
+      old:    { name, email, password: trimmedPassword, confirmPassword: trimmedConfirm, role: currentRole, agreeTerms: isAgreed ? 'on' : '' },
       flash:  null,
     });
   }
