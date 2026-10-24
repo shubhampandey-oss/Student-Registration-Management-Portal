@@ -215,6 +215,7 @@ async function initDatabase() {
   db.run(`
     CREATE TABLE IF NOT EXISTS students (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
       phone TEXT NOT NULL,
@@ -236,6 +237,17 @@ async function initDatabase() {
       updatedAt TEXT
     );
   `);
+
+  // Ensure user_id column exists if table was previously created
+  try {
+    const tableInfo = query("PRAGMA table_info(students)");
+    const hasUserId = tableInfo && tableInfo.some(c => c.name === 'user_id');
+    if (!hasUserId) {
+      db.run("ALTER TABLE students ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;");
+    }
+  } catch (err) {
+    // Migration fallback
+  }
 
   await seedInitialData();
   return db;

@@ -82,19 +82,19 @@ describe('Task 4 — Dynamic DOM, Password Security & Conditional Forms', () => 
   });
 
   // ── 1. Form rendering with Task 4 controls ────────────────────
-  test('GET /students/register — renders password fields and conditional toggles', async () => {
+  test('GET /students/register — renders conditional toggles and modal without password fields', async () => {
     const { status, body } = await get('/students/register');
     assert.equal(status, 200);
-    assert.ok(body.includes('id="password"'), 'Must contain password field');
-    assert.ok(body.includes('id="confirmPassword"'), 'Must contain confirm password field');
-    assert.ok(body.includes('id="passwordStrengthBar"'), 'Must contain strength progress bar');
+    assert.ok(!body.includes('id="password"'), 'Must NOT contain password field');
+    assert.ok(!body.includes('id="confirmPassword"'), 'Must NOT contain confirm password field');
+    assert.ok(!body.includes('id="passwordStrengthBar"'), 'Must NOT contain strength progress bar');
     assert.ok(body.includes('id="requiresHostelToggle"'), 'Must contain hostel toggle');
     assert.ok(body.includes('id="appliesScholarshipToggle"'), 'Must contain scholarship toggle');
     assert.ok(body.includes('id="confirmSubmitModal"'), 'Must contain confirmation review modal');
   });
 
-  // ── 2. Full valid submission with password, hostel, scholarship
-  test('POST /students/register — valid submission with credentials & facilities', async () => {
+  // ── 2. Full valid submission with facilities without password
+  test('POST /students/register — valid submission with facilities (no password required)', async () => {
     const payload = {
       formVersion:        '4',
       name:               'Vikramaditya Rao',
@@ -104,8 +104,6 @@ describe('Task 4 — Dynamic DOM, Password Security & Conditional Forms', () => 
       dob:                '2004-03-21',
       gender:             'Male',
       phone:              '+91 98333 44455',
-      password:           'Secret@Pass2026',
-      confirmPassword:    'Secret@Pass2026',
       requiresHostel:     'on',
       roomType:           'Double',
       dietary:            'Vegetarian',
@@ -124,57 +122,45 @@ describe('Task 4 — Dynamic DOM, Password Security & Conditional Forms', () => 
     const profileRes = await get(headers.location);
     assert.equal(profileRes.status, 200);
     assert.ok(profileRes.body.includes('Vikramaditya Rao'));
-    assert.ok(profileRes.body.includes('Bcrypt Encrypted'), 'Profile should show bcrypt encrypted badge');
     assert.ok(profileRes.body.includes('Campus Hostel Allocation'), 'Profile should display hostel section');
     assert.ok(profileRes.body.includes('Double Room'), 'Profile should show double room preference');
     assert.ok(profileRes.body.includes('Merit Scholarship Application'), 'Profile should display scholarship section');
     assert.ok(profileRes.body.includes('9.2'), 'Profile should show previous academic score');
 
-    // Verify plaintext password is NEVER stored or leaked
-    assert.ok(!profileRes.body.includes('Secret@Pass2026'), 'Plaintext password must never appear in response body');
-
-    // Verify backend student storage has valid bcrypt hash
+    // Verify backend student storage saved correctly without password
     const saved = _students.find(s => s.email === 'vikram.rao@example.com');
     assert.ok(saved, 'Student record should be saved in store');
-    assert.ok(saved.passwordHash, 'Password hash must be generated');
-    assert.notEqual(saved.passwordHash, 'Secret@Pass2026', 'Password must not be stored in plaintext');
-    const isMatch = await bcrypt.compare('Secret@Pass2026', saved.passwordHash);
-    assert.equal(isMatch, true, 'Bcrypt compare should verify hash with correct password');
+    assert.equal(saved.passwordHash, null, 'Student passwordHash should be null');
   });
 
-  // ── 3. Password validation rejection ─────────────────────────
-  test('POST /students/register — rejects weak password', async () => {
-    const { status, body } = await post('/students/register', {
+  // ── 3. Submission succeeds without password credentials ─────────
+  test('POST /students/register — succeeds without password credentials', async () => {
+    const { status, headers } = await post('/students/register', {
       formVersion:     '4',
       name:            'Tester One',
-      email:           'test1@example.com',
+      email:           'test1_nopw@example.com',
       course:          'Web Development',
       year:            '1st Year',
       dob:             '2003-01-01',
       gender:          'Other',
       phone:           '9876543210',
-      password:        'weak',
-      confirmPassword: 'weak',
     });
-    assert.equal(status, 422);
-    assert.ok(body.includes('at least 8 characters long'));
+    assert.equal(status, 302, 'Student registration must succeed without password');
+    assert.ok(headers.location && headers.location.startsWith('/students/'));
   });
 
-  test('POST /students/register — rejects mismatched passwords', async () => {
-    const { status, body } = await post('/students/register', {
-      formVersion:     '4',
-      name:            'Tester Two',
-      email:           'test2@example.com',
-      course:          'Web Development',
-      year:            '1st Year',
-      dob:             '2003-01-01',
-      gender:          'Other',
-      phone:           '9876543210',
-      password:        'Secure@Password123',
-      confirmPassword: 'Different@Password456',
-    });
-    assert.equal(status, 422);
-    assert.ok(body.includes('Passwords do not match'));
+  test('validateStudentTask4 unit validation evaluates password when requirePassword option is enabled', () => {
+    const weakResult = validateStudentTask4(
+      { password: 'weak', confirmPassword: 'weak' },
+      { requirePassword: true }
+    );
+    assert.ok(weakResult.some(e => e.field === 'password'), 'Should return password error when requirePassword is true');
+
+    const mismatchResult = validateStudentTask4(
+      { password: 'Password@123', confirmPassword: 'Password@456' },
+      { requirePassword: true }
+    );
+    assert.ok(mismatchResult.some(e => e.field === 'confirmPassword'), 'Should return confirmPassword error on mismatch');
   });
 
   // ── 4. Conditional fields validation ──────────────────────────

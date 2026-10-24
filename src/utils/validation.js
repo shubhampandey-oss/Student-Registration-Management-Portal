@@ -340,10 +340,8 @@ function validateStudentTask4(data, options = {}) {
   // Start with Task 2 baseline validation
   const errors = validateStudentTask2(data, options);
 
-  const isTask4Form = formVersion === '4' || options.requirePassword;
-
-  // ── Password Credentials ───────────────────────────────────────
-  if (isTask4Form || (password && password.length > 0)) {
+  // ── Password Credentials (Only validated when explicitly required) ─
+  if (options.requirePassword) {
     const trimmedPw = (typeof password === 'string') ? password.trim() : '';
     const trimmedConfirm = (typeof confirmPassword === 'string') ? confirmPassword.trim() : '';
 

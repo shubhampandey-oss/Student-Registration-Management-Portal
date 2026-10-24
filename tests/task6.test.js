@@ -1025,4 +1025,56 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(authHomeRes.body.includes('+ Register Student'), 'Logged-in navbar must show "+ Register Student"');
   });
 
+  it('POST /students/register — authenticated submission automatically associates user_id and requires no password', async () => {
+    // 1. Authenticate as student
+    const loginPayload = new URLSearchParams({
+      portal: 'student',
+      email: 'student@cognifyz.com',
+      password: 'Student@12345',
+    }).toString();
+
+    const loginRes = await request({
+      method: 'POST',
+      path: '/auth/login',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(loginPayload),
+      },
+    }, loginPayload);
+    const authCookie = parseCookies(loginRes);
+
+    const loggedUser = userStore.findByEmail('student@cognifyz.com');
+    assert.ok(loggedUser, 'Logged in user must exist');
+
+    // 2. Submit student registration without any password
+    const studentEmail = `reg_nopass_${Date.now()}@example.com`;
+    const regPayload = new URLSearchParams({
+      name: 'Linked Student Record',
+      email: studentEmail,
+      course: 'Artificial Intelligence',
+      year: '2nd Year',
+      dob: '2003-06-15',
+      gender: 'Female',
+      phone: '+91 98765 00123',
+    }).toString();
+
+    const submitRes = await request({
+      method: 'POST',
+      path: '/students/register',
+      headers: {
+        'Cookie': authCookie,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(regPayload),
+      },
+    }, regPayload);
+
+    assert.equal(submitRes.statusCode, 302, 'Submission must succeed with 302 redirect');
+
+    // 3. Verify in database
+    const savedStudent = studentStore.getAll().find(s => s.email === studentEmail);
+    assert.ok(savedStudent, 'Student must be created in store');
+    assert.equal(savedStudent.user_id, loggedUser.id, 'Student user_id must match authenticated user id');
+    assert.equal(savedStudent.passwordHash, null, 'Student passwordHash must be null');
+  });
+
 });

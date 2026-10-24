@@ -15,6 +15,7 @@
 
 const bcrypt       = require('bcrypt');
 const store        = require('../models/student.store');
+const userStore    = require('../models/user.store');
 const cacheService = require('../services/cache.service');
 const { validateStudentTask4, calculateAge } = require('../utils/validation');
 
@@ -52,7 +53,6 @@ exports.postRegister = async (req, res) => {
     year,
     linkedin,
     message,
-    password,
     requiresHostel,
     roomType,
     dietary,
@@ -64,7 +64,7 @@ exports.postRegister = async (req, res) => {
     formVersion,
   } = req.body;
 
-  // Server-side validation (Task 4 rules)
+  // Server-side validation (Task 4 rules without password)
   const errors = validateStudentTask4(req.body);
 
   if (errors.length > 0) {
@@ -82,15 +82,15 @@ exports.postRegister = async (req, res) => {
     });
   }
 
-  // Hash password if provided
-  let passwordHash = null;
-  const trimmedPassword = (typeof password === 'string') ? password.trim() : '';
-  if (trimmedPassword && trimmedPassword.length > 0) {
-    try {
-      passwordHash = await bcrypt.hash(trimmedPassword, 10);
-    } catch (err) {
-      console.error('[AUTH ERROR] Password hashing failed:', err.message);
-    }
+  // Automatically associate student record with the logged-in user
+  let parentUserId = null;
+  if (req.session && (req.session.userId || (req.session.user && req.session.user.id))) {
+    parentUserId = req.session.userId || req.session.user.id;
+  } else if (req.user && (req.user.id || req.user.userId)) {
+    parentUserId = req.user.id || req.user.userId;
+  } else if (req.session && req.session.user && req.session.user.email) {
+    const parentUser = userStore.findByEmail(req.session.user.email);
+    if (parentUser) parentUserId = parentUser.id;
   }
 
   const hasHostel = requiresHostel === 'on' || requiresHostel === 'true' || requiresHostel === true;
@@ -99,6 +99,8 @@ exports.postRegister = async (req, res) => {
   // Store the valid submission with Task 4 attributes
   const student = {
     id:           store.getNextId(),
+    user_id:      parentUserId,
+    userId:       parentUserId,
     name:         name.trim(),
     email:        email.trim().toLowerCase(),
     course:       course.trim(),
@@ -109,8 +111,9 @@ exports.postRegister = async (req, res) => {
     year:         year ? year.trim() : null,
     linkedin:     linkedin && linkedin.trim().length > 0 ? linkedin.trim() : null,
     message:      (message || '').trim(),
-    hasAccount:   Boolean(passwordHash),
-    passwordHash: passwordHash, // stored safely as bcrypt hash, never plaintext
+    hasAccount:     Boolean(parentUserId),
+    passwordHash:   null,
+    hostelRequired: hasHostel,
     hostel: hasHostel ? {
       roomType:         roomType ? roomType.trim() : 'Single',
       dietary:          dietary ? dietary.trim() : 'Vegetarian',
@@ -123,11 +126,12 @@ exports.postRegister = async (req, res) => {
     } : null,
     createdAt: new Date().toISOString(),
   };
-  students.push(student);
+
+  const created = store.add(student);
   cacheService.invalidateStudentsCache();
 
   // Redirect to the success / detail page (POST → Redirect → GET pattern)
-  res.redirect(`/students/${student.id}?success=1`);
+  res.redirect(`/students/${created.id || student.id}?success=1`);
 };
 
 // ─────────────────────────────────────────────────────────────────

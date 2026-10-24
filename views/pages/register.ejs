@@ -342,131 +342,7 @@
               </div>
             </div>
 
-            <!-- SECTION 4: Account Security & Credentials (Task 4) -->
-            <div class="cp-form-section mb-4 pt-3 border-top border-secondary border-opacity-25" id="section-security">
-              <h2 class="cp-section-title">
-                <i class="bi bi-shield-lock me-2 text-primary"></i>Account Security &amp; Portal Password
-              </h2>
-              <p class="text-muted small mb-3">
-                Create a strong password to securely access your student profile and learning materials.
-              </p>
-
-              <!-- Password -->
-              <div class="mb-3" id="field-password">
-                <label for="password" class="form-label cp-label">
-                  Create Password <span class="text-danger" aria-label="required">*</span>
-                </label>
-                <div class="input-group">
-                  <span class="input-group-text cp-input-icon">
-                    <i class="bi bi-key"></i>
-                  </span>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value="<%= old.password || '' %>"
-                    class="form-control cp-input <%= errors.some(e => e.field === 'password') ? 'is-invalid' : '' %>"
-                    placeholder="Enter secure password"
-                    autocomplete="new-password"
-                    aria-required="true"
-                    aria-describedby="passwordError passwordStrengthLabel"
-                  />
-                  <button
-                    class="btn btn-outline-secondary border-0 cp-toggle-pw"
-                    type="button"
-                    id="togglePasswordBtn"
-                    title="Toggle password visibility"
-                    aria-label="Toggle password visibility"
-                  >
-                    <i class="bi bi-eye"></i>
-                  </button>
-                  <div class="invalid-feedback" id="passwordError" role="alert">
-                    <%= errors.find(e => e.field === 'password')?.message || '' %>
-                  </div>
-                </div>
-
-                <!-- Password strength bar & label -->
-                <div class="mt-2">
-                  <div class="d-flex justify-content-between align-items-center mb-1">
-                    <small class="text-muted">Password Strength:</small>
-                    <small id="passwordStrengthLabel" class="fw-bold text-muted">Enter password</small>
-                  </div>
-                  <div class="progress cp-password-progress" style="height: 6px; background: rgba(255,255,255,0.08);">
-                    <div
-                      id="passwordStrengthBar"
-                      class="progress-bar bg-danger"
-                      role="progressbar"
-                      style="width: 0%; transition: width 0.3s ease;"
-                      aria-valuenow="0"
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                    ></div>
-                  </div>
-                </div>
-
-                <!-- Dynamic Security Checklist -->
-                <div class="cp-password-checklist mt-3 p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-25">
-                  <small class="text-muted fw-bold d-block mb-2">Requirements:</small>
-                  <div class="row g-2 small">
-                    <div class="col-sm-6" id="chkMinLength">
-                      <i class="bi bi-circle text-muted me-1"></i> At least 8 characters
-                    </div>
-                    <div class="col-sm-6" id="chkUpper">
-                      <i class="bi bi-circle text-muted me-1"></i> Uppercase letter (A-Z)
-                    </div>
-                    <div class="col-sm-6" id="chkLower">
-                      <i class="bi bi-circle text-muted me-1"></i> Lowercase letter (a-z)
-                    </div>
-                    <div class="col-sm-6" id="chkDigit">
-                      <i class="bi bi-circle text-muted me-1"></i> Number (0-9)
-                    </div>
-                    <div class="col-sm-6" id="chkSpecial">
-                      <i class="bi bi-circle text-muted me-1"></i> Special symbol (!@#$%^&*)
-                    </div>
-                    <div class="col-sm-6" id="chkMatch">
-                      <i class="bi bi-circle text-muted me-1"></i> Passwords match
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Confirm Password -->
-              <div class="mb-3" id="field-confirmPassword">
-                <label for="confirmPassword" class="form-label cp-label">
-                  Confirm Password <span class="text-danger" aria-label="required">*</span>
-                </label>
-                <div class="input-group">
-                  <span class="input-group-text cp-input-icon">
-                    <i class="bi bi-check2-circle"></i>
-                  </span>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value="<%= old.confirmPassword || '' %>"
-                    class="form-control cp-input <%= errors.some(e => e.field === 'confirmPassword') ? 'is-invalid' : '' %>"
-                    placeholder="Re-enter your password"
-                    autocomplete="new-password"
-                    aria-required="true"
-                    aria-describedby="confirmPasswordError"
-                  />
-                  <button
-                    class="btn btn-outline-secondary border-0 cp-toggle-pw"
-                    type="button"
-                    id="toggleConfirmPasswordBtn"
-                    title="Toggle confirm password visibility"
-                    aria-label="Toggle confirm password visibility"
-                  >
-                    <i class="bi bi-eye"></i>
-                  </button>
-                  <div class="invalid-feedback" id="confirmPasswordError" role="alert">
-                    <%= errors.find(e => e.field === 'confirmPassword')?.message || '' %>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- SECTION 5: Conditional Campus Facilities (Task 4) -->
+            <!-- SECTION 4: Conditional Campus Facilities (Task 4) -->
             <div class="cp-form-section mb-4 pt-3 border-top border-secondary border-opacity-25" id="section-facilities">
               <h2 class="cp-section-title">
                 <i class="bi bi-buildings me-2 text-primary"></i>Campus Facilities &amp; Aid
@@ -648,7 +524,7 @@
                   </div>
                 </div>
                 <div class="alert alert-info py-2 small mb-0">
-                  <i class="bi bi-info-circle me-1"></i> Your password will be securely encrypted using <strong>bcrypt</strong> before saving.
+                  <i class="bi bi-info-circle me-1"></i> This record will be securely associated with your authenticated account.
                 </div>
               </div>
               <div class="modal-footer border-secondary border-opacity-25">

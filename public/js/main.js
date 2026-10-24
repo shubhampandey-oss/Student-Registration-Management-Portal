@@ -240,35 +240,6 @@ document.addEventListener('DOMContentLoaded', function () {
           return '';
         }
       },
-      password: {
-        el: document.getElementById('password'),
-        err: document.getElementById('passwordError'),
-        validate(val) {
-          const trimmed = (val || '').trim();
-          if (!trimmed || trimmed.length === 0) return 'Password is required.';
-          if (trimmed.length < 8) return 'Password must be at least 8 characters long.';
-          const checks = {
-            hasUpper: /[A-Z]/.test(trimmed),
-            hasLower: /[a-z]/.test(trimmed),
-            hasDigit: /[0-9]/.test(trimmed),
-            hasSpecial: /[^A-Za-z0-9]/.test(trimmed) || /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(trimmed),
-          };
-          if (!checks.hasUpper || !checks.hasLower || !checks.hasDigit || !checks.hasSpecial) {
-            return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.';
-          }
-          return '';
-        }
-      },
-      confirmPassword: {
-        el: document.getElementById('confirmPassword'),
-        err: document.getElementById('confirmPasswordError'),
-        validate(val) {
-          const pw = document.getElementById('password')?.value || '';
-          if (!val || val.length === 0) return 'Please confirm your password.';
-          if (val !== pw) return 'Passwords do not match.';
-          return '';
-        }
-      },
       emergencyContact: {
         el: document.getElementById('emergencyContact'),
         err: document.getElementById('emergencyContactError'),

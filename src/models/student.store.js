@@ -16,10 +16,13 @@ const students = [];
  */
 function normalizeStudent(row) {
   if (!row) return null;
-  const hostelReq = row.hostelRequired === 1 || row.hostelRequired === true || row.hostelRequired === '1';
+  const hostelReq = row.hostelRequired === 1 || row.hostelRequired === true || row.hostelRequired === '1' || Boolean(row.hostel);
+  const resolvedUserId = row.user_id != null ? Number(row.user_id) : (row.userId != null ? Number(row.userId) : null);
   return {
     ...row,
     id: Number(row.id),
+    user_id: resolvedUserId,
+    userId: resolvedUserId,
     age: row.age != null ? Number(row.age) : null,
     hostelRequired: hostelReq,
     scholarshipScore: row.scholarshipScore != null ? Number(row.scholarshipScore) : null,
@@ -103,43 +106,95 @@ function getNextId() {
  */
 function add(studentData) {
   const createdAt = studentData.createdAt || new Date().toISOString();
-  const hostelReq = (studentData.hostelRequired === true || studentData.hostelRequired === '1' || studentData.hostelRequired === 1) ? 1 : 0;
+  const hostelReq = (studentData.hostelRequired === true || studentData.hostelRequired === '1' || studentData.hostelRequired === 1 || Boolean(studentData.hostel)) ? 1 : 0;
+  const userId = studentData.user_id != null
+    ? Number(studentData.user_id)
+    : (studentData.userId != null ? Number(studentData.userId) : null);
 
-  const res = dbManager.run(
-    `INSERT INTO students (
-      name, email, phone, course, message,
-      dob, age, gender, year, linkedin, skills,
-      hostelRequired, hostelRoomType, hostelEmergencyPhone,
-      scholarshipCategory, scholarshipScore, passwordHash,
-      createdAt, updatedAt
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      studentData.name || '',
-      studentData.email || '',
-      studentData.phone || '',
-      studentData.course || '',
-      studentData.message || '',
-      studentData.dob || '',
-      studentData.age != null ? Number(studentData.age) : null,
-      studentData.gender || '',
-      studentData.year || '',
-      studentData.linkedin || '',
-      studentData.skills || '',
-      hostelReq,
-      studentData.hostelRoomType || (studentData.hostel && studentData.hostel.roomType) || '',
-      studentData.hostelEmergencyPhone || (studentData.hostel && studentData.hostel.emergencyPhone) || '',
-      studentData.scholarshipCategory || '',
-      studentData.scholarshipScore != null ? Number(studentData.scholarshipScore) : null,
-      studentData.passwordHash || null,
-      createdAt,
-      null
-    ]
-  );
+  let assignedId = studentData.id || getNextId();
 
-  const assignedId = res.lastInsertRowid || getNextId();
+  try {
+    const existing = studentData.email
+      ? dbManager.queryOne('SELECT id FROM students WHERE LOWER(email) = LOWER(?)', [studentData.email.trim()])
+      : null;
+
+    if (existing) {
+      assignedId = existing.id;
+      dbManager.run(
+        `UPDATE students SET
+          user_id = ?, name = ?, phone = ?, course = ?, message = ?,
+          dob = ?, age = ?, gender = ?, year = ?, linkedin = ?, skills = ?,
+          hostelRequired = ?, hostelRoomType = ?, hostelEmergencyPhone = ?,
+          scholarshipCategory = ?, scholarshipScore = ?, passwordHash = ?,
+          updatedAt = ?
+        WHERE id = ?`,
+        [
+          userId,
+          studentData.name || '',
+          studentData.phone || '',
+          studentData.course || '',
+          studentData.message || '',
+          studentData.dob || '',
+          studentData.age != null ? Number(studentData.age) : null,
+          studentData.gender || '',
+          studentData.year || '',
+          studentData.linkedin || '',
+          studentData.skills || '',
+          hostelReq,
+          studentData.hostelRoomType || (studentData.hostel && studentData.hostel.roomType) || '',
+          studentData.hostelEmergencyPhone || (studentData.hostel && studentData.hostel.emergencyPhone) || '',
+          studentData.scholarshipCategory || '',
+          studentData.scholarshipScore != null ? Number(studentData.scholarshipScore) : null,
+          studentData.passwordHash || null,
+          new Date().toISOString(),
+          assignedId
+        ]
+      );
+    } else {
+      const res = dbManager.run(
+        `INSERT INTO students (
+          user_id, name, email, phone, course, message,
+          dob, age, gender, year, linkedin, skills,
+          hostelRequired, hostelRoomType, hostelEmergencyPhone,
+          scholarshipCategory, scholarshipScore, passwordHash,
+          createdAt, updatedAt
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          userId,
+          studentData.name || '',
+          studentData.email || '',
+          studentData.phone || '',
+          studentData.course || '',
+          studentData.message || '',
+          studentData.dob || '',
+          studentData.age != null ? Number(studentData.age) : null,
+          studentData.gender || '',
+          studentData.year || '',
+          studentData.linkedin || '',
+          studentData.skills || '',
+          hostelReq,
+          studentData.hostelRoomType || (studentData.hostel && studentData.hostel.roomType) || '',
+          studentData.hostelEmergencyPhone || (studentData.hostel && studentData.hostel.emergencyPhone) || '',
+          studentData.scholarshipCategory || '',
+          studentData.scholarshipScore != null ? Number(studentData.scholarshipScore) : null,
+          studentData.passwordHash || null,
+          createdAt,
+          null
+        ]
+      );
+      if (res && res.lastInsertRowid) {
+        assignedId = res.lastInsertRowid;
+      }
+    }
+  } catch (err) {
+    console.warn('[STUDENT STORE] Database write warning:', err.message);
+  }
+
   const student = normalizeStudent({
-    id: assignedId,
     ...studentData,
+    id: assignedId,
+    user_id: userId,
+    userId,
     hostelRequired: hostelReq === 1,
     createdAt,
   });
