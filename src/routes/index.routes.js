@@ -55,4 +55,9 @@ const authController = require('../controllers/auth.controller');
 router.post('/account/delete', requireAuth, authController.deleteAccount);
 router.delete('/account',      requireAuth, authController.deleteAccount);
 
+// Developer API documentation endpoints (accessible directly without UI exposure)
+const apiController = require('../controllers/api.controller');
+router.get('/api-docs', apiController.getApiDocs);
+router.get('/docs',     apiController.getApiDocs);
+
 module.exports = router;

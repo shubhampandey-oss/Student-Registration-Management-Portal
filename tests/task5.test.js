@@ -205,4 +205,22 @@ describe('Task 5 — RESTful API & Front-End Integration', () => {
     assert.ok(res.json.error.includes('Not Found'));
   });
 
+  // ── 10. API Docs UI Removal & Direct Routes ───────────────────
+  test('Navbar does not expose API Docs link in public UI', async () => {
+    const res = await apiRequest('GET', '/');
+    assert.equal(res.status, 200);
+    assert.ok(!res.body.includes('href="/api/docs"'), 'Navbar must not contain /api/docs link');
+    assert.ok(!res.body.includes('>API Docs<'), 'Navbar must not expose API Docs text');
+  });
+
+  test('Developer direct routes (/api-docs and /docs) remain active', async () => {
+    const docsRes = await apiRequest('GET', '/docs');
+    assert.equal(docsRes.status, 200);
+    assert.ok(docsRes.body.includes('RESTful API Documentation'));
+
+    const apiDocsRes = await apiRequest('GET', '/api-docs');
+    assert.equal(apiDocsRes.status, 200);
+    assert.ok(apiDocsRes.body.includes('RESTful API Documentation'));
+  });
+
 });
