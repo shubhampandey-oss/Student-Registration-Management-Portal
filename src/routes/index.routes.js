@@ -18,6 +18,9 @@ router.get('/terms', controller.getTerms);
 router.get('/contact', controller.getContact);
 router.post('/contact', controller.postContact);
 
+// Health check endpoint for cloud monitoring & Render deployment
+router.get('/health', (req, res) => res.status(200).json({ status: 'UP', timestamp: new Date().toISOString() }));
+
 // Authentication aliases with query parameter preservation
 router.get('/login', (req, res) => {
   if (res.locals.flash && req.session) {

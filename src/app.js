@@ -25,6 +25,9 @@ const { sanitizeInput }                = require('./middleware/sanitize.middlewa
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust reverse proxy headers (required for Render, Heroku, etc. to correctly identify client IP in rate limiting & sessions)
+app.set('trust proxy', 1);
+
 // ── HTTP Security Headers & CORS (Task 7) ──────────────────────
 app.use(helmetSecurity);
 app.use(corsSecurity);

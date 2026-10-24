@@ -5,7 +5,7 @@
 [![Express](https://img.shields.io/badge/Express-v4.19-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite%20(sql.js)-003B57?logo=sqlite&logoColor=white)](https://sqlite.org/)
 [![Bootstrap](https://img.shields.io/badge/UI-Bootstrap%205-7952B3?logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
-[![Tests](https://img.shields.io/badge/Automated%20Tests-93%20Passing%20(0%20Fails)-success)](https://nodejs.org/api/test.html)
+[![Tests](https://img.shields.io/badge/Automated%20Tests-127%20Passing%20(0%20Fails)-success)](https://nodejs.org/api/test.html)
 [![Security](https://img.shields.io/badge/Security-Helmet%20%7C%20Rate%20Limit%20%7C%20XSS-blue)](https://helmetjs.github.io/)
 
 A complete, production-ready full-stack web application designed and built for the **Cognifyz Technologies Full Stack Web Development Internship**. Evolving through all **8 internship tasks** across **4 progressive levels**, this portal combines server-side EJS rendering, modern glassmorphism design, decoupled RESTful APIs, pure-JavaScript SQLite database persistence, bcrypt encryption, session management, multi-tier DDoS defenses, micro-caching, and automated background tasks (`node-cron`).
@@ -21,11 +21,11 @@ A complete, production-ready full-stack web application designed and built for t
 | **Level 2** | **Task 3** | Responsive Grid & Live Filters | 4-tier grid, instant client-side search, course/year filters, back-to-top | ✅ **Completed** | 10 Tests |
 | **Level 2** | **Task 4** | Password Security & Dynamic DOM | 6-rule password strength meter, visibility toggles, conditional hostel/scholarship forms | ✅ **Completed** | 8 Tests |
 | **Level 3** | **Task 5** | RESTful API & Front-End Integration | Full CRUD JSON API, fetch() asynchronous student deletion, interactive API explorer | ✅ **Completed** | 12 Tests |
-| **Level 3** | **Task 6** | Database Integration & User Auth | Pure-JS SQLite (`sql.js`), bcrypt encryption, session management, RBAC route guards | ✅ **Completed** | 12 Tests |
+| **Level 3** | **Task 6** | Database Integration & User Auth | Pure-JS SQLite (`sql.js`), bcrypt encryption, session management, RBAC route guards | ✅ **Completed** | 46 Tests |
 | **Level 4** | **Task 7** | Security Hardening & Caching | Helmet HTTP headers, CORS, multi-tier rate limiting (429), XSS sanitization, node-cache | ✅ **Completed** | 9 Tests |
 | **Level 4** | **Task 8** | Background Tasks & Production Health | Scheduled cron jobs, automated SQLite backups, backup rotation, system health API | ✅ **Completed** | 8 Tests |
 
-**Total Automated Tests:** **93 Passed** across **12 Test Suites (0 Failures, 100% Reliability)**.
+**Total Automated Tests:** **127 Passed** across **12 Test Suites (0 Failures, 100% Reliability)**.
 
 ---
 
@@ -148,10 +148,63 @@ Output:
 ```text
 ℹ tests 93
 ℹ suites 12
-ℹ pass 93
+ℹ pass 127
 ℹ fail 0
-ℹ duration_ms 1237ms
+ℹ duration_ms 2847ms
 ```
+
+---
+
+## 🌐 Deployment Guide (GitHub & Render)
+
+This application is ready for 1-click cloud deployment on **Render** with native GitHub CI/CD integration.
+
+### Part A: Upload to GitHub
+
+1. **Initialize & Verify Git Repository**:
+   ```bash
+   git status
+   ```
+2. **Create a New Repository on GitHub**:
+   - Go to [github.com/new](https://github.com/new).
+   - Enter repository name: `cognifyz-student-portal`.
+   - Choose **Public** (or Private) and leave initialize with README unchecked.
+3. **Link Local Repo to GitHub & Push**:
+   ```bash
+   git branch -M main
+   git remote add origin https://github.com/<YOUR-GITHUB-USERNAME>/cognifyz-student-portal.git
+   git push -u origin main
+   ```
+
+### Part B: Deploy to Render
+
+1. **Sign in to Render**:
+   - Visit [render.com](https://render.com) and log in using your GitHub account.
+2. **Create a New Web Service**:
+   - Click **New +** > **Web Service**.
+   - Select **Build and deploy from a Git repository**.
+   - Connect your `cognifyz-student-portal` repository.
+3. **Configure Service Details**:
+   - **Name**: `cognifyz-student-portal` (or custom name)
+   - **Region**: Oregon (US West) or closest to your users
+   - **Branch**: `main`
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Plan**: `Free`
+4. **Environment Variables**:
+   Under the **Environment Variables** section, add:
+   | Key | Value | Description |
+   | :--- | :--- | :--- |
+   | `NODE_ENV` | `production` | Enables production optimizations & logs |
+   | `SESSION_SECRET` | *`<Generate random string or click generate>`* | Cryptographic cookie session secret |
+   | `PORT` | `10000` | Render automatically binds HTTP traffic to this port |
+5. **Health Check Path (Optional)**:
+   - Under **Advanced Settings**, set **Health Check Path** to `/health` (or `/api/v1/health`).
+6. **Deploy**:
+   - Click **Create Web Service**.
+   - Render will automatically clone, install dependencies (`sql.js`, `bcrypt`, `express`), run schema migrations, seed initial admin credentials, and provide a live HTTPS URL:
+     `https://cognifyz-student-portal.onrender.com`
 
 ---
 
@@ -172,3 +225,4 @@ Output:
 - **Developer:** Cognifyz Technologies Full Stack Web Development Intern
 - **Program:** Cognifyz Technologies Internship Program
 - **License:** MIT License
+
