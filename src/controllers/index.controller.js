@@ -44,3 +44,62 @@ exports.getTerms = (req, res) => {
     title: 'Terms & Conditions — Cognifyz Student Portal',
   });
 };
+
+/**
+ * GET /contact
+ * Displays public Contact Us page
+ */
+exports.getContact = (req, res) => {
+  let flash = res.locals.flash;
+  if (!flash && req.query.success === '1') {
+    flash = {
+      type: 'success',
+      message: 'Thank you for contacting us! Your inquiry has been received. Our team will get back to you shortly.',
+    };
+  }
+
+  res.render('contact', {
+    title: 'Contact Us — Cognifyz Student Portal',
+    flash,
+    errors: [],
+    formData: {},
+  });
+};
+
+/**
+ * POST /contact
+ * Handles Contact Us inquiry form submission
+ */
+exports.postContact = (req, res) => {
+  const { name, email, subject, message } = req.body || {};
+  const errors = [];
+
+  if (!name || !name.trim()) {
+    errors.push({ field: 'name', message: 'Please enter your full name.' });
+  }
+  if (!email || !email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    errors.push({ field: 'email', message: 'Please enter a valid email address.' });
+  }
+  if (!subject || !subject.trim()) {
+    errors.push({ field: 'subject', message: 'Please provide a subject or inquiry topic.' });
+  }
+  if (!message || !message.trim() || message.trim().length < 5) {
+    errors.push({ field: 'message', message: 'Please enter a message of at least 5 characters.' });
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).render('contact', {
+      title: 'Contact Us — Cognifyz Student Portal',
+      flash: { type: 'danger', message: errors[0].message },
+      errors,
+      formData: { name, email, subject, message },
+    });
+  }
+
+  if (req.setFlash) {
+    req.setFlash('success', 'Thank you for contacting us! Your inquiry has been received. Our team will get back to you shortly.');
+  }
+
+  return res.redirect('/contact?success=1');
+};
+

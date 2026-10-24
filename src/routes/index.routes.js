@@ -12,9 +12,11 @@ const controller = require('../controllers/index.controller');
 // GET / → Landing / Home page
 router.get('/', controller.getHome);
 
-// Public legal pages
+// Public legal & informative pages
 router.get('/privacy', controller.getPrivacy);
 router.get('/terms', controller.getTerms);
+router.get('/contact', controller.getContact);
+router.post('/contact', controller.postContact);
 
 // Authentication aliases with query parameter preservation
 router.get('/login', (req, res) => {

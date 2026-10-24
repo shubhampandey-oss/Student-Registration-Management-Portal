@@ -299,12 +299,69 @@ describe('Task 6 — Database Integration & User Authentication', () => {
     assert.ok(res.body.includes('max-width: 900px') || res.body.includes('max-width:900px'), 'Must be in centered container with max-width 900px');
   });
 
-  it('Footer contains direct links to /privacy and /terms', async () => {
+  it('Footer contains direct links to /privacy, /terms, and /contact', async () => {
     const res = await request({ method: 'GET', path: '/' });
     assert.equal(res.statusCode, 200);
     assert.ok(res.body.includes('href="/privacy"'), 'Footer must contain link to /privacy');
     assert.ok(res.body.includes('href="/terms"'), 'Footer must contain link to /terms');
+    assert.ok(res.body.includes('href="/contact"'), 'Footer must contain link to /contact');
   });
+
+  it('GET /contact — renders Contact Us page with office details, support email, and message form', async () => {
+    const res = await request({ method: 'GET', path: '/contact' });
+    assert.equal(res.statusCode, 200);
+    assert.ok(res.body.includes('Contact Us'), 'Page must contain Contact Us title');
+    assert.ok(res.body.includes('support@cognifyz.com'), 'Page must contain support email');
+    assert.ok(res.body.includes('Cognifyz Technologies Headquarters'), 'Page must contain office details');
+    assert.ok(res.body.includes('action="/contact"'), 'Page must contain form submitting to /contact');
+    assert.ok(res.body.includes('name="name"'), 'Form must contain name input');
+    assert.ok(res.body.includes('name="email"'), 'Form must contain email input');
+    assert.ok(res.body.includes('name="subject"'), 'Form must contain subject input');
+    assert.ok(res.body.includes('name="message"'), 'Form must contain message textarea');
+  });
+
+  it('POST /contact — rejects empty fields with validation feedback', async () => {
+    const payload = new URLSearchParams({
+      name: '',
+      email: '',
+      subject: '',
+      message: '',
+    }).toString();
+
+    const res = await request({
+      method: 'POST',
+      path: '/contact',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, payload);
+
+    assert.equal(res.statusCode, 400);
+    assert.ok(res.body.includes('Please enter your full name'), 'Should show validation error for name');
+  });
+
+  it('POST /contact — submits valid feedback/inquiry and redirects to /contact?success=1', async () => {
+    const payload = new URLSearchParams({
+      name: 'Alice Johnson',
+      email: 'alice@example.com',
+      subject: 'Portal & Account Support',
+      message: 'Hello, I would like to inquire about the course enrollment schedule.',
+    }).toString();
+
+    const res = await request({
+      method: 'POST',
+      path: '/contact',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, payload);
+
+    assert.equal(res.statusCode, 302);
+    assert.ok(res.headers.location && res.headers.location.includes('/contact?success=1'), 'Should redirect to /contact?success=1');
+  });
+
 
   it('POST /auth/login — invalid credentials returns 401', async () => {
     const payload = new URLSearchParams({

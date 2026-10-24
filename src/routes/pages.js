@@ -15,4 +15,10 @@ router.get('/privacy', controller.getPrivacy);
 // GET /terms -> renders views/terms.ejs
 router.get('/terms', controller.getTerms);
 
+// GET /contact -> renders views/contact.ejs
+router.get('/contact', controller.getContact);
+
+// POST /contact -> handles feedback/inquiry message form
+router.post('/contact', controller.postContact);
+
 module.exports = router;
