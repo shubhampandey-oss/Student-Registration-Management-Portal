@@ -24,7 +24,7 @@ Incorporate rich dynamic DOM manipulation, real-time client-side interactivity, 
 ## 4. Architectural Highlights & Features Implemented
 
 ### 1. Real-Time Password Strength Meter
-Implemented in [`public/js/main.js`](file:///c:/Users/shubh/OneDrive/Desktop/Cognifyz/public/js/main.js) and [`src/utils/validation.js`](file:///c:/Users/shubh/OneDrive/Desktop/Cognifyz/src/utils/validation.js):
+Implemented in [`public/js/main.js`]) and [`src/utils/validation.js`:
 - Evaluates password complexity dynamically as the user types across five security criteria:
   1. Minimum 8 characters
   2. At least one uppercase letter (`A-Z`)
@@ -49,7 +49,7 @@ Implemented in [`public/js/main.js`](file:///c:/Users/shubh/OneDrive/Desktop/Cog
 - **Merit Scholarship Application**: Controlled by `#appliesScholarshipToggle`. When toggled ON, the `#scholarshipDetailsContainer` appears, requesting Previous Academic Score (CGPA or %) and Annual Family Income Bracket.
 
 ### 4. Enterprise Password Hashing with Bcrypt
-- In [`src/controllers/student.controller.js`](file:///c:/Users/shubh/OneDrive/Desktop/Cognifyz/src/controllers/student.controller.js), incoming passwords are automatically hashed with `await bcrypt.hash(password, 10)` before storage.
+- In [`src/controllers/student.controller.js`]) incoming passwords are automatically hashed with `await bcrypt.hash(password, 10)` before storage.
 - Plaintext passwords are never stored in memory or databases, and never rendered into any template or response.
 
 ### 5. Pre-Submission Review Modal
@@ -105,32 +105,8 @@ docs/
 
 ---
 
-## 7. How to Run and Verify
 
-```powershell
-# Navigate to project folder
-cd "c:\Users\shubh\OneDrive\Desktop\Cognifyz"
-
-# Run all 52 automated tests
-npm test
-
-# Run Task 4 tests specifically
-node --test tests/task4.test.js
-
-# Start development server
-npm run dev
-```
-
-Open http://localhost:3000/students/register in your browser:
-1. Type `Secret@123` into the Password field and watch the progress bar and checklist update dynamically.
-2. Click the eye icon to inspect your password.
-3. Toggle the Hostel Accommodation switch ON and fill in the revealed room and emergency details.
-4. Toggle the Merit Scholarship switch ON and enter your CGPA.
-5. Click `"Review & Submit Registration"` to trigger the confirmation modal and submit!
-
----
-
-## 8. Automated Testing Results
+## 7. Automated Testing Results
 
 All 52 automated tests across all four tasks pass:
 
@@ -153,7 +129,7 @@ All 52 automated tests across all four tasks pass:
 
 ---
 
-## 9. Key Learnings & Common Pitfalls
+## 8. Key Learnings & Common Pitfalls
 
 - **Pitfall**: Validating conditional sub-fields even when the parent toggle switch is OFF.  
   *Solution*: Check `hasHostel` and `hasScholarship` flags first, validating sub-fields only when the respective service is enabled.
@@ -162,10 +138,5 @@ All 52 automated tests across all four tasks pass:
 - **Pitfall**: Password visibility toggle changing input type to text but leaving form submission broken.  
   *Solution*: Both `type="password"` and `type="text"` transmit standard values in form submissions, but resetting to password before submission maintains security.
 
----
 
-## 10. Next Steps (Task 5 Preview)
-In **Task 5 (Level 3: RESTful API and Front-End Integration)**, we will:
-- Build complete RESTful JSON endpoints (`GET /api/v1/students`, `POST /api/v1/students`, `GET /api/v1/students/:id`, `PUT /api/v1/students/:id`, `DELETE /api/v1/students/:id`).
-- Add client-side `fetch()` integration with asynchronous UI updates.
-- Create interactive API documentation and testing tools.
+
