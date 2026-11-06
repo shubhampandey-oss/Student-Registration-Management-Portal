@@ -25,8 +25,8 @@ Transform the portal into a fully responsive, visually elevated, and highly acce
 
 ### 1. Hybrid Search & Filtering Engine
 Task 3 implements a **dual-layer search architecture**:
-- **Instant Client-Side Filtering**: Handled by [`public/js/main.js`](file:///c:/Users/shubh/OneDrive/Desktop/Cognifyz/public/js/main.js). As the user types in the search input or changes dropdowns, each student card container (`.cp-student-col`) is instantly evaluated against search text, course, and year attributes. Zero server roundtrips, 0ms latency.
-- **Server-Side Query Support**: Handled by [`src/controllers/student.controller.js`](file:///c:/Users/shubh/OneDrive/Desktop/Cognifyz/src/controllers/student.controller.js). Accepts URL query parameters like `GET /students?q=Rohan&course=Data+Science&year=2nd+Year`, enabling deep-linking, bookmarked searches, and search queries without JavaScript enabled.
+- **Instant Client-Side Filtering**: Handled by [`public/js/main.js`]. As the user types in the search input or changes dropdowns, each student card container (`.cp-student-col`) is instantly evaluated against search text, course, and year attributes. Zero server roundtrips, 0ms latency.
+- **Server-Side Query Support**: Handled by [`src/controllers/student.controller.js`]. Accepts URL query parameters like `GET /students?q=Rohan&course=Data+Science&year=2nd+Year`, enabling deep-linking, bookmarked searches, and search queries without JavaScript enabled.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -51,7 +51,7 @@ Task 3 implements a **dual-layer search architecture**:
 ```
 
 ### 2. Cross-Device Breakpoint System
-The layout utilizes Bootstrap 5 responsive grid primitives combined with custom CSS tokens in [`public/css/style.css`](file:///c:/Users/shubh/OneDrive/Desktop/Cognifyz/public/css/style.css):
+The layout utilizes Bootstrap 5 responsive grid primitives combined with custom CSS tokens in [`public/css/style.css`]
 - **Mobile (< 576px)**: Form inputs and cards scale to full width; touch targets exceed the 44px ergonomic standard; compact padding prevents horizontal overflow.
 - **Tablet (768px - 991px)**: 2-column cards layout; filter toolbar reorganizes into a 2x2 grid.
 - **Desktop (992px - 1199px)**: 3-column cards layout; full horizontal filter bar.
@@ -94,30 +94,7 @@ docs/
 
 ---
 
-## 6. How to Run and Verify
 
-```powershell
-# Navigate to project folder
-cd "c:\Users\shubh\OneDrive\Desktop\Cognifyz"
-
-# Run all 44 automated tests
-npm test
-
-# Run Task 3 tests specifically
-node --test tests/task3.test.js
-
-# Start development server
-npm run dev
-```
-
-Open http://localhost:3000/students in your browser to experience:
-1. Live search as you type.
-2. Filter by Course or Year dropdowns.
-3. Quick filter tag buttons ("AI", "Data Science", etc.).
-4. Resizing browser window to test mobile responsive stacking.
-5. Scrolling down to test the floating Back-to-Top button.
-
----
 
 ## 7. Automated Testing Results
 
