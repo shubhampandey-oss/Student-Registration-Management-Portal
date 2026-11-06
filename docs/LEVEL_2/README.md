@@ -15,11 +15,3 @@ Level 2 elevates the application from functional server rendering to a polished,
 5. **Server-Side Query Support**: Hybrid architecture supporting both instant client-side filtering and shareable server-side search URLs (`GET /students?q=...&course=...&year=...`).
 6. **Micro-Animations & Visual Elevation**: Smooth card elevation, glowing border transitions, and touch-optimized interactive controls.
 
-## Running Level 2
-```powershell
-cd "c:\Users\shubh\OneDrive\Desktop\Cognifyz"
-npm test
-npm run dev
-```
-
-Then open http://localhost:3000/students
