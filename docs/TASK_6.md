@@ -60,21 +60,7 @@ CREATE TABLE IF NOT EXISTS students (
 ```
 
 ---
-
-## 3. Pre-Seeded Demo Accounts
-
-For evaluator convenience and automated testing, the database automatically pre-seeds default credentials if the database is fresh:
-
-| Role | Email | Password | Access Level |
-| :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@cognifyz.com` | `Admin@12345` | Full access, user directory, admin console |
-| **Student** | `student@cognifyz.com` | `Student@12345` | Standard portal access, profile dashboard |
-
-*Note: The login view (`/auth/login`) includes interactive **Quick-Fill Demo** buttons for instant one-click login testing.*
-
----
-
-## 4. Authentication Architecture & Session Lifecycle
+## 3. Authentication Architecture & Session Lifecycle
 
 ### Session Configuration (`src/app.js`)
 ```javascript
@@ -87,19 +73,10 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
-```
-
-### Authentication Endpoints
-- `GET /auth/login` — Renders login card with floating inputs, password reveal toggle, and quick-fill demo buttons.
-- `POST /auth/login` — Verifies email and compares bcrypt hash. Sets `req.session.user` on success and redirects to target URL.
-- `GET /auth/register` — Renders account creation form with real-time password strength meter and role selector (`student` or `admin`).
-- `POST /auth/register` — Validates format, checks for duplicate email, hashes password, saves to SQLite, and automatically initializes session.
-- `GET /auth/logout` — Destroys session, clears session cookie (`connect.sid`), and redirects to home page.
-- `GET /auth/me` — JSON endpoint returning `{ authenticated: true/false, user: ... }`.
 
 ---
 
-## 5. Route Guards & Access Control Middleware
+## 4. Route Guards & Access Control Middleware
 
 Located in `src/middleware/auth.middleware.js`:
 
@@ -114,7 +91,7 @@ Located in `src/middleware/auth.middleware.js`:
 
 ---
 
-## 6. Protected Interfaces
+## 5. Protected Interfaces
 
 - **User Dashboard (`/auth/dashboard`)**: Displays session identity, assigned role badge, user ID, and database engine status.
 - **Administrator Console (`/auth/admin`)**: Restricted strictly to admin users; renders a live table of all registered users in the SQLite database.
@@ -124,7 +101,7 @@ Located in `src/middleware/auth.middleware.js`:
 
 ---
 
-## 7. Automated Test Suite (`tests/task6.test.js`)
+## 6. Automated Test Suite (`tests/task6.test.js`)
 
 Task 6 includes 12 automated unit and integration tests executing on dedicated test port `3094`:
 1. SQLite initialization & seed data verification.
@@ -142,25 +119,3 @@ Task 6 includes 12 automated unit and integration tests executing on dedicated t
 
 ### Full Test Suite Status:
 - **76 tests passing across 10 test suites (0 failures).**
-
----
-
-## 8. How to Run & Verify
-
-```powershell
-# Run Task 6 tests
-node --test tests/task6.test.js
-
-# Run entire 76-test suite
-npm test
-
-# Launch development server
-npm run dev
-```
-
-Visit the following URLs:
-- **Sign In**: [http://localhost:3000/auth/login](http://localhost:3000/auth/login)
-- **Sign Up**: [http://localhost:3000/auth/register](http://localhost:3000/auth/register)
-- **User Dashboard (Protected)**: [http://localhost:3000/auth/dashboard](http://localhost:3000/auth/dashboard)
-- **Admin Console (Admin Only)**: [http://localhost:3000/auth/admin](http://localhost:3000/auth/admin)
-- **Session State API**: [http://localhost:3000/auth/me](http://localhost:3000/auth/me)
