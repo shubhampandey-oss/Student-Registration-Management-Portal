@@ -18,20 +18,3 @@ Level 3 completes the architectural transformation of the Student Registration a
 7. **Session Authentication & Flash Messages (Task 6)**: `express-session` integration with 24-hour cookie lifecycles and session-based flash messaging.
 8. **Role-Based Access Control (RBAC) (Task 6)**: `requireAuth` and `requireAdmin` route guards protecting sensitive user dashboards and administrator management consoles.
 
----
-
-## Running Level 3
-```powershell
-cd "c:\Users\shubh\OneDrive\Desktop\Cognifyz"
-npm test
-npm run dev
-```
-
-### Key URLs:
-- Web Portal: [http://localhost:3000/students](http://localhost:3000/students)
-- API Explorer: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
-- REST Endpoint: [http://localhost:3000/api/v1/students](http://localhost:3000/api/v1/students)
-- User Sign In: [http://localhost:3000/auth/login](http://localhost:3000/auth/login)
-- User Sign Up: [http://localhost:3000/auth/register](http://localhost:3000/auth/register)
-- User Dashboard: [http://localhost:3000/auth/dashboard](http://localhost:3000/auth/dashboard)
-- Admin Console: [http://localhost:3000/auth/admin](http://localhost:3000/auth/admin)
