@@ -19,15 +19,7 @@ Level 4 provides the production-grade reliability, security hardening, automated
 8. **System Health & Telemetry API (Task 8)**: `/api/v1/health` providing live telemetry (memory RSS/heap, database metrics, uptime, node version).
 9. **On-Demand Backup Script (Task 8)**: `npm run backup` CLI runner for immediate manual database snapshots.
 
----
 
-## Running Level 4
-```powershell
-cd "c:\Users\shubh\OneDrive\Desktop\Cognifyz"
-npm test
-npm run backup
-npm run dev
-```
 
 ### Key URLs:
 - Web Portal: [http://localhost:3000](http://localhost:3000)
