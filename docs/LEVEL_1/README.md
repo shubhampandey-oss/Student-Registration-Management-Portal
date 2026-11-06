@@ -24,11 +24,4 @@ Level 1 establishes the core server infrastructure and basic form handling:
 | Morgan | HTTP request logging |
 | dotenv | Environment variable management |
 
-## Running Level 1
-```powershell
-cd "c:\Users\shubh\OneDrive\Desktop\Cognifyz"
-npm install
-npm run dev
-```
 
-Then open http://localhost:3000
