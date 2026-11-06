@@ -119,28 +119,3 @@ Task 8 is covered by 8 automated unit and integration tests executing on dedicat
 
 ### Full Test Suite Status:
 - **93 tests passing across 12 test suites (0 failures).**
-
----
-
-## 6. How to Run & Verify
-
-```powershell
-# Run Task 8 tests
-node --test tests/task8.test.js
-
-# Run full project test suite
-npm test
-
-# Trigger manual database backup
-npm run backup
-
-# Start development server
-npm run dev
-```
-
-Key Endpoints:
-- **Health Check**: [http://localhost:3000/api/v1/health](http://localhost:3000/api/v1/health)
-- **Backup Registry**: [http://localhost:3000/api/v1/cron/backups](http://localhost:3000/api/v1/cron/backups)
-- **Security & Diagnostics**: [http://localhost:3000/auth/security](http://localhost:3000/auth/security)
-- **API Documentation**: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
-- **Student Portal**: [http://localhost:3000](http://localhost:3000)
