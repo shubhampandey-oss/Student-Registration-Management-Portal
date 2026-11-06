@@ -106,7 +106,7 @@ The server automatically calls `cacheService.invalidateStudentsCache()`, immedia
 
 ## 6. Security Diagnostics Dashboard (`/auth/security`)
 
-An interactive system dashboard is accessible to authenticated users at [http://localhost:3000/auth/security](http://localhost:3000/auth/security):
+An interactive system dashboard is accessible to authenticated users 
 - **Live Cache Metrics**: Hits, Misses, Hit Ratio percentage, and list of currently cached keys.
 - **Security Matrix**: Detailed status of active Helmet headers, CORS policies, XSS sanitizers, and bcrypt settings.
 - **Manual Cache Invalidation**: Includes a **Flush Cache** button to clear active RAM caches on demand.
@@ -131,20 +131,4 @@ Task 7 includes 9 comprehensive unit and integration tests executing on dedicate
 
 ---
 
-## 8. How to Run & Verify
 
-```powershell
-# Run Task 7 specific tests
-node --test tests/task7.test.js
-
-# Run full project test suite
-npm test
-
-# Start development server
-npm run dev
-```
-
-Visit the following URLs:
-- **Security Dashboard**: [http://localhost:3000/auth/security](http://localhost:3000/auth/security)
-- **Cached API Endpoint**: [http://localhost:3000/api/v1/students](http://localhost:3000/api/v1/students)
-- **API Documentation**: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
