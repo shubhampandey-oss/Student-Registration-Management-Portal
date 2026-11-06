@@ -102,64 +102,7 @@ A fundamental principle of full-stack engineering is:
 
 ---
 
-## 7. Files Modified or Created
-
-```
-src/
-  utils/
-    validation.js           ← Added validateStudentTask2, calculateAge, VALID_GENDERS, VALID_YEARS
-  controllers/
-    student.controller.js   ← Updated postRegister with Task 2 attributes & validation
-
-views/
-  pages/
-    register.ejs            ← 3-section layout, DOB, Gender pills, Year, LinkedIn, error containers
-    student-detail.ejs      ← Display DOB, age, gender, year, LinkedIn link
-    students-list.ejs       ← Display Year on student cards
-
-public/
-  css/style.css             ← Pill radio styles, section headers, age badge, validation glow states
-  js/main.js                ← Client-side validator, live age calculator, radio pill toggler
-
-tests/
-  task1.test.js             ← 19 passing tests (verified backward compatibility)
-  task2.test.js             ← 15 automated tests for Task 2
-
-docs/
-  TASK_2.md                 ← Comprehensive documentation (this file)
-  LEVEL_1/README.md         ← Updated level summary
-```
-
----
-
-## 8. How to Run and Verify
-
-### Running the Application
-```powershell
-# Navigate to project folder
-cd "c:\Users\shubh\OneDrive\Desktop\Cognifyz"
-
-# Start development server
-npm run dev
-```
-
-Open your browser at:
-- **Registration Form:** http://localhost:3000/students/register
-- **Students Directory:** http://localhost:3000/students
-- **Home Dashboard:** http://localhost:3000/
-
-### Running Automated Tests
-```powershell
-# Run Task 2 tests only
-node --test tests/task2.test.js
-
-# Run entire test suite (Task 1 + Task 2)
-npm test
-```
-
----
-
-## 9. Automated Testing Results
+## 6. Automated Testing Results
 
 All 34 automated tests across Task 1 and Task 2 pass with 100% success:
 
@@ -223,7 +166,7 @@ All 34 automated tests across Task 1 and Task 2 pass with 100% success:
 
 ---
 
-## 10. Key Learning Outcomes
+## 7. Key Learning Outcomes
 1. **Defense-in-Depth Form Architecture**: Combining real-time front-end feedback with non-negotiable server-side boundary validation.
 2. **Accessible Form Feedback**: Using `aria-describedby`, `role="alert"`, and JavaScript `.focus()` to assist users who rely on screen readers or keyboard navigation.
 3. **Date Mathematics in JavaScript**: Computing completed years accurately while properly accounting for birth month and birth day relative to the current calendar date.
@@ -232,7 +175,7 @@ All 34 automated tests across Task 1 and Task 2 pass with 100% success:
 
 ---
 
-## 11. Common Pitfalls & Solutions
+## 8. Common Pitfalls & Solutions
 
 - **Pitfall**: Calculating age simply by `currentYear - birthYear`.  
   *Issue*: If a student was born on December 31, 2004 and today is January 15, 2024, `2024 - 2004 = 20`, but the student has not yet reached their 20th birthday; they are still 19.  
