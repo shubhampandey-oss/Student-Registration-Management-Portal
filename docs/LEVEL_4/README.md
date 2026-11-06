@@ -21,9 +21,4 @@ Level 4 provides the production-grade reliability, security hardening, automated
 
 
 
-### Key URLs:
-- Web Portal: [http://localhost:3000](http://localhost:3000)
-- Security & Cache Diagnostics: [http://localhost:3000/auth/security](http://localhost:3000/auth/security)
-- Health API: [http://localhost:3000/api/v1/health](http://localhost:3000/api/v1/health)
-- Backups API: [http://localhost:3000/api/v1/cron/backups](http://localhost:3000/api/v1/cron/backups)
-- REST Documentation: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+
